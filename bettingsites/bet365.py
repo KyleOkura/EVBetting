@@ -1,60 +1,128 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import undetected_chromedriver as uc
+import requests
+from bs4 import BeautifulSoup
 
 
+def get_bet365_nfl_info():
+    driver = uc.Chrome(headless=False)
+    driver.get("https://www.co.bet365.com/")
+    
+    try:
+        WebDriverWait(driver, 30).until(
+            lambda d: len(d.find_elements(By.CLASS_NAME, "wc-WebConsoleModule_SiteContainer")) > 0
+        )
 
+    except Exception as e:
+        print("Timeout waiting for games to load:", e)
+        driver.quit()
+        return []
+
+    games = driver.find_elements(By.CLASS_NAME, "wc-WebConsoleModule_SiteContainer")
+    results = []
+
+    for index, game in enumerate(games):
+        try:
+            team_elements = game.find_elements(By.CLASS_NAME, "sac-ParticipantFixtureDetailsHigherAmericanFootball_Team")
+            teams = [team.text for team in team_elements]
+
+            juice_elements = game.find_elements(By.CLASS_NAME, "sac-ParticipantCenteredStacked50OTBNew_Odds")
+            juice = [juice.text for juice in juice_elements]
+
+            spread_and_over_under = game.find_elements(By.CLASS_NAME, "sac-ParticipantCenteredStacked50OTBNew_Handicap")
+            odds = [odds.text for odds in spread_and_over_under]
+
+            results.append({
+                "game_index": index,
+                "teams": teams,
+                "odds": odds,
+                "juice": juice,
+            })
+
+        except Exception as game_error:
+            print(f"Error processing game {index}: {game_error}")
+            continue
+
+    driver.quit()
+    return results
+
+print(get_bet365_nfl_info())
 
 
 
 
 
 '''
-url = 'https://play.ballybet.com/sports#sports-hub/american_football/nfl'
-page = requests.get(url)
+def get_bet365_nfl_info():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
 
-soup = BeautifulSoup(page.content, "html.parser")
-results = soup.find('ul', class_='KambiBC-sandwich-filter__list')
-
-print(soup)
-
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
 
 
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
 
+    driver.get("https://www.co.bet365.com/?_h=J9JMb5z5AhHU92IcWFQLpA%3D%3D&btsffd=1#/AC/B12/C20426855/D48/E1441/F36/")
+    #driver.get("https://www.co.bet365.com/")
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-import time
 
-# Set up Selenium options
-options = Options()
-options.add_argument('--headless')  # Run in headless mode (no browser UI)
-options.add_argument('--disable-gpu')  # Disable GPU (for headless mode on Windows)
-options.add_argument('--no-sandbox')  # Bypass OS security model (Linux)
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "wc-WebConsoleModule_SiteContainer"))
+    )
 
-# Specify the path to your WebDriver
-service = Service("C:\Users\Kyle\Downloads\chrome-win64\chrome-win64\chrome")  # Replace with the path to your ChromeDriver
+    WebDriverWait(driver, 20).until(
+        lambda d: len(d.find_elements(By.CLASS_NAME, "wc-WebConsoleModule_SiteContainer")) > 0
+    )
 
-# Start WebDriver
-driver = webdriver.Chrome(service=service, options=options)
+    
+    #print(driver.page_source)
 
-try:
-    # Navigate to the website
-    url = 'https://play.ballybet.com/sports#sports-hub/american_football/nfl'
-    driver.get(url)
+    games = driver.find_elements(By.CLASS_NAME, "wc-WebConsoleModule_SiteContainer")
 
-    # Allow time for the page to load fully
-    time.sleep(5)
+    print(games)
 
-    # Locate the desired elements
-    odds_elements = driver.find_elements(By.CLASS_NAME, 'KambiBC-sandwich-filter__list')
+    results = []
 
-    # Extract and print the content
-    for element in odds_elements:
-        print(element.text)
 
-finally:
-    # Close the WebDriver
+    for index, game in enumerate(games):
+        #print(game.get_attribute("outerHTML"))
+        try:
+            team_elements = game.find_elements(By.CLASS_NAME, "sac-ParticipantFixtureDetailsHigherAmericanFootball_Team ")
+            teams = [team.text for team in team_elements]
+
+
+            juice_elements = game.find_elements(By.CLASS_NAME, "sac-ParticipantCenteredStacked50OTBNew_Odds")
+            juice = [juice.text for juice in juice_elements]
+
+            spread_and_over_under = game.find_elements(By.CLASS_NAME, "sac-ParticipantCenteredStacked50OTBNew_Handicap")
+            odds = [odds.text for odds in spread_and_over_under]
+
+
+            results.append({
+                "game_index": index,
+                "teams": teams,
+                "odds": odds,
+                "juice": juice,
+            })
+
+        except Exception as game_error:
+            print(f"Error processing game {index}: {game_error}")
+            continue
+
+
     driver.quit()
 
+    return results
+
 '''
+
+print(get_bet365_nfl_info())
