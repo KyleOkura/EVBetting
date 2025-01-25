@@ -34,3 +34,4 @@ def get_ballybet_nfl_info():
 
     return text
 
+get_ballybet_nfl_info()
