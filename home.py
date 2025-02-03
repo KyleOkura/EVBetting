@@ -3,11 +3,13 @@ import pandas as pd
 
 # An api key is emailed to you when you sign up to a plan
 # Get a free API key at https://api.the-odds-api.com/
-API_KEY = 'cb81bec595198c37776a7c7216aa95a5'
+#API_KEY = 'cb81bec595198c37776a7c7216aa95a5'
+API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
+
 
 SPORT = 'upcoming' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
 
-REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
+REGIONS = 'us,eu' # uk | us | eu | au. Multiple can be specified if comma delimited
 
 MARKETS = 'h2h,spreads,totals' # h2h | spreads | totals. Multiple can be specified if comma delimited
 
@@ -58,6 +60,7 @@ def get_current_sports():
 
 def fill_sports_df(sport_arr):
     sport_dataframes = {}
+    #print(sport_arr)
     for x in sport_arr:
         SPORT = x
 
@@ -90,7 +93,7 @@ def fill_sports_df(sport_arr):
         print('Remaining requests', odds_response.headers['x-requests-remaining'])
         print('Used requests', odds_response.headers['x-requests-used'])
 
-        return sport_dataframes
+    return sport_dataframes
 
 
 def get_specific_sport(this_sport):
@@ -124,4 +127,5 @@ def get_specific_sport(this_sport):
 
 def run_all():
     arr = get_current_sports()
+    #print(arr)
     return fill_sports_df(arr)

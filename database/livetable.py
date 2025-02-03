@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS odds (
                team_a TEXT,
                team_b TEXT,
                team_a_odds INT,
-               team_b odds INT,
+               team_b_odds INT,
                team_a_juice INT
                team_b_juice INT,
                team_a_moneyline INT,
