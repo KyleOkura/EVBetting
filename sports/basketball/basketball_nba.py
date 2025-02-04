@@ -1,6 +1,8 @@
-from home import *
-from odds_calculator import *
+from ...tools.home import *
+from ...tools.odds_calculator import *
+import pandas as pd
 from pandasgui import show
+import os
 
 '''
 df = get_specific_sport('basketball_nba')
@@ -9,6 +11,7 @@ df.to_csv('basketball_nba.csv')
 
 skip = {'onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 'betsson', 'betvictor', 'coolbet', 'everygaame', 'gtbets', 'marathonbet', 'matchbook', 'nordicbet', 'suprabets', 'tipico_de', 'unibet_eu', 'williamhill'}
 
+#csv_path = os.path.join((os.path.dirname(os.path.abspath(__file__))), "basketball_nba.csv")
 df = pd.read_csv('basketball_nba.csv')
 #print(df.columns.to_list())
 # print(df)
@@ -99,7 +102,12 @@ for x in range(len(df)):
 
     this_game_df = this_game_df[bookie_columns + novig_columns]
 
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', 220)
+
     print(this_game_df)
+
+    print('\n\n\n')
 
     
 #print(df)

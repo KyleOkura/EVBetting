@@ -41,3 +41,22 @@ temp_odds = [-900, 550]
 print(get_no_vig_probability(temp_odds))
 print(get_no_vig_odds(temp_odds))
 '''
+
+
+def kelly_criterion(win_probability, given_odds):
+    #win_probability in the format of 0.5
+    #given odds in the format of +185
+    #return fraction of bankroll to wager
+
+    lose_probability = 1-win_probability
+
+    if given_odds > 0:
+        win_proportion = given_odds/100
+    else:
+        win_proportion = 100/abs(given_odds)
+
+    fraction = win_probability - (lose_probability/win_proportion)
+    return fraction
+
+
+#print(kelly_criterion(0.5, -130))
