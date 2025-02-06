@@ -118,9 +118,10 @@ skip = {'onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 'bets
 
 
 df = pd.read_csv('historical_nba.csv')
+'''
 for x in df.columns:
     print(df.iloc[0][x])
-
+'''
 #data = df.iloc[0]['data.bookmakers']
 
 
@@ -134,6 +135,7 @@ def get_final_scores_nba_data(date):
         return None
     
     games = response.json()
+    print(games)
     scores = []
 
     print(games)
