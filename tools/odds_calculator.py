@@ -59,4 +59,19 @@ def kelly_criterion(win_probability, given_odds):
     return fraction
 
 
+def normalize_score(scores):
+    total = scores[0] + scores[1]
+    normalized_first = scores[0]/total
+    normalized_second = scores[1]/total
+
+    return [normalized_first, normalized_second]
+
 #print(kelly_criterion(0.5, -130))
+odds = [+130, -155]
+
+no_vig_odds = get_no_vig_odds(odds)
+
+'''
+print(get_no_vig_probability(odds))
+print(get_no_vig_probability(no_vig_odds))
+'''

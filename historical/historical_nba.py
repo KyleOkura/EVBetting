@@ -1,29 +1,23 @@
 import requests
 import pandas as pd
 import numpy as np
+from warnings import simplefilter
 
 import sys
 import os
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from EVBetting.tools.home import *
-from EVBetting.tools.odds_calculator import *
+from EVBetting.tools.odds_calculator import get_no_vig_probability
+from EVBetting.tools.odds_calculator import get_no_vig_odds
+from EVBetting.tools.odds_calculator import kelly_criterion
+from EVBetting.tools.odds_calculator import normalize_score
+
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 # An api key is emailed to you when you sign up to a plan
 # Get a free API key at https://api.the-odds-api.com/
 #API_KEY = 'cb81bec595198c37776a7c7216aa95a5'
 API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
 
-SPORT = 'basketball_nba' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
-
-REGIONS = 'us,eu' # uk | us | eu | au. Multiple can be specified if comma delimited
-
-MARKETS = 'h2h,spreads,totals' # h2h | spreads | totals. Multiple can be specified if comma delimited
-
-ODDS_FORMAT = 'american' # decimal | american
-
-DATE_FORMAT = 'iso' # iso | unix
-
-DATE = '2025-01-05T20:00:00Z'
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -34,100 +28,201 @@ DATE = '2025-01-05T20:00:00Z'
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 
-def get_historical_nba_data():
-    event_ids = []
 
+def get_nba_dates_for_season(date):
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    date_str = date[:10].replace("-", "")
+    params = {"dates": date_str}
 
-    response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/events' , params={
-        'apiKey': API_KEY,
-        'date': DATE
-    })
+    response = requests.get(url, params=params)
 
-    #print(response.json())
-
-    if response.status_code != 200:
-        print(f'Failed to get sports: status_code {response.status_code}, response body {response.text}')
-        return []
-
-    events = response.json().get('data', [])
-    for event in events:
-        #print(x)
-        event_ids.append(event['id'])
-
-    if not event_ids:
-        print("No events found for given date")
-        return []
-
-
-
-    games_dict = []
-
+    if(response.status_code != 200):
+        print(f"Failed to get scores: {response.status_code}, {response.text}")
+        return None
     
-    '''
+    data = response.json()
+    dates = []
 
-    THIS IS FOR GETTING ALL OF THE EVENTS IN THE SELECTED DATE - FOR TESTING JUST DOING ONE
+    for calendar in data['leagues'][0]['calendar']:
+        dates.append(calendar)
 
-    for event_id in event_ids:
-        response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/events/{event_id}/odds', params={
+    return dates
+
+
+
+
+
+
+
+def get_historical_nba_data(games_dictionary, SPORT, REGIONS, MARKETS, ODDS_FORMAT, DATE_FORMAT, DATE):
+
+    #THIS IS FOR GETTING ALL OF THE EVENTS IN THE SELECTED DATE - FOR TESTING JUST DOING ONE
+
+    events_response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/events', params={
             'api_key': API_KEY,
-            'regions': REGIONS,
-            'markets': MARKETS,
-            'oddsFormat': ODDS_FORMAT,
-            'dateFormat': DATE_FORMAT,
             'date': DATE,
+            'commenceTimeFrom': DATE[:10] + "T00:00:00Z",
+            'commenceTimeTo': DATE[:10] + "T23:59:59Z",
         })
+    
 
-        if response.status_code != 200:
-            print(f'Failed to get sports: status_code {response.status_code}, response body {response.text}')
-            continue
+    if events_response.status_code != 200:
+        print(f'Failed to get events: status_code {events_response.status_code}, response body {events_response.text}')
+        return []
+    
+    print(events_response.text)
+    
+    events = events_response.json()
+    print(events)
+    event_ids = [event['id'] for event in events]
 
-        for x in response.json():
-            sport_arr.append(x)
-
-    '''
-    event_id = event_ids[0]
-    response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/events/{event_id}/odds', params={
+    odds_response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/odds', params={
         'api_key': API_KEY,
         'regions': REGIONS,
         'markets': MARKETS,
         'oddsFormat': ODDS_FORMAT,
         'dateFormat': DATE_FORMAT,
         'date': DATE,
+        'eventIds': ",".join(event_ids)  # Pass specific event IDs
     })
 
-    df = pd.json_normalize(response.json())
+    if odds_response.status_code != 200:
+        print(f'Failed to get games: status_code {odds_response.status_code}, response body {odds_response.text}')
+        return []
 
-    games_dict.append(df)
+    data = odds_response.json()
+
+    for game in data['data']:
+        print(game)
+        game_id = game['id']
+        games_dictionary[game_id] = game
+
+    print('Remaining credits', odds_response.headers['x-requests-remaining'])
+    print('Used credits', odds_response.headers['x-requests-used'])
+
+    return games_dictionary
+
+
+
+
+def clean_df(input_df):
+    commence_time= input_df.iloc[0]['commence_time']
+
+    home_team = input_df.iloc[0]['home_team']
+    away_team = input_df.iloc[0]['away_team']
+
+    print(input_df['bookmakers'])
+    print()
+    print(f'home_team: {home_team}')
+    print(f'away_team: {away_team}')
+
+    for x in range(len(input_df['bookmakers'])):
+        book = input_df.iloc[x]['bookmakers']
+
+        '''
+        print(f'book: {book}')
+        print(f'home team: {home_team}')
+        print(f'away team: {away_team}')
+        print()
+        '''
+
+        this_game_df = pd.DataFrame()
+        this_game_df["Teams"] = [f"{home_team}", f"{away_team}"]
+        home_moneyline = 0
+        away_moneyline = 0
+        home_spread = 0
+        away_spread = 0
+        home_spread_juice = 0
+        away_spread_juice = 0
+        over_line = 0
+        over_juice = 0
+        under_juice = 0
+        for market in book['markets']:
+            market_key = market['key']
+            #print(f'market_key: {market_key}')
+
+            switch = market['outcomes'][0]['name'] == away_team
+
+            if market_key == 'h2h':
+                moneyline_data = [outcome['price'] for outcome in market['outcomes']]
+                if(switch):
+                    home_moneyline = moneyline_data[1]
+                    away_moneyline = moneyline_data[0]
+                else:
+                    home_moneyline = moneyline_data[0]
+                    away_moneyline = moneyline_data[1]
+            
+            if market_key == 'spreads':
+                spread_data = [outcome['point'] for outcome in market['outcomes']]
+                spread_juice_data = [outcome['price'] for outcome in market['outcomes']]
+
+                if(switch):
+                    home_spread = spread_data[1]
+                    away_spread = spread_data[0]
+                    home_spread_juice = spread_juice_data[1]
+                    away_spread_juice = spread_juice_data[0]
+                else:
+                    home_spread = spread_data[0]
+                    away_spread = spread_data[1]
+                    home_spread_juice = spread_juice_data[0]
+                    away_spread_juice = spread_juice_data[1]
+
+            if market_key == 'totals':
+                over_data = [outcome['point'] for outcome in market['outcomes']]
+                over_line = over_data[0]
+                over_juice_data = [outcome['price'] for outcome in market['outcomes']]
+                over_juice = over_juice_data[0]
+                under_juice = over_juice_data[1]
+            
+            bookie = book['key']
+
+            #print(f'bookie: {bookie}')
+            bookie_moneyline_data = [home_moneyline, away_moneyline]
+            bookie_spread_data = [home_spread, away_spread]
+            bookie_spread_juice_data = [home_spread_juice, away_spread_juice]
+            bookie_over_data = [over_line, over_line]
+            bookie_over_juice_data = [over_juice, under_juice]
+            
+            this_game_df[f'{bookie} moneyline'] = bookie_moneyline_data
+            this_game_df[f'{bookie} spread'] = bookie_spread_data
+            this_game_df[f'{bookie} spread juice'] = bookie_spread_juice_data
+            this_game_df[f'{bookie} over/under'] = bookie_over_data
+            this_game_df[f'{bookie} over/under juice'] = bookie_over_juice_data
+
+            moneyline_odds = [home_moneyline, away_moneyline]
+            no_vig_moneyline_odds = get_no_vig_odds(moneyline_odds)
+
+            spread_odds = [home_spread_juice, away_spread_juice]
+            no_vig_spread_odds = get_no_vig_odds(spread_odds)
+
+            over_under_odds = [over_juice, under_juice]
+            no_vig_over_under_odds = get_no_vig_odds(over_under_odds)
+
+            this_game_df[f'{bookie}_novig moneyline'] = no_vig_moneyline_odds
+            this_game_df[f'{bookie}_novig spread'] = bookie_spread_data
+            this_game_df[f'{bookie}_novig spread juice'] = no_vig_spread_odds
+            this_game_df[f'{bookie}_novig over/under'] = bookie_over_data
+            this_game_df[f'{bookie}_novig over/under juice'] = no_vig_over_under_odds
+
+            bookie_win_prediction = get_no_vig_probability(moneyline_odds)
+
+            this_game_df[f'{bookie}_win percentage'] = bookie_win_prediction
+            
     
-    print('Remaining credits', response.headers['x-requests-remaining'])
-    print('Used credits', response.headers['x-requests-used'])
+    columns = list(this_game_df.columns)
 
+    bookie_columns = [col for col in columns if not col.endswith('_novig')]
+    novig_columns = [col for col in columns if col.endswith('_novig')]
 
+    this_game_df = this_game_df[bookie_columns + novig_columns]
 
-    return games_dict
-
-
-'''
-dict = get_historical_nba()
-df = dict[0]
-
-df.to_csv('historical_nba.csv')
-'''
-#print(df)
-skip = {'onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 'betsson', 'betvictor', 'coolbet', 'everygaame', 'gtbets', 'marathonbet', 'matchbook', 'nordicbet', 'suprabets', 'tipico_de', 'unibet_eu', 'williamhill'}
-
-
-df = pd.read_csv('historical_nba.csv')
-'''
-for x in df.columns:
-    print(df.iloc[0][x])
-'''
-#data = df.iloc[0]['data.bookmakers']
+    return this_game_df
 
 
 def get_final_scores_nba_data(date):
     url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
-    params = {"dates": date.replace("-", "")}  # ESPN uses YYYYMMDD format
+    date_str = date[:10].replace("-", "")
+    params = {"dates": date_str}  
 
     response = requests.get(url, params=params)
     if(response.status_code != 200):
@@ -135,12 +230,27 @@ def get_final_scores_nba_data(date):
         return None
     
     games = response.json()
-    print(games)
     scores = []
 
-    print(games)
+    #print(games['leagues'])
+    #print(games['events'])
 
-    for game in games:
+    
+    for game in games['events']:
+        #print(game)
+        home_team = game['competitions'][0]['competitors'][0]['team']['displayName']
+        away_team = game['competitions'][0]['competitors'][1]['team']['displayName']
+
+        home_score = game['competitions'][0]['competitors'][0]['score']
+        away_score = game['competitions'][0]['competitors'][1]['score']
+
+        print(home_team)
+        print(away_team)
+        print(home_score)
+        print(away_score)
+
+        print('\n\n')
+        '''
         game_id = game["id"]
         home_team = game["competitions"][0]["competitors"][0]["team"]["displayName"]
         away_team = game["competitions"][0]["competitors"][1]["team"]["displayName"]
@@ -149,102 +259,6 @@ def get_final_scores_nba_data(date):
 
         scores.append({"game_id": game_id, "home_team": home_team, "away_team": away_team, "home_score": home_score, "away_score": away_score})
 
+'''
+
     return pd.DataFrame(scores)
-    
-
-print(get_final_scores_nba_data('20240201'))
-
-
-
-
-
-def read_historical_nba_data(input_df):
-    for x in range(len(df)):
-        home_team = input_df.iloc[x]['data.home_team']
-        away_team = input_df.iloc[x]['data.away_team']
-
-        books = input_df.iloc[x]['data.bookmakers']
-        books_list = eval(books) if isinstance(books, str) else books
-        #print(books_list)
-        this_game_df = pd.DataFrame()
-        this_game_df["Teams"] = [f"{home_team} Moneyline", f"{away_team} Moneyline", f"{home_team} Spread", f"{away_team} Spread", f"{home_team} Spread Juice", f"{away_team} Spread Juice", "Over/Under", "Over", "Under"]
-        
-        for y in books_list:
-            #print(y)
-            home_moneyline = 0
-            away_moneyline = 0
-            home_spread = 0
-            away_spread = 0
-            home_spread_juice = 0
-            away_spread_juice = 0
-            over_line = 0
-            over_juice = 0
-            under_juice = 0
-            for market in y['markets']:
-                market_key = market['key']
-                # y['key'] for name of sportsbook
-                if(y['key'] in skip):
-                    continue
-
-                switch = market['outcomes'][0]['name'] == away_team
-
-                if market_key == 'h2h':
-                    moneyline_data = [outcome['price'] for outcome in market['outcomes']]
-                    if(switch):
-                        home_moneyline = moneyline_data[1]
-                        away_moneyline = moneyline_data[0]
-                    else:
-                        home_moneyline = moneyline_data[0]
-                        away_moneyline = moneyline_data[1]
-                
-                if market_key == 'spreads':
-                    spread_data = [outcome['point'] for outcome in market['outcomes']]
-                    spread_juice_data = [outcome['price'] for outcome in market['outcomes']]
-
-                    if(switch):
-                        home_spread = spread_data[1]
-                        away_spread = spread_data[0]
-                        home_spread_juice = spread_juice_data[1]
-                        away_spread_juice = spread_juice_data[0]
-                    else:
-                        home_spread = spread_data[0]
-                        away_spread = spread_data[1]
-                        home_spread_juice = spread_juice_data[0]
-                        away_spread_juice = spread_juice_data[1]
-
-                if market_key == 'totals':
-                    over_data = [outcome['point'] for outcome in market['outcomes']]
-                    over_line = over_data[0]
-                    over_juice_data = [outcome['price'] for outcome in market['outcomes']]
-                    over_juice = over_juice_data[0]
-                    under_juice = over_juice_data[1]
-                
-                bookie = y['key']
-                bookie_data = [home_moneyline, away_moneyline, home_spread, away_spread, home_spread_juice, away_spread_juice, over_line, over_juice, under_juice]
-                this_game_df[f'{bookie}'] = bookie_data
-
-
-                moneyline_odds = [home_moneyline, away_moneyline]
-                no_vig_moneyline_odds = get_no_vig_odds(moneyline_odds)
-
-                spread_odds = [home_spread_juice, away_spread_juice]
-                no_vig_spreadodds = get_no_vig_odds(spread_odds)
-
-                over_under_odds = [over_juice, under_juice]
-                no_vig_over_under_odds = get_no_vig_odds(over_under_odds)
-
-                no_vig_data = [no_vig_moneyline_odds[0], no_vig_moneyline_odds[1], home_spread, away_spread, no_vig_spreadodds[0], no_vig_spreadodds[1], over_line, no_vig_over_under_odds[0], no_vig_over_under_odds[1]]
-
-                this_game_df[f'{bookie}_novig'] = no_vig_data
-                
-        
-        columns = list(this_game_df.columns)
-
-        bookie_columns = [col for col in columns if not col.endswith('_novig')]
-        novig_columns = [col for col in columns if col.endswith('_novig')]
-
-        this_game_df = this_game_df[bookie_columns + novig_columns]
-
-        print(this_game_df)
-
-read_historical_nba_data(df)

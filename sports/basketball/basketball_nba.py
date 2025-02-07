@@ -9,7 +9,8 @@ df = get_specific_sport('basketball_nba')
 df.to_csv('basketball_nba.csv')
 '''
 
-skip = {'onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 'betsson', 'betvictor', 'coolbet', 'everygaame', 'gtbets', 'marathonbet', 'matchbook', 'nordicbet', 'suprabets', 'tipico_de', 'unibet_eu', 'williamhill'}
+#skip = {'onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 'betsson', 'betvictor', 'coolbet', 'everygaame', 'gtbets', 'marathonbet', 'matchbook', 'nordicbet', 'suprabets', 'tipico_de', 'unibet_eu', 'williamhill'}
+
 
 #csv_path = os.path.join((os.path.dirname(os.path.abspath(__file__))), "basketball_nba.csv")
 df = pd.read_csv('basketball_nba.csv')
@@ -40,8 +41,10 @@ for x in range(len(df)):
         for market in y['markets']:
             market_key = market['key']
             # y['key'] for name of sportsbook
+            '''
             if(y['key'] in skip):
                 continue
+            '''
 
             switch = market['outcomes'][0]['name'] == away_team
 
