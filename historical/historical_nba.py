@@ -70,10 +70,10 @@ def get_historical_nba_data(games_dictionary, SPORT, REGIONS, MARKETS, ODDS_FORM
         print(f'Failed to get events: status_code {events_response.status_code}, response body {events_response.text}')
         return []
     
-    print(events_response.text)
+    #print(events_response.text)
     
-    events = events_response.json()
-    print(events)
+    events = events_response.json().get('data', [])
+    #print(events)
     event_ids = [event['id'] for event in events]
 
     odds_response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/odds', params={
@@ -111,23 +111,26 @@ def clean_df(input_df):
     home_team = input_df.iloc[0]['home_team']
     away_team = input_df.iloc[0]['away_team']
 
+    '''
     print(input_df['bookmakers'])
     print()
     print(f'home_team: {home_team}')
     print(f'away_team: {away_team}')
+    '''
+    this_game_df = pd.DataFrame()
+    this_game_df["Teams"] = [f"{home_team}", f"{away_team}"]
+
+    score = get_final_score(commence_time[:10], home_team, away_team)
+    if(score[0] == 0):
+        print(f'home_team: {home_team}')
+        print(f'away_team: {away_team}')
+        print()
+
+    this_game_df["Score"] = score
 
     for x in range(len(input_df['bookmakers'])):
         book = input_df.iloc[x]['bookmakers']
 
-        '''
-        print(f'book: {book}')
-        print(f'home team: {home_team}')
-        print(f'away team: {away_team}')
-        print()
-        '''
-
-        this_game_df = pd.DataFrame()
-        this_game_df["Teams"] = [f"{home_team}", f"{away_team}"]
         home_moneyline = 0
         away_moneyline = 0
         home_spread = 0
@@ -219,7 +222,7 @@ def clean_df(input_df):
     return this_game_df
 
 
-def get_final_scores_nba_data(date):
+def get_final_score(date, home_team_input, away_team_input):
     url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
     date_str = date[:10].replace("-", "")
     params = {"dates": date_str}  
@@ -230,35 +233,21 @@ def get_final_scores_nba_data(date):
         return None
     
     games = response.json()
-    scores = []
-
-    #print(games['leagues'])
-    #print(games['events'])
+    home_score = 0
+    away_score = 0
 
     
     for game in games['events']:
-        #print(game)
         home_team = game['competitions'][0]['competitors'][0]['team']['displayName']
         away_team = game['competitions'][0]['competitors'][1]['team']['displayName']
 
-        home_score = game['competitions'][0]['competitors'][0]['score']
-        away_score = game['competitions'][0]['competitors'][1]['score']
+        print(f'espn_home_team: {home_team}')
+        print(f'espn_away_team: {away_team}')
 
-        print(home_team)
-        print(away_team)
-        print(home_score)
-        print(away_score)
+        if(home_team_input == home_team or away_team_input==away_team):
+            home_score = game['competitions'][0]['competitors'][0]['score']
+            away_score = game['competitions'][0]['competitors'][1]['score']
+        else:
+            continue
 
-        print('\n\n')
-        '''
-        game_id = game["id"]
-        home_team = game["competitions"][0]["competitors"][0]["team"]["displayName"]
-        away_team = game["competitions"][0]["competitors"][1]["team"]["displayName"]
-        home_score = int(game["competitons"][0]["competitors"][0]["score"])
-        away_score = int(game["competitons"][0]["competitors"][1]["score"])
-
-        scores.append({"game_id": game_id, "home_team": home_team, "away_team": away_team, "home_score": home_score, "away_score": away_score})
-
-'''
-
-    return pd.DataFrame(scores)
+    return[home_score, away_score]
