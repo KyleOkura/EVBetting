@@ -2,13 +2,15 @@ from ..tools.home import *
 from ..tools.odds_calculator import *
 import pandas as pd
 
+skiplist = ['bovada', 'mybookieag', 'betonlineag', 'betus', 'lowvig', 'betanysports', 'betparx', 'fliff', 'hardrockbet', 'windcreek']
+
 def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
 
     print(f"Running {sport} Moneyline bets")
 
     API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
     SPORT = sport # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
-    REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
+    REGIONS = 'us,us2' # uk | us | eu | au. Multiple can be specified if comma delimited
     MARKETS = 'h2h' # h2h | spreads | totals. Multiple can be specified if comma delimited
     ODDS_FORMAT = 'american' # decimal | american
     DATE_FORMAT = 'iso' # iso | unix
@@ -53,29 +55,40 @@ def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
                 away_moneyline = int(prices[0]['price'])
                 
             bookie = x['key']
-            bookie_data = [home_moneyline, away_moneyline]
-            return_df[f'{bookie}'] = bookie_data
+            if bookie not in skiplist:
+                bookie_data = [home_moneyline, away_moneyline]
+                return_df[f'{bookie}'] = bookie_data
 
         home_team_row_list = return_df.iloc[0].to_list()[1:]
         away_team_row_list = return_df.iloc[1].to_list()[1:]
 
         home_team_best_line = max(home_team_row_list)
         away_team_best_line = max(away_team_row_list)
-        home_team_best_line_index = home_team_row_list.index(home_team_best_line) + 1
-        away_team_best_line_index = away_team_row_list.index(away_team_best_line) + 1
+
+        home_team_best_line_bookie_index_list = []
+        away_team_best_line_bookie_index_list = []
+
+        for x in range(len(home_team_row_list)):
+            if home_team_row_list[x] == home_team_best_line:
+                home_team_best_line_bookie_index_list.append(x+1)
+
+        for x in range(len(away_team_row_list)):
+            if away_team_row_list[x] == away_team_best_line:
+                away_team_best_line_bookie_index_list.append(x+1)
+
 
         return_df['Best Lines'] = [home_team_best_line, away_team_best_line]
 
         if(home_team_best_line > 0 and home_team_best_line > abs(away_team_best_line)):
-            bookie1 = return_df.columns[home_team_best_line_index]
-            bookie2 = return_df.columns[away_team_best_line_index]
+            bookie1 = list(return_df.columns[home_team_best_line_bookie_index_list])
+            bookie2 = list(return_df.columns[away_team_best_line_bookie_index_list])
             bookie1_line = home_team_best_line
             bookie2_line = away_team_best_line
             EVbetlist.append([sport, home_team, away_team, bookie1, bookie1_line, bookie2, bookie2_line])
 
         elif(away_team_best_line > 0 and away_team_best_line > abs(home_team_best_line)):
-            bookie1 = return_df.columns[home_team_best_line_index]
-            bookie2 = return_df.columns[away_team_best_line_index]
+            bookie1 = list(return_df.columns[home_team_best_line_bookie_index_list])
+            bookie2 = list(return_df.columns[away_team_best_line_bookie_index_list])
             bookie1_line = home_team_best_line
             bookie2_line = away_team_best_line
             EVbetlist.append([sport, home_team, away_team, bookie1, bookie1_line, bookie2, bookie2_line])
@@ -97,4 +110,4 @@ def test_tworesult():
         get_tworesult_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")
     
-test_tworesult()
+#test_tworesult()

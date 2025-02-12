@@ -76,15 +76,28 @@ def american_to_decimal(odds):
 
 
 def percent_bankroll_ev_bet_two_result(odds, bankrolls):
-    bookie1 = odds[3]
+    bookie_list1 = odds[3]
     bookie1_line = odds[4]
-    bookie2 = odds[5]
+    bookie_list2 = odds[5]
     bookie2_line = odds[6]
 
-    bookie1_bankroll = bankrolls[bookie1]
-    bookie2_bankroll = bankrolls[bookie2]
+    max_bookie_list1_bankroll = 0
+    max_bookie1 = ""
+    for x in bookie_list1:
+        if bankrolls[x] > max_bookie_list1_bankroll:
+            max_bookie_list1_bankroll = bankrolls[x]
+            max_bookie1 = x
 
-    max_bankroll = max(bookie1_bankroll, bookie2_bankroll)
+    max_bookie_list2_bankroll = 0
+    max_bookie2 = ""
+    for x in bookie_list2:
+        if bankrolls[x] > max_bookie_list2_bankroll:
+            max_bookie_list2_bankroll = bankrolls[x]
+            max_bookie2 = x
+
+    #bookie2_bankroll = bankrolls[bookie2]
+
+    max_bankroll = max(max_bookie_list1_bankroll, max_bookie_list2_bankroll)
 
     decimal_odds = american_to_decimal([bookie1_line, bookie2_line])
     stakes = []
@@ -94,11 +107,20 @@ def percent_bankroll_ev_bet_two_result(odds, bankrolls):
         temp_implied_probability = 1/x
         total_implied_probability += temp_implied_probability
 
-    for x in decimal_odds:
-        temp_stake = (max_bankroll * (1/x))/total_implied_probability
-        stakes.append(temp_stake)
+    stake1 = round(((max_bankroll * (1/decimal_odds[0]))/total_implied_probability),2)
+    stake2 = round(((max_bankroll * (1/decimal_odds[1]))/total_implied_probability),2)
 
-    return stakes
+    ev1 = stake1 * decimal_odds[0]
+    ev2 = stake2 * decimal_odds[1]
+
+    if(ev1 >= 105):
+        stakes.append(f'Sport: {odds[0]}, Home Team: {odds[1]}, Odds: {odds[4]}, Bookie: {max_bookie1}, Amount: {stake1}, EV: {round(ev1, 0)}')
+        stakes.append(f'Sport: {odds[0]}, Away Team: {odds[2]}, Odds: {odds[6]}, Bookie: {max_bookie2}, Amount: {stake2}, EV: {round(ev2, 0)}')
+
+        return stakes
+    
+    else:
+        return []
 
 
 def percent_bankroll_ev_bet_soccer(odds, bankrolls):
