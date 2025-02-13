@@ -110,8 +110,10 @@ def percent_bankroll_ev_bet_two_result(odds, bankrolls):
     stake1 = round(((max_bankroll * (1/decimal_odds[0]))/total_implied_probability),2)
     stake2 = round(((max_bankroll * (1/decimal_odds[1]))/total_implied_probability),2)
 
-    ev1 = stake1 * decimal_odds[0]
-    ev2 = stake2 * decimal_odds[1]
+    ev1 = round((stake1 * decimal_odds[0]) - 100, 2)
+    ev2 = round((stake2 * decimal_odds[1]) - 100, 2)
+
+    #print(ev1, ev2)
 
     if(ev1 >= 105):
         stakes.append(f'Sport: {odds[0]}, Home Team: {odds[1]}, Odds: {odds[4]}, Bookie: {max_bookie1}, Amount: {stake1}, EV: {round(ev1, 0)}')
@@ -150,3 +152,23 @@ def percent_bankroll_ev_bet_soccer(odds, bankrolls):
         stakes.append(temp_stake)
 
     return stakes
+
+
+'''
+odds = ['basketball_nba', 'wizards', 'pacers', ['draftkings'], 380, ['betmgm'], -400]
+
+bankrolls = {'draftkings': 100,
+            'betmgm': 100,
+            'fanduel': 100,
+            'betrivers': 100,
+            'fanatics': 100,
+            'bet365': 100,
+            'williamhill_us': 100,
+            'ballybet': 100,
+            'espnbet': 100}
+
+
+stakes = percent_bankroll_ev_bet_two_result(odds, bankrolls)
+
+print(stakes)
+'''

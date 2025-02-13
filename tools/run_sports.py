@@ -11,14 +11,14 @@ soccer_list = ['soccer_argentina_primera_division', 'soccer_australia_aleague', 
  'soccer_uefa_champs_league', 'soccer_uefa_europa_conference_league', 'soccer_uefa_europa_league', 'soccer_usa_mls']
 
 two_result_sport_list = ['basketball_nba', 'basketball_nbl', 'basketball_ncaab', 'basketball_wncaab', 'basketball_euroleague', 
-                         'icehockey_ahl', 'icehockey_liiga', 'icehockey_mestis', 'icehockey_nhl',
+                         'icehockey_ahl', 'icehockey_liiga', 'icehockey_nhl',
                          'americanfootball_ncaaf', 'aussierules_afl',
                          'cricket_odi',
                          'lacrosse_ncaa', 'lacrosse_pll',
                          'rugbyleague_nrl', 'rugbyunion_six_nations'
                          ]
 
-skip = [ 'icehockey_sweden_allsvenskan', 'mma_mixed_martial_arts', 'boxing_boxing']
+skip = [ 'icehockey_sweden_allsvenskan', 'mma_mixed_martial_arts', 'boxing_boxing', 'icehockey_mestis']
 
 bankrolls = {'draftkings': 100,
             'betmgm': 100,

@@ -62,6 +62,11 @@ def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
         home_team_row_list = return_df.iloc[0].to_list()[1:]
         away_team_row_list = return_df.iloc[1].to_list()[1:]
 
+        #print(f'length: {len(home_team_row_list)}')
+
+        if not home_team_row_list:
+            continue
+
         home_team_best_line = max(home_team_row_list)
         away_team_best_line = max(away_team_row_list)
 
@@ -105,7 +110,7 @@ def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
 def test_tworesult():
     EVbetlist = []
     printdf = True
-    sports = ['basketball_nba']
+    sports = ['icehockey_mestis']
     for sport in sports:
         get_tworesult_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")
