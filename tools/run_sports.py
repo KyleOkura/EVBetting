@@ -10,6 +10,14 @@ soccer_list = ['soccer_argentina_primera_division', 'soccer_australia_aleague', 
  'soccer_portugal_primeira_liga', 'soccer_spain_la_liga', 'soccer_spain_segunda_division', 'soccer_spl', 'soccer_sweden_allsvenskan', 'soccer_switzerland_superleague', 'soccer_turkey_super_league', 
  'soccer_uefa_champs_league', 'soccer_uefa_europa_conference_league', 'soccer_uefa_europa_league', 'soccer_usa_mls']
 
+
+two_result_sport_list = ['americanfootball_ncaaf']
+
+#'aussierules_afl', 'baseball_ncaa', 'basketball_euroleague', 'basketball_nba', 'basketball_nbl', 'basketball_ncaab', 'basketball_wncaab', 
+#                         'boxing_boxing', 'cricket_odi', 'icehockey_ahl', 'icehockey_liiga', 'icehockey_mestis', 'icehockey_nhl', 'icehockey_sweden_allsvenskan', 'icehockey_sweden_hockey_league',
+#                        'lacrosse_ncaa', 'lacrosse_pll', 'mma_mixed_martial_arts', 'rugbyleague_nrl', 'rugbyunion_six_nations']
+
+'''
 two_result_sport_list = ['basketball_nba', 'basketball_nbl', 'basketball_ncaab', 'basketball_wncaab', 'basketball_euroleague', 
                          'icehockey_ahl', 'icehockey_liiga', 'icehockey_nhl',
                          'americanfootball_ncaaf', 'aussierules_afl',
@@ -17,8 +25,10 @@ two_result_sport_list = ['basketball_nba', 'basketball_nbl', 'basketball_ncaab',
                          'lacrosse_ncaa', 'lacrosse_pll',
                          'rugbyleague_nrl', 'rugbyunion_six_nations'
                          ]
+'''
+skiplist = ['bovada', 'mybookieag', 'betonlineag', 'betus', 'lowvig', 'betanysports', 'betparx', 'fliff', 'hardrockbet', 'windcreek']
 
-skip = [ 'icehockey_sweden_allsvenskan', 'mma_mixed_martial_arts', 'boxing_boxing', 'icehockey_mestis']
+
 
 bankrolls = {'draftkings': 100,
             'betmgm': 100,
@@ -34,7 +44,7 @@ bankrolls = {'draftkings': 100,
 def run_all():
     tworesultEVbetslist = []
     soccerEVbetslist = []
-    printdf = False
+    printdf = True
     for x in two_result_sport_list:
         get_tworesult_moneyline_bets(tworesultEVbetslist, x, printdf)
 

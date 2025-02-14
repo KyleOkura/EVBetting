@@ -2,7 +2,7 @@ from ..tools.home import *
 from ..tools.odds_calculator import *
 import pandas as pd
 
-skiplist = ['bovada', 'mybookieag', 'betonlineag', 'betus', 'lowvig', 'betanysports', 'betparx', 'fliff', 'hardrockbet', 'windcreek']
+#skiplist = ['bovada', 'mybookieag', 'betonlineag', 'betus', 'lowvig', 'betanysports', 'betparx', 'fliff', 'hardrockbet', 'windcreek']
 
 def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
 
@@ -55,17 +55,48 @@ def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
                 away_moneyline = int(prices[0]['price'])
                 
             bookie = x['key']
-            if bookie not in skiplist:
-                bookie_data = [home_moneyline, away_moneyline]
-                return_df[f'{bookie}'] = bookie_data
+
+            bookie_data = [home_moneyline, away_moneyline]
+            return_df[f'{bookie}'] = bookie_data
 
         home_team_row_list = return_df.iloc[0].to_list()[1:]
         away_team_row_list = return_df.iloc[1].to_list()[1:]
 
-        #print(f'length: {len(home_team_row_list)}')
-
         if not home_team_row_list:
             continue
+
+
+        #do calculations for avg line and such to find EV even when lines arent arbitrage
+        no_vig_df = pd.DataFrame()
+        no_vig_df["Teams"] = return_df['Teams']
+
+        bookies = return_df.columns
+        for x in bookies[1:]:
+            odds = [return_df[x][0], return_df[x][1]]
+            no_vig_odds = get_no_vig_odds(odds)
+            no_vig_df[f"{x}"] = no_vig_odds
+        
+        
+        for x in bookies[1:]:
+            temp_df = no_vig_df.drop(columns=[x])
+            temp_df_columns = temp_df.columns
+            no_vig_fair_odds_home = 0
+            no_vig_fair_odds_away = 0
+            #print(temp_df)
+            for y in temp_df_columns[1:]:
+                no_vig_fair_odds_home += temp_df[y][0]
+                no_vig_fair_odds_away += temp_df[y][1]
+            
+            no_vig_fair_odds_home = no_vig_fair_odds_home/len(temp_df[1:])
+            no_vig_fair_odds_away = no_vig_fair_odds_away/len(temp_df[1:])
+            no_vig_decimal_odds = american_to_decimal([no_vig_fair_odds_home, no_vig_fair_odds_away])
+            decimal_odds = american_to_decimal([return_df[x][0], return_df[x][1]])
+            ev_home = (decimal_odds[0] - no_vig_decimal_odds[0])/no_vig_decimal_odds[0]
+            ev_away = (decimal_odds[1] - no_vig_decimal_odds[1])/no_vig_decimal_odds[1]
+
+            print(f'ev home: {ev_home}')
+            print(f'ev away: {ev_away}')
+
 
         home_team_best_line = max(home_team_row_list)
         away_team_best_line = max(away_team_row_list)
@@ -84,6 +115,8 @@ def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
 
         return_df['Best Lines'] = [home_team_best_line, away_team_best_line]
 
+
+        
         if(home_team_best_line > 0 and home_team_best_line > abs(away_team_best_line)):
             bookie1 = list(return_df.columns[home_team_best_line_bookie_index_list])
             bookie2 = list(return_df.columns[away_team_best_line_bookie_index_list])
@@ -97,6 +130,8 @@ def get_tworesult_moneyline_bets(EVbetlist, sport, printdf = False):
             bookie1_line = home_team_best_line
             bookie2_line = away_team_best_line
             EVbetlist.append([sport, home_team, away_team, bookie1, bookie1_line, bookie2, bookie2_line])
+        
+            
 
         if(printdf):
             print(return_df)
