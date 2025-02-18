@@ -1,3 +1,5 @@
+import pandas as pd
+
 #input a list
 def get_no_vig_probability(odds):
     total_implied_probability = 0
@@ -153,22 +155,163 @@ def percent_bankroll_ev_bet_soccer(odds, bankrolls):
 
     return stakes
 
+def find_ev_bet_two_result(game_df):
+    home_team = game_df['Teams'][0]
+    away_team = game_df['Teams'][1]
 
-'''
-odds = ['basketball_nba', 'wizards', 'pacers', ['draftkings'], 380, ['betmgm'], -400]
+    home_team_row_list = game_df.iloc[0].to_list()[1:]
+    away_team_row_list = game_df.iloc[1].to_list()[1:]
 
-bankrolls = {'draftkings': 100,
-            'betmgm': 100,
-            'fanduel': 100,
-            'betrivers': 100,
-            'fanatics': 100,
-            'bet365': 100,
-            'williamhill_us': 100,
-            'ballybet': 100,
-            'espnbet': 100}
+    home_team_best_line = max(home_team_row_list)
+    away_team_best_line = max(away_team_row_list)
+
+    home_team_best_line_bookie_index_list = []
+    away_team_best_line_bookie_index_list = []
+
+    for x in range(len(home_team_row_list)):
+        if home_team_row_list[x] == home_team_best_line:
+            home_team_best_line_bookie_index_list.append(x+1)
+
+    for x in range(len(away_team_row_list)):
+        if away_team_row_list[x] == away_team_best_line:
+            away_team_best_line_bookie_index_list.append(x+1)
 
 
-stakes = percent_bankroll_ev_bet_two_result(odds, bankrolls)
+    game_df['Best Lines'] = [home_team_best_line, away_team_best_line]
 
-print(stakes)
-'''
+    best_line_decimal_odds = american_to_decimal([home_team_best_line, away_team_best_line])
+    home_best_decimal = best_line_decimal_odds[0]
+    away_best_decimal = best_line_decimal_odds[1]
+
+    bookies = game_df.columns
+    ret_list = []
+
+    if 'pinnacle' in bookies:
+        true_pinnacle_odds = get_no_vig_odds(game_df['pinnacle'])
+        true_pinnacle_prob = get_no_vig_probability(true_pinnacle_odds)
+
+        home_true_pinnacle_prob = true_pinnacle_prob[0]/100
+        away_true_pinnacle_prob = true_pinnacle_prob[1]/100
+
+        home_ev = 0
+        away_ev = 0
+
+        home_ev = (home_true_pinnacle_prob * (home_best_decimal-1) * 100) + (away_true_pinnacle_prob * -100)
+        away_ev = (away_true_pinnacle_prob * (away_best_decimal-1) * 100) + (home_true_pinnacle_prob * -100)
+
+        home_ev = round(home_ev, 2)
+        away_ev = round(away_ev, 2)
+
+        ev_cutoff = 5
+
+        if home_ev > ev_cutoff:
+            bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
+            ret_list.append([home_team, bookie_list, home_team_best_line, home_ev])
+        if away_ev > ev_cutoff:
+            bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
+            ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
+        
+        return ret_list
+
+    else:
+        return([])
+    
+    '''
+    else:
+        if(home_team_best_line > 0 and home_team_best_line > abs(away_team_best_line)):
+            bookie1 = list(game_df.columns[home_team_best_line_bookie_index_list])
+            bookie2 = list(game_df.columns[away_team_best_line_bookie_index_list])
+            bookie1_line = home_team_best_line
+            bookie2_line = away_team_best_line
+            
+
+            ret_list.append([home_team, bookie1, bookie1_line, ])
+            ret_list.append([away_team, bookie2, bookie2_line, ])
+
+        elif(away_team_best_line > 0 and away_team_best_line > abs(home_team_best_line)):
+            bookie1 = list(game_df.columns[home_team_best_line_bookie_index_list])
+            bookie2 = list(game_df.columns[away_team_best_line_bookie_index_list])
+            bookie1_line = home_team_best_line
+            bookie2_line = away_team_best_line
+            ret_list.append([home_team, away_team, bookie1, bookie1_line, bookie2, bookie2_line])
+        
+        return ret_list
+        
+    '''
+
+def find_ev_bet_three_result(game_df):
+    home_team = game_df['Teams'][0]
+    away_team = game_df['Teams'][1]
+
+    home_team_row_list = game_df.iloc[0].to_list()[1:]
+    away_team_row_list = game_df.iloc[1].to_list()[1:]
+    draw_row_list = game_df.iloc[2].to_list()[1:]
+
+    home_team_best_line = max(home_team_row_list)
+    away_team_best_line = max(away_team_row_list)
+    draw_best_line = max(draw_row_list)
+
+    home_team_best_line_bookie_index_list = []
+    away_team_best_line_bookie_index_list = []
+    draw_best_line_bookie_index_list = []
+
+    for x in range(len(home_team_row_list)):
+        if home_team_row_list[x] == home_team_best_line:
+            home_team_best_line_bookie_index_list.append(x+1)
+
+    for x in range(len(away_team_row_list)):
+        if away_team_row_list[x] == away_team_best_line:
+            away_team_best_line_bookie_index_list.append(x+1)
+
+    for x in range(len(draw_row_list)):
+        if draw_row_list[x] == draw_best_line:
+            draw_best_line_bookie_index_list.append(x+1)
+
+
+    game_df['Best Lines'] = [home_team_best_line, away_team_best_line, draw_best_line]
+
+    best_line_decimal_odds = american_to_decimal([home_team_best_line, away_team_best_line, draw_best_line])
+    home_best_decimal = best_line_decimal_odds[0]
+    away_best_decimal = best_line_decimal_odds[1]
+    draw_best_decimal = best_line_decimal_odds[2]
+
+    bookies = game_df.columns
+    ret_list = []
+
+    if 'pinnacle' in bookies:
+        true_pinnacle_odds = get_no_vig_odds(game_df['pinnacle'])
+        true_pinnacle_prob = get_no_vig_probability(true_pinnacle_odds)
+
+        home_true_pinnacle_prob = true_pinnacle_prob[0]/100
+        away_true_pinnacle_prob = true_pinnacle_prob[1]/100
+        draw_true_pinnacle_prob = true_pinnacle_prob[2]/100
+
+        home_ev = 0
+        away_ev = 0
+        draw_ev = 0
+
+        home_ev = (home_true_pinnacle_prob * (home_best_decimal-1) * 100) + (away_true_pinnacle_prob * -100) + (draw_true_pinnacle_prob * -100)
+        away_ev = (away_true_pinnacle_prob * (away_best_decimal-1) * 100) + (home_true_pinnacle_prob * -100) + (draw_true_pinnacle_prob * -100)
+        draw_ev = (draw_true_pinnacle_prob * (draw_best_decimal-1) * 100) + (away_true_pinnacle_prob * -100) + (home_true_pinnacle_prob * -100)
+
+        home_ev = round(home_ev, 2)
+        away_ev = round(away_ev, 2)
+        draw_ev = round(draw_ev, 2)
+
+        ev_cutoff = 5
+
+        if home_ev > ev_cutoff:
+            bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
+            ret_list.append([home_team, bookie_list, home_team_best_line, home_ev])
+        if away_ev > ev_cutoff:
+            bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
+            ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
+        if draw_ev > ev_cutoff:
+            bookie_list = list(game_df.columns[draw_best_line_bookie_index_list])
+            draw_game = "draw (hometeam) " + home_team
+            ret_list.append([draw_game, bookie_list, draw_best_line, draw_ev])
+        
+        return ret_list
+
+    else:
+        return([])
