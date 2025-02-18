@@ -1,4 +1,6 @@
 import pandas as pd
+#from .run_sports import ev_cutoff
+#from .run_sports import odds_cutoff
 
 #input a list
 def get_no_vig_probability(odds):
@@ -203,14 +205,17 @@ def find_ev_bet_two_result(game_df):
         away_ev = round(away_ev, 2)
 
         ev_cutoff = 5
+        odds_cutoff = 1000
 
         if home_ev > ev_cutoff:
-            bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
-            ret_list.append([home_team, bookie_list, home_team_best_line, home_ev])
+            if home_team_best_line < odds_cutoff:
+                bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
+                ret_list.append([home_team, bookie_list, home_team_best_line, home_ev])
         if away_ev > ev_cutoff:
-            bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
-            ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
-        
+            if away_team_best_line < odds_cutoff:
+                bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
+                ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
+
         return ret_list
 
     else:
@@ -299,17 +304,21 @@ def find_ev_bet_three_result(game_df):
         draw_ev = round(draw_ev, 2)
 
         ev_cutoff = 5
+        odds_cutoff = 1000
 
         if home_ev > ev_cutoff:
-            bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
-            ret_list.append([home_team, bookie_list, home_team_best_line, home_ev])
+            if home_team_best_line < odds_cutoff:
+                bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
+                ret_list.append([home_team, bookie_list, home_team_best_line, home_ev])
         if away_ev > ev_cutoff:
-            bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
-            ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
+            if away_team_best_line < odds_cutoff:
+                bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
+                ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
         if draw_ev > ev_cutoff:
-            bookie_list = list(game_df.columns[draw_best_line_bookie_index_list])
-            draw_game = "draw (" + home_team + " v " + away_team + ")"
-            ret_list.append([draw_game, bookie_list, draw_best_line, draw_ev])
+            if draw_best_line < odds_cutoff:
+                bookie_list = list(game_df.columns[draw_best_line_bookie_index_list])
+                draw_game = "draw (" + home_team + " v " + away_team + ")"
+                ret_list.append([draw_game, bookie_list, draw_best_line, draw_ev])
         
         return ret_list
 

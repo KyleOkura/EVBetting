@@ -33,6 +33,7 @@ def get_three_result_moneyline_bets(EVbetlist, sport, printdf = False):
         df = pd.DataFrame(data=game)
         if(df.empty):
             continue
+        gameid = df.iloc[0]['id']
         home_team = df.iloc[0]['home_team']
         away_team = df.iloc[0]['away_team']
         game_df = pd.DataFrame()
@@ -80,6 +81,7 @@ def get_three_result_moneyline_bets(EVbetlist, sport, printdf = False):
         else:
             for x in ev_bet:
                 x.insert(0, sport)
+                x.insert(1, gameid)
                 EVbetlist.append(x)
 
 
@@ -91,12 +93,12 @@ def get_three_result_moneyline_bets(EVbetlist, sport, printdf = False):
 def test_three_result():
     EVbetlist = []
     printdf = True
-    sports = ['soccer_belgium_first_div']
+    sports = ['soccer_italy_serie_a']
     for sport in sports:
         get_three_result_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")
 
-test_three_result()
+#test_three_result()
 
 
 

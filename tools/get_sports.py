@@ -61,4 +61,4 @@ def get_sports(active, has_outrights):
     return sports_list
 
 
-print(get_sports(True, False))
+#print(get_sports(True, False))
