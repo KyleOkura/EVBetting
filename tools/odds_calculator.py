@@ -308,7 +308,7 @@ def find_ev_bet_three_result(game_df):
             ret_list.append([away_team, bookie_list, away_team_best_line, away_ev])
         if draw_ev > ev_cutoff:
             bookie_list = list(game_df.columns[draw_best_line_bookie_index_list])
-            draw_game = "draw (hometeam) " + home_team
+            draw_game = "draw (" + home_team + " v " + away_team + ")"
             ret_list.append([draw_game, bookie_list, draw_best_line, draw_ev])
         
         return ret_list

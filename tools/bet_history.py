@@ -39,7 +39,7 @@ def enter_bet(sport, team, bet_type, bookie, odds, bet_amount, bet_EV):
     cursor = conn.cursor()
     cursor.execute('''
     INSERT INTO bets (sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?)      
-                ''', (sport, team, bet_type, bookie, odds, bet_amount, bet_EV, bet_EV*(bet_amount/100), 'Pending', 0, date))
+                ''', (sport, team, bet_type, bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
     conn.commit()
     conn.close()
     
@@ -69,19 +69,23 @@ def display_bets():
         print("No bets to display.")
         return
 
-    print(f"{'Bet ID':<8}{'Sport':<20}{'Team':<15}{'Bet_Type':<15}{'Bookie':<15}{'Odds':<15}{'Bet Amount':<15}{'EV (/100)':<12}{'This EV':<12}{'Outcome':<12}{'Net':<8}{'Date':<12}")
-    print("-" * 150)
+    print()
+    print(f"{'Bet ID':<8}{'Sport':<35}{'Team':<35}{'Bet_Type':<15}{'Bookie':<15}{'Odds':<15}{'Bet Amount':<15}{'EV (/100)':<12}{'This EV':<12}{'Outcome':<12}{'Net':<8}{'Date':<12}")
+    print("-" * 200)
 
     for bet in bets:
         bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
-        print(f"{bet_id:<8}{sport:<20}{team:<15}{bet_type:<15}{bookie:<15}{odds:<15}{bet_amount:<15}{bet_EV:<12}{this_EV:<12}{outcome:<12}{net:<8}{date:<12}")
+        print(f"{bet_id:<8}{sport:<35}{team:<35}{bet_type:<15}{bookie:<15}{odds:<15}{bet_amount:<15}{bet_EV:<12}{this_EV:<12}{outcome:<12}{net:<8}{date:<12}")
 
 
+
+"""
 enter_bet('icehockey_liiga', 'SaiPa', 'Moneyline', 'draftkings', -210, 25, 0.38)
 enter_bet('soccer_england_league2', 'Harrogate Town', 'Moneyline', 'betrivers', 310, 5, 4.59)
 enter_bet('boxing_boxing', 'Floyd Scholfield', 'Moneyline', 'betrivers', 1050, 5, 33.05)
 enter_bet('soccer_belgium_first_div', 'Draw (Genk v Gent)', 'Moneyline', 'betrivers', 335, 5, 4.79)
 enter_bet('soccer_china_superleague', 'Wuhan Three Towns', 'Moneyline', 'fanduel', 900, 5, 19.9)
 enter_bet('soccer_china_superleague', 'Yunnan Yukun', 'Moneyline', 'fanduel', 330, 5, 9.05)
+"""
 
 display_bets()
