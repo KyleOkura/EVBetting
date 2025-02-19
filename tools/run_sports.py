@@ -70,4 +70,4 @@ def run_get_sports():
     odds_cutoff = 1000
     run_all(sports_list)
     
-#run_get_sports()
+run_get_sports()

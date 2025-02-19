@@ -119,5 +119,5 @@ enter_bet('f4556d715ed72f9d5831c5944aee4508', 'soccer_france_ligue_one', 'Lille'
 enter_bet('1ee16fc6c64a9fbcaceac0d84c153fd8', 'soccer_italy_serie_a', 'draw (Bologna v Cagliari)', 'Moneyline', 'betrivers', 340, 5, 8.02)
 """
 
-display_bets()
+#display_bets()
 
