@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime
 import numpy as np
 import requests
+import os
 
 def adapt_datetime(date):
     return date.isoformat()
@@ -10,7 +11,10 @@ sqlite3.register_adapter(datetime, adapt_datetime)
 
 
 def create_tables():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     #cursor.execute('DROP TABLE IF EXISTS bets;')
 
@@ -43,7 +47,10 @@ def create_tables():
 
 def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, date):
     #date = datetime.now().date()
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
@@ -52,7 +59,10 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
     conn.close()
 
 def bet_exists(bet_id):
-    conn = sqlite3.connect("bet_history.db")
+    #conn = sqlite3.connect("bet_history.db")
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
     cursor.execute("SELECT 1 FROM bets WHERE bet_id = ?", (bet_id,))
@@ -63,7 +73,11 @@ def bet_exists(bet_id):
     
 
 def update_bet(bet_id, outcome):
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+
     cursor = conn.cursor()
     cursor.execute('''SELECT odds, bet_amount FROM bets WHERE bet_id = ?''', (bet_id,))
     response = cursor.fetchall()
@@ -87,7 +101,10 @@ def update_bet(bet_id, outcome):
     conn.close()
 
 def delete_bet(bet_id):
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''DELETE FROM bets WHERE bet_id=?''', (bet_id,))
 
@@ -95,7 +112,10 @@ def delete_bet(bet_id):
     conn.close()
 
 def display_earnings():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM earnings")
@@ -114,7 +134,10 @@ def display_earnings():
         print(f"{id:<5}{bet_id:<34}{result:<10}{net_amount:<5}")
 
 def display_all_bets():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect(r'C:/Users/kyleo/Python stuff/evbetting/EVBetting/bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM bets")
@@ -136,7 +159,11 @@ def display_all_bets():
         
 
 def bet_to_earnings():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('''INSERT INTO earnings (bet_id, result, net_amount) SELECT bet_id, outcome AS result, 0 AS net_amount FROM bets;''')
@@ -146,7 +173,11 @@ def bet_to_earnings():
 
 
 def get_pending_ids():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('/c/Users/kyleo/Python stuff/evbetting/EVBetting/bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('''SELECT bet_id FROM bets WHERE outcome = "Pending"''')
@@ -161,7 +192,10 @@ def get_pending_ids():
     return clean_bet_ids
 
 def display_pending_bets():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'Pending'""")
@@ -186,7 +220,10 @@ def display_pending_bets():
 #initially had the date as when i entered the bet - changed updated table entries so that the date reflects when the game is, not the enter date
 def update_dates(bet_ids):
     for x in bet_ids:
-        conn = sqlite3.connect('bet_history.db')
+        #conn = sqlite3.connect('bet_history.db')
+        #conn = sqlite3.connect('./bet_history.db')
+        db_path = get_path()
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute('''SELECT sport FROM bets WHERE bet_id = ?''', (x,))
@@ -238,7 +275,10 @@ def update_dates(bet_ids):
         display_all_bets()
 
 def display_settled_bets():
-    conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('bet_history.db')
+    #conn = sqlite3.connect('./bet_history.db')
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'loss' or outcome = 'win'""")
@@ -259,6 +299,17 @@ def display_settled_bets():
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
 
 
+
+def get_path():
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    db_path = os.path.join(root_dir, 'bet_history.db')
+
+    return db_path
+
+
+
 #update_bet('842fec2c988d27ea3a614d68d9b3cd00', 'win')
 
 #display_all_bets()
+
+#get_path()

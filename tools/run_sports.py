@@ -30,10 +30,9 @@ def run_all(sport_list):
     for x in EVbetslist:
         print(x)
         
-    print('fuck you\n\n')
+    print('\n\n')
     for x in EVbetslist:
         id = x[1]
-        print("test")
         alr_exists = bet_exists(id)
         if(alr_exists):
             print("Bet already exists")
@@ -64,8 +63,8 @@ def run_get_sports():
     active = True
     has_outrights = False
 
-    #sports_list = get_sports(active, has_outrights)
-    sports_list =['soccer_epl']
+    sports_list = get_sports(active, has_outrights)
+    #sports_list =['soccer_epl']
     global ev_cutoff
     global odds_cutoff
 
@@ -84,4 +83,4 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
     
-#run_get_sports()
+run_get_sports()
