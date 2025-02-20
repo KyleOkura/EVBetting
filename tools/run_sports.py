@@ -6,7 +6,10 @@ from .get_sports import two_result_sport_list
 from .get_sports import three_result_sport_list
 from .bet_history import enter_bet
 from .bet_history import bet_exists
-from .bet_history import display_bets
+from .bet_history import display_pending_bets
+from .bet_history import get_pending_ids
+from .bet_history import update_bet
+from .bet_history import display_all_bets
 
 ev_cutoff = 10
 odds_cutoff = 1000
@@ -27,11 +30,13 @@ def run_all(sport_list):
     for x in EVbetslist:
         print(x)
         
-    print('\n\n')
+    print('fuck you\n\n')
     for x in EVbetslist:
         id = x[1]
+        print("test")
         alr_exists = bet_exists(id)
         if(alr_exists):
+            print("Bet already exists")
             continue
         print(x)
         will_take = input("Would you like to take this? (y/n): ")
@@ -48,26 +53,36 @@ def run_all(sport_list):
             odds = int(x[4])
             bet_amount = int(input("Bet amount: "))
             bet_ev = int(x[5])
+            date = x[6]
 
-            print(odds)
-            print(bet_ev)
-
-            enter_bet(id, sport, team, bet_type, bookie, odds, bet_amount, bet_ev)
+            enter_bet(id, sport, team, bet_type, bookie, odds, bet_amount, bet_ev, date)
     
-    display_bets()
+    display_all_bets()
 
 
 def run_get_sports():
     active = True
     has_outrights = False
 
-    sports_list = get_sports(active, has_outrights)
-    #sports_list =['soccer_argentina_primera_division']
+    #sports_list = get_sports(active, has_outrights)
+    sports_list =['soccer_epl']
     global ev_cutoff
     global odds_cutoff
 
     ev_cutoff = 10
     odds_cutoff = 1000
     run_all(sports_list)
+
+def update_bets():
+    pending_bet_ids = get_pending_ids()
+    display_pending_bets()
+    print('\n')
+    for x in pending_bet_ids:
+        print(x)
+        settled = input("Is the bet settled? (y/n): ")
+        if settled == 'y':
+            result = input("Result (win or loss): ")
+            this_net = input("Net won or lost: ")
+            update_bet(x[0], this_net, result)
     
-run_get_sports()
+#run_get_sports()

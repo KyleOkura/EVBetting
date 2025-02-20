@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 import numpy as np
+import requests
 
 def adapt_datetime(date):
     return date.isoformat()
@@ -8,13 +9,12 @@ def adapt_datetime(date):
 sqlite3.register_adapter(datetime, adapt_datetime)
 
 
-def create_table():
+def create_tables():
     conn = sqlite3.connect('bet_history.db')
     cursor = conn.cursor()
     #cursor.execute('DROP TABLE IF EXISTS bets;')
 
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS bets (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS bets (
                 bet_id VARCHAR(35) PRIMARY KEY,
                 sport VARCHAR(50),
                 team VARCHAR(50),
@@ -27,15 +27,22 @@ def create_table():
                 outcome VARCHAR(10),
                 net INT,
                 date VARCHAR(10)
-                );
-                ''')
+                );''')
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS earnings (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   bet_id VARCHAR(35) NOT NULL,
+                   result VARCHAR (15),
+                   net_amount FLOAT,
+                   FOREIGN KEY (bet_id) REFERENCES bets(bet_id) ON DELETE CASCADE
+                   );''')
     
     conn.commit()
     conn.close()
 
 
-def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV):
-    date = datetime.now().date()
+def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, date):
+    #date = datetime.now().date()
     conn = sqlite3.connect('bet_history.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -58,11 +65,7 @@ def bet_exists(bet_id):
 def update_bet(bet_id, net, outcome):
     conn = sqlite3.connect('bet_history.db')
     cursor = conn.cursor()
-    cursor.execute('''
-    UPDATE bets
-    SET outcome = ?, net = ?
-    WHERE bet_id = ?
-    ''', (outcome, net, bet_id))
+    cursor.execute('''UPDATE bets SET outcome = ?, net = ? WHERE bet_id = ?''', (outcome, net, bet_id))
 
     conn.commit()
     conn.close()
@@ -77,7 +80,26 @@ def delete_bet(bet_id):
     conn.commit()
     conn.close()
 
-def display_bets():
+def display_earnings():
+    conn = sqlite3.connect('bet_history.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM earnings")
+    bets = cursor.fetchall()
+
+    conn.close()
+
+    if not bets:
+        print("Nothing to display")
+        return
+    
+    print(f"{'ID':<5}{'Bet ID':<35}{'Result':<50}{'net':<12}")
+    print("-"*100)
+    for bet in bets:
+        id, bet_id, result, net_amount = bet
+        print(f"{id:<5}{bet_id:<34}{result:<10}{net_amount:<5}")
+
+def display_all_bets():
     conn = sqlite3.connect('bet_history.db')
     cursor = conn.cursor()
 
@@ -91,33 +113,138 @@ def display_bets():
         return
 
     print()
-    print(f"{'Bet ID':<34}{'Sport':<35}{'Team':<50}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
+    print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
     print("-" * 205)
 
     for bet in bets:
         bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
-        '''
-        odds = odds.decode('utf-8') if isinstance(odds, bytes) else odds
-        print(f"{bet_id:<34}{sport:<30}{team:<50}{bet_type:<12}{bookie:<13}"
-        f"{int(odds) if isinstance(odds, np.integer) else float(odds) if isinstance(odds, np.floating) else odds:<7}"
-        f"{bet_amount:<12}{bet_EV:<12}{this_EV:<10}{outcome:<10}{net:<6}{date:<12}")
-
-        '''
-        print(f"{bet_id:<34}{sport:<35}{team:<50}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+        print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
         
-#create_table()
 
-"""
-enter_bet('2fb7ce1eb6a7a1be2780ebdeeb591f52', 'icehockey_liiga', 'SaiPa', 'Moneyline', 'draftkings', -210, 25, 0.38)
-enter_bet('316e7c961f4f1c5ac8b37b203e10438b', 'soccer_england_league2', 'Harrogate Town', 'Moneyline', 'betrivers', 310, 5, 4.59)
-enter_bet('5e07b98039bcfb67dfc55e9b42438945', 'boxing_boxing', 'Floyd Scholfield', 'Moneyline', 'betrivers', 1050, 5, 33.05)
-enter_bet('8cc36d0751e0fa140487483066b95255', 'soccer_belgium_first_div', 'Draw (Genk v Gent)', 'Moneyline', 'betrivers', 335, 5, 4.79)
-enter_bet('8ce8f60eb86df244b23f571dff7b9ef3', 'soccer_china_superleague', 'Wuhan Three Towns', 'Moneyline', 'fanduel', 900, 5, 19.9)
-enter_bet('a724ca6ac5d0780170f9f77c5d1f6857', 'soccer_china_superleague', 'Yunnan Yukun', 'Moneyline', 'fanduel', 330, 5, 9.05)
-enter_bet('c9ab1019ab4de271fa95394ac65e9d74', 'soccer_chile_campeonato', 'draw (Universidad de Chile v Union La Calera)', 'Moneyline', 'betrivers', 510, 5, 10.04)
-enter_bet('f4556d715ed72f9d5831c5944aee4508', 'soccer_france_ligue_one', 'Lille', 'Moneyline', 'ballybet', 575, 5, 11.24)
-enter_bet('1ee16fc6c64a9fbcaceac0d84c153fd8', 'soccer_italy_serie_a', 'draw (Bologna v Cagliari)', 'Moneyline', 'betrivers', 340, 5, 8.02)
-"""
+def bet_to_earnings():
+    conn = sqlite3.connect('bet_history.db')
+    cursor = conn.cursor()
 
-#display_bets()
+    cursor.execute('''INSERT INTO earnings (bet_id, result, net_amount) SELECT bet_id, outcome AS result, 0 AS net_amount FROM bets;''')
 
+    conn.commit()
+    conn.close()
+
+
+def get_pending_ids():
+    conn = sqlite3.connect('bet_history.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT bet_id FROM bets WHERE outcome = "Pending"''')
+
+    bet_ids = cursor.fetchall()
+    conn.close()
+
+    clean_bet_ids = []
+    for x in bet_ids:
+        clean_bet_ids.append(x[0])
+
+    return clean_bet_ids
+
+def display_pending_bets():
+    conn = sqlite3.connect('bet_history.db')
+    cursor = conn.cursor()
+
+    cursor.execute("""SELECT * FROM bets WHERE outcome = 'Pending'""")
+    bets = cursor.fetchall()
+
+    conn.close()
+
+    if not bets:
+        print("No bets to display.")
+        return
+
+    print()
+    print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
+    print("-" * 205)
+
+    for bet in bets:
+        bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
+        print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+
+
+
+#initially had the date as when i entered the bet - changed updated table entries so that the date reflects when the game is, not the enter date
+def update_dates(bet_ids):
+    for x in bet_ids:
+        conn = sqlite3.connect('bet_history.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''SELECT sport FROM bets WHERE bet_id = ?''', (x,))
+
+        sport = cursor.fetchall()
+
+        this_sport = sport[0][0]
+        conn.close()
+
+        
+        API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
+        SPORT = this_sport # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+        REGIONS = 'eu' # uk | us | eu | au. Multiple can be specified if comma delimited
+        MARKETS = 'h2h' # h2h | spreads | totals. Multiple can be specified if comma delimited
+        ODDS_FORMAT = 'american' # decimal | american
+        DATE_FORMAT = 'iso' # iso | unix
+        
+        odds_response = requests.get(f'https://api.the-odds-api.com/v4/sports/{SPORT}/odds/?apiKey={API_KEY}&regions={REGIONS}&markets={MARKETS}', params={
+            'api_key': API_KEY,
+            'sports': SPORT,
+            'regions': REGIONS,
+            'markets': MARKETS,
+            'oddsFormat': ODDS_FORMAT,
+            'dateFormat': DATE_FORMAT,
+            'eventIds': x,
+        })
+
+        if odds_response.status_code != 200:
+            print(f'Failed to get games: status_code {odds_response.status_code}, response body {odds_response.text}')
+            return []
+
+        data = odds_response.json()
+
+        commence_time = data[0]['commence_time'] if data else None
+
+        if not commence_time:
+            continue
+
+        commence_date = commence_time[:10]
+
+        conn = sqlite3.connect('bet_history.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''UPDATE bets SET date = ? WHERE bet_id = ?''', (commence_date, x))
+
+        conn.commit()
+        conn.close()
+
+        display_all_bets()
+
+def display_settled_bets():
+    conn = sqlite3.connect('bet_history.db')
+    cursor = conn.cursor()
+
+    cursor.execute("""SELECT * FROM bets WHERE outcome = 'loss' or outcome = 'win'""")
+    bets = cursor.fetchall()
+
+    conn.close()
+
+    if not bets:
+        print("No bets to display.")
+        return
+
+    print()
+    print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
+    print("-" * 205)
+
+    for bet in bets:
+        bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
+        print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+
+
+#update_bet('842fec2c988d27ea3a614d68d9b3cd00', 27.5, 'win')
+
+#display_all_bets()
