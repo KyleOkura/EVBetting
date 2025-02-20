@@ -247,4 +247,4 @@ def display_settled_bets():
 
 #update_bet('842fec2c988d27ea3a614d68d9b3cd00', 27.5, 'win')
 
-#display_all_bets()
+display_all_bets()
