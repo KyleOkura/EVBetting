@@ -82,7 +82,6 @@ def update_bets():
         settled = input("Is the bet settled? (y/n): ")
         if settled == 'y':
             result = input("Result (win or loss): ")
-            this_net = input("Net won or lost: ")
-            update_bet(x[0], this_net, result)
+            update_bet(x[0], result)
     
 #run_get_sports()

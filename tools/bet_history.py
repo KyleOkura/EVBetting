@@ -62,9 +62,25 @@ def bet_exists(bet_id):
     return exists
     
 
-def update_bet(bet_id, net, outcome):
+def update_bet(bet_id, outcome):
     conn = sqlite3.connect('bet_history.db')
     cursor = conn.cursor()
+    cursor.execute('''SELECT odds, bet_amount FROM bets WHERE bet_id = ?''', (bet_id,))
+    response = cursor.fetchall()
+    odds = response[0][0]
+    bet_amount = response[0][1]
+    net = 0
+
+    if outcome == 'win':
+        if odds < 0:
+            net = (100/abs(odds)) * bet_amount
+        else:
+            net = (odds/100) * bet_amount
+    elif outcome == 'loss':
+        net = -bet_amount
+    else:
+        net = 0
+
     cursor.execute('''UPDATE bets SET outcome = ?, net = ? WHERE bet_id = ?''', (outcome, net, bet_id))
 
     conn.commit()
@@ -73,9 +89,7 @@ def update_bet(bet_id, net, outcome):
 def delete_bet(bet_id):
     conn = sqlite3.connect('bet_history.db')
     cursor = conn.cursor()
-    cursor.execute('''
-    DELETE FROM bets WHERE bet_id=?
-    ''', (bet_id,))
+    cursor.execute('''DELETE FROM bets WHERE bet_id=?''', (bet_id,))
 
     conn.commit()
     conn.close()
@@ -245,6 +259,6 @@ def display_settled_bets():
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
 
 
-#update_bet('842fec2c988d27ea3a614d68d9b3cd00', 27.5, 'win')
+#update_bet('842fec2c988d27ea3a614d68d9b3cd00', 'win')
 
-display_all_bets()
+#display_all_bets()

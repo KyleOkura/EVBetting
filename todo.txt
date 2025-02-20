@@ -1,8 +1,5 @@
 
 make net a running count
-change first entry to be promo type
-autoincrement changes?
-ev cutoff - maybe make higher
 
 
 automate entering bets into database - change to calculate net rather than asking for it
