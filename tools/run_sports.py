@@ -10,6 +10,9 @@ from .bet_history import display_pending_bets
 from .bet_history import get_pending_ids
 from .bet_history import update_bet
 from .bet_history import display_all_bets
+from .bet_history import display_pending_bets
+from .bookies import get_total_bankroll
+from .bookies import get_bookie_wagerable_amount
 
 ev_cutoff = 10
 odds_cutoff = 1000
@@ -37,33 +40,47 @@ def run_all(sport_list):
     for x in EVbetslist:
         print(x)
         
+    total_bankroll = get_total_bankroll()
     print('\n\n')
     for x in EVbetslist:
         id = x[1]
         alr_exists = bet_exists(id)
         if(alr_exists):
-            print("Bet already exists")
+            #print("Bet already exists")
             continue
         print(x)
-        will_take = input("Would you like to take this? (y/n): ")
-        if will_take == 'y':
-            sport = x[0]
-            team = x[2]
-            bet_type = 'Moneyline'
-            bookie_list = x[3]
-            bookie = ""
-            for bookies in bookie_list:
-                bookie_bool = input(f'{bookies}? (y/n): ')
-                if bookie_bool == 'y':
-                    bookie = bookies
-            odds = int(x[4])
-            bet_amount = int(input("Bet amount: "))
-            bet_ev = int(x[5])
-            date = x[6]
+        percent_wager = x[6]
+        suggested_wager = percent_wager * total_bankroll
+        print(f"Kelly criterion suggested wager: {round(suggested_wager, 2)}")
+        bookie_list = x[3]
+        for bookie in bookie_list:
+            this_bookie_wagerable_amount = get_bookie_wagerable_amount(bookie)
+            print(f'{bookie}: {this_bookie_wagerable_amount}')
+        
+        take_bet = input("Would you like to take this?(y/n): ")
+        if take_bet == 'n':
+            continue
 
-            enter_bet(id, sport, team, bet_type, bookie, odds, bet_amount, bet_ev, date)
+        sport = x[0]
+        team = x[2]
+        bet_type = 'Moneyline'
+        bookie_choice = None
+        while not bookie_choice:
+            for bookie in bookie_list:
+                choice = input(f'{bookie}? (y/n): ')
+                if choice == 'y':
+                    bookie_choice = bookie
+                    break
+            if not bookie_choice:
+                print("Please select a bookie")
+        odds = int(x[4])
+        bet_amount = int(input("Bet amount: "))
+        bet_ev = int(x[5])
+        date = x[7]
+
+        enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
     
-    display_all_bets()
+    display_pending_bets()
 
 
 def run_get_sports():
@@ -71,7 +88,7 @@ def run_get_sports():
     has_outrights = False
 
     sports_list = get_sports(active, has_outrights)
-    #sports_list =['soccer_germany_bundesliga']
+    #sports_list =['soccer_argentina_primera_division']
     global ev_cutoff
     global odds_cutoff
 

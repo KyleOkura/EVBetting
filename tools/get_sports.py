@@ -27,18 +27,7 @@ two_result_sport_list = ['americanfootball_ncaaf', 'aussierules_afl', 'baseball_
                          'icehockey_sweden_hockey_league', 'lacrosse_ncaa', 'mma_mixed_martial_arts', 'rugbyleague_nrl', 'rugbyunion_six_nations',
                          'baseball_mlb_preseason', 'basketball_wncaab', 'cricket_international_t20']
 
-sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_germany_bundesliga']
-
-bankrolls = {'draftkings': 100,
-            'betmgm': 100,
-            'fanduel': 100,
-            'betrivers': 100,
-            'fanatics': 100,
-            'bet365': 100,
-            'williamhill_us': 100,
-            'ballybet': 100,
-            'espnbet': 100}
-
+sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai']
 
 
 def get_sports(active, has_outrights):

@@ -1,7 +1,13 @@
 
 
 
-start using kelly criterion - keep a running count for each sportsbook
+start using kelly criterion
 
 expand bets to more than moneyline
 
+fix interface for run_sports, asking if you want to add the bet or not
+
+clean up code inside tworesult and threeresult? - and other places (variable names, efficiency)
+ - add comments
+
+if skipped during first run, dont ask again

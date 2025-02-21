@@ -79,7 +79,7 @@ def display_bookie_table():
         total_net += net
 
     print()
-    print(f'Net across all bookies: {total_net}')
+    print(f'Net winnings across all bookies: {total_net}')
 
 
 
@@ -89,7 +89,39 @@ def get_path():
 
     return db_path
 
+def get_total_bankroll():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT total_bankroll FROM bookies''')
+
+    data = cursor.fetchall()
+    total_bankroll = 0
+    for bankroll in data:
+        total_bankroll += bankroll[0]
+
+    conn.close()
+
+    return total_bankroll
+    
+
+
+def get_bookie_wagerable_amount(bookie):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT wagerable FROM bookies WHERE bookmaker = ?''', (bookie,))
+
+    wagerable_amount = cursor.fetchone()
+
+    conn.close()
+
+    return wagerable_amount[0]
 
 
 
 #display_bookie_table()
+
+#print(get_total_bankroll())

@@ -28,32 +28,39 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
         print(f'Failed to get games: status_code {odds_response.status_code}, response body {odds_response.text}')
         return []
 
-    data = odds_response.json()
+    sportdata = odds_response.json()
 
-    for game in data:
+    for game in sportdata:
+        #print(f'game id: {game['id']}')
+        '''
         df = pd.DataFrame(data=game)
         if(df.empty):
             continue
         gameid = df.iloc[0]['id']
         home_team = df.iloc[0]['home_team']
         away_team = df.iloc[0]['away_team']
+        '''
+        if not game:
+            continue
+        gameid = game['id']
+        home_team = game['home_team']
+        away_team = game['away_team']
 
-        commence_time = data[0]['commence_time'] if data else None
+        commence_time = sportdata[0]['commence_time'] if sportdata else None
         commence_date = commence_time[:10]
 
         game_df = pd.DataFrame()
         game_df["Teams"] = [f"{home_team}", f"{away_team}"]
-        for x in df['bookmakers']:
-            bookie = x['key']
+        for bookmaker in game['bookmakers']:
+            bookie = bookmaker['key']
             if bookie in bookie_skip_list:
                 continue
             home_moneyline = 0
             away_moneyline = 0
-            lines = x['markets']
+            lines = bookmaker['markets']
             prices = lines[0]['outcomes']
 
             home_name = prices[0]['name']
-            away_name = prices[1]['name']
 
             if home_name == home_team:
                 home_moneyline = int(prices[0]['price'])
@@ -66,7 +73,6 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
             game_df[f'{bookie}'] = bookie_data
 
         home_team_row_list = game_df.iloc[0].to_list()[1:]
-        away_team_row_list = game_df.iloc[1].to_list()[1:]
 
         if not home_team_row_list:
             continue
