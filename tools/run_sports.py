@@ -16,7 +16,7 @@ odds_cutoff = 1000
 
 def run_all(sport_list):
     EVbetslist = []
-    printdf = False
+    printdf = True
     for x in sport_list:
         if x in two_result_sport_list:
             get_two_result_moneyline_bets(EVbetslist, x, printdf)
@@ -64,7 +64,7 @@ def run_get_sports():
     has_outrights = False
 
     sports_list = get_sports(active, has_outrights)
-    #sports_list =['soccer_epl']
+    #sports_list =['soccer_germany_bundesliga']
     global ev_cutoff
     global odds_cutoff
 
@@ -83,4 +83,4 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
     
-run_get_sports()
+#run_get_sports()

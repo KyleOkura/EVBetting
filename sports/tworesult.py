@@ -30,7 +30,6 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
 
     data = odds_response.json()
 
-
     for game in data:
         df = pd.DataFrame(data=game)
         if(df.empty):
@@ -107,7 +106,7 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
 def test_tworesult():
     EVbetlist = []
     printdf = True
-    sports = ['boxing_boxing']
+    sports = ['basketball_nba']
     for sport in sports:
         get_two_result_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")

@@ -1,33 +1,6 @@
 
-make net a running count
 
 
-automate entering bets into database - change to calculate net rather than asking for it
+start using kelly criterion - keep a running count for each sportsbook
 
 
-
-
-
-
-
-
-
-
-
-
-#create_table()
-
-"""
-enter_bet('2fb7ce1eb6a7a1be2780ebdeeb591f52', 'icehockey_liiga', 'SaiPa', 'Moneyline', 'draftkings', -210, 25, 0.38)
-enter_bet('316e7c961f4f1c5ac8b37b203e10438b', 'soccer_england_league2', 'Harrogate Town', 'Moneyline', 'betrivers', 310, 5, 4.59)
-enter_bet('5e07b98039bcfb67dfc55e9b42438945', 'boxing_boxing', 'Floyd Scholfield', 'Moneyline', 'betrivers', 1050, 5, 33.05)
-enter_bet('8cc36d0751e0fa140487483066b95255', 'soccer_belgium_first_div', 'Draw (Genk v Gent)', 'Moneyline', 'betrivers', 335, 5, 4.79)
-enter_bet('8ce8f60eb86df244b23f571dff7b9ef3', 'soccer_china_superleague', 'Wuhan Three Towns', 'Moneyline', 'fanduel', 900, 5, 19.9)
-enter_bet('a724ca6ac5d0780170f9f77c5d1f6857', 'soccer_china_superleague', 'Yunnan Yukun', 'Moneyline', 'fanduel', 330, 5, 9.05)
-enter_bet('c9ab1019ab4de271fa95394ac65e9d74', 'soccer_chile_campeonato', 'draw (Universidad de Chile v Union La Calera)', 'Moneyline', 'betrivers', 510, 5, 10.04)
-enter_bet('f4556d715ed72f9d5831c5944aee4508', 'soccer_france_ligue_one', 'Lille', 'Moneyline', 'ballybet', 575, 5, 11.24)
-enter_bet('1ee16fc6c64a9fbcaceac0d84c153fd8', 'soccer_italy_serie_a', 'draw (Bologna v Cagliari)', 'Moneyline', 'betrivers', 340, 5, 8.02)
-"""
-
-
-#bet_to_earnings()

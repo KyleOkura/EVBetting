@@ -4,8 +4,8 @@ import requests
 bookie_skip_list = ['onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 
                     'betonlineag','betsson','betvictor','coolbet','everygame','gtbets',
                     'marathonbet','matchbook','mybookieag','nordicbet', 'suprabets',
-                    'tipico_de','unibet_eu', 'williamhill',
-                    'mybookieag', 'betonlineag', 'betus', 'lowvig', 'betanysports',
+                    'tipico_de','unibet_eu', 'williamhill', 
+                    'betonlineag', 'betus', 'lowvig', 'betanysports',
                     'betparx', 'fliff', 'hardrockbet', 'windcreek']
 
 three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australia_aleague', 'soccer_austria_bundesliga',
@@ -19,12 +19,13 @@ three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australi
                             'soccer_poland_ekstraklasa', 'soccer_portugal_primeira_liga', 'soccer_spain_la_liga', 
                             'soccer_spain_segunda_division', 'soccer_spl', 'soccer_sweden_allsvenskan', 'soccer_switzerland_superleague', 
                             'soccer_turkey_super_league', 'soccer_uefa_champs_league', 'soccer_uefa_europa_conference_league', 
-                            'soccer_uefa_europa_league', 'soccer_usa_mls']
+                            'soccer_uefa_europa_league', 'soccer_usa_mls', 'soccer_germany_bundesliga']
 
 two_result_sport_list = ['americanfootball_ncaaf', 'aussierules_afl', 'baseball_ncaa', 'basketball_euroleague', 
                          'basketball_nba', 'basketball_nbl', 'basketball_ncaab', 'boxing_boxing', 'cricket_odi', 
                          'icehockey_ahl', 'icehockey_liiga', 'icehockey_mestis', 'icehockey_nhl', 'icehockey_sweden_allsvenskan', 
-                         'icehockey_sweden_hockey_league', 'lacrosse_ncaa', 'mma_mixed_martial_arts', 'rugbyleague_nrl', 'rugbyunion_six_nations']
+                         'icehockey_sweden_hockey_league', 'lacrosse_ncaa', 'mma_mixed_martial_arts', 'rugbyleague_nrl', 'rugbyunion_six_nations',
+                         'baseball_mlb_preseason', 'basketball_wncaab', 'cricket_international_t20']
 
 sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_germany_bundesliga']
 

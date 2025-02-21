@@ -151,11 +151,17 @@ def display_all_bets():
 
     print()
     print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
-    print("-" * 205)
+    print("-" * 207)
+
+    counter = 1
 
     for bet in bets:
         bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
+        if counter%4==0:
+            print("- " * 104)
+            counter=1
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+        counter+=1
         
 
 def bet_to_earnings():
@@ -209,11 +215,17 @@ def display_pending_bets():
 
     print()
     print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
-    print("-" * 205)
+    print("-" * 207)
+
+    counter = 1
 
     for bet in bets:
         bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
+        if counter%4==0:
+            print("- " * 104)
+            counter=1
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+        counter+=1
 
 
 
@@ -292,11 +304,26 @@ def display_settled_bets():
 
     print()
     print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
-    print("-" * 205)
+    print("-" * 207)
+
+    counter = 1
+
+    total_net = 0
+    expected_total = 0
 
     for bet in bets:
         bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = bet
+        total_net += net
+        expected_total += this_EV
+        if counter%4==0:
+            print("- " * 104)
+            counter=1
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+        counter+=1
+    
+    print()
+    print(f"Expected total: {round(expected_total,2)}")
+    print(f"Net total: {total_net}")
 
 
 
@@ -306,10 +333,25 @@ def get_path():
 
     return db_path
 
+def edit_odds(game_id, odds):
+    db_path = get_path()
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""UPDATE bets SET odds = ? WHERE bet_id = ?""", (odds, game_id))
+
+    conn.commit()
+    conn.close()
 
 
-#update_bet('4419f54537fd85da8bcdd080d9370cd4', 'win')
 
-#display_all_bets()
+#edit_odds('57a930a28f3e2c70de65552defb51124', 500)
 
-#get_path()
+#display_settled_bets()
+#print()
+
+
+#update_bet('2f30d6d9868a8d989fda5f04e0fbe962', 'win')
+
+display_pending_bets()
