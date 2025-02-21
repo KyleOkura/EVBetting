@@ -22,16 +22,16 @@ def create_bookies_table():
     conn.close()
 
 
-def add_bookmaker(name, deposit, wagered, wagerable):
+def add_bookmaker(name, deposit, wagered, wagerable, withdrawl):
     bankroll = wagered + wagerable
-    net = bankroll - deposit
+    net = round(bankroll - deposit + withdrawl, 2)
 
     db_path = get_path()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('''INSERT INTO bookies (bookmaker, deposit_total, withdrawl_total, total_bankroll, currently_wagered, wagerable, current_net)
-                    VALUES(?,?,?,?,?,?,?)''', (name, deposit, 0, bankroll, wagered, wagerable, net))
+                    VALUES(?,?,?,?,?,?,?)''', (name, deposit, withdrawl, bankroll, wagered, wagerable, net))
     conn.commit()
     conn.close()
 
@@ -79,7 +79,7 @@ def display_bookie_table():
         total_net += net
 
     print()
-    print(f'Net winnings across all bookies: {total_net}')
+    print(f'Net winnings across all bookies: {round(total_net, 2)}')
 
 
 
@@ -98,8 +98,8 @@ def get_total_bankroll():
 
     data = cursor.fetchall()
     total_bankroll = 0
-    for bankroll in data:
-        total_bankroll += bankroll[0]
+    for bankroll in range(len(data)-2):
+        total_bankroll += data[bankroll][0]
 
     conn.close()
 
@@ -120,8 +120,38 @@ def get_bookie_wagerable_amount(bookie):
 
     return wagerable_amount[0]
 
+def delete_bookie(name):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''DELETE FROM bookies WHERE bookmaker = ?''', (name,))
+
+    conn.commit()
+    conn.close()
+
+def reset_autoincrement():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''DELETE FROM sqlite_sequence WHERE name='bookies';''')
+
+    conn.commit()
+    conn.close()
+
+def update_bookie_net(name, new_net):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bookies SET current_net = ? WHERE bookmaker = ?''', (new_net, name))
+
+    conn.commit()
+    conn.close()
 
 
-#display_bookie_table()
+
+display_bookie_table()
 
 #print(get_total_bankroll())
