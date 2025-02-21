@@ -112,7 +112,7 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
 def test_tworesult():
     EVbetlist = []
     printdf = True
-    sports = ['basketball_nba']
+    sports = ['soccer_germany_bundesliga']
     for sport in sports:
         get_two_result_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")

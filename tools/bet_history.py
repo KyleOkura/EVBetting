@@ -192,7 +192,6 @@ def update_dates(bet_ids):
         sport = cursor.fetchall()
 
         this_sport = sport[0][0]
-        conn.close()
 
         
         API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
@@ -224,9 +223,6 @@ def update_dates(bet_ids):
             continue
 
         commence_date = commence_time[:10]
-
-        conn = sqlite3.connect('bet_history.db')
-        cursor = conn.cursor()
 
         cursor.execute('''UPDATE bets SET date = ? WHERE bet_id = ?''', (commence_date, x))
 
@@ -292,4 +288,6 @@ def edit_odds(game_id, odds):
     conn.close()
 
 
-#display_all_bets()
+
+
+#display_pending_bets()
