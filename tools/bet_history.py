@@ -42,11 +42,11 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
                 ''', (bet_id,sport, team, bet_type, bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
-    
-    update_bookie(bookie, bet_amount, -bet_amount)
 
     conn.commit()
     conn.close()
+
+    update_bookie(bookie, bet_amount, -bet_amount)
 
 def bet_exists(bet_id):
     db_path = get_path()
@@ -77,11 +77,8 @@ def update_bet(bet_id, outcome):
             net = (100/abs(odds)) * bet_amount
         else:
             net = (odds/100) * bet_amount
-
-        update_bookie(bookie, -bet_amount, net)
     elif outcome == 'loss':
         net = -bet_amount
-        update_bookie(bookie, -bet_amount, 0)
     else:
         net = 0
 
@@ -91,6 +88,13 @@ def update_bet(bet_id, outcome):
 
     conn.commit()
     conn.close()
+
+    if outcome == 'win':
+        update_bookie(bookie, -bet_amount, net)
+    elif outcome == 'loss':
+        update_bookie(bookie, -bet_amount, 0)
+    else:
+        update_bookie(bookie, -bet_amount, bet_amount)
 
 def delete_bet(bet_id):
     db_path = get_path()
@@ -288,13 +292,4 @@ def edit_odds(game_id, odds):
     conn.close()
 
 
-
-#edit_odds('57a930a28f3e2c70de65552defb51124', 500)
-
-#display_settled_bets()
-#print()
-
-
-#update_bet('2f30d6d9868a8d989fda5f04e0fbe962', 'win')
-
-#display_settled_bets()
+#display_all_bets()

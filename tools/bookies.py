@@ -42,8 +42,8 @@ def update_bookie(name, wagered_change, wagerable_change):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''SELECT total_bankroll, currently_wagered, wagerable, current_net FROM bookies WHERE bookmaker = ?''', (name))
-    data = cursor.fetchall()
+    cursor.execute('''SELECT total_bankroll, currently_wagered, wagerable, current_net FROM bookies WHERE bookmaker = ?''', (name,))
+    data = cursor.fetchone()
 
     bankroll, wagered, wagerable, current_net = data
 
@@ -53,7 +53,7 @@ def update_bookie(name, wagered_change, wagerable_change):
     new_bankroll = bankroll + wagerable_change + wagered_change
     new_net = current_net + wagerable_change + wagered_change
 
-    cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ? WHERE bookmaker = ?''', (new_bankroll, new_wagered, new_wagerable, new_net))
+    cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ? WHERE bookmaker = ?''', (new_bankroll, new_wagered, new_wagerable, new_net, name))
     conn.commit()
     conn.close()
 

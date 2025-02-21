@@ -3,4 +3,5 @@
 
 start using kelly criterion - keep a running count for each sportsbook
 
+expand bets to more than moneyline
 
