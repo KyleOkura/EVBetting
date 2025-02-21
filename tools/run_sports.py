@@ -16,14 +16,21 @@ odds_cutoff = 1000
 
 def run_all(sport_list):
     EVbetslist = []
-    printdf = True
+    printdf = False
+    not_found_list = []
+
     for x in sport_list:
         if x in two_result_sport_list:
             get_two_result_moneyline_bets(EVbetslist, x, printdf)
         elif x in three_result_sport_list:
             get_three_result_moneyline_bets(EVbetslist, x, printdf)
         else:
-            print(f'Sport not found: {x}')
+            not_found_list.append(x)
+
+    print()
+    print("Not Found: ")
+    for x in not_found_list:
+        print(x)
 
     print('\n')
     print("EVbetslist: ")
@@ -83,4 +90,4 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
     
-#run_get_sports()
+run_get_sports()
