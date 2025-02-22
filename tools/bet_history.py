@@ -289,5 +289,8 @@ def edit_odds(game_id, odds):
 
 
 
+edit_odds('e2c5133f68dd32d234a6abcb91329cb4', 300)
 
-#display_pending_bets()
+
+
+display_pending_bets()
