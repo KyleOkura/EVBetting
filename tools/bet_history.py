@@ -289,5 +289,6 @@ def edit_odds(game_id, odds):
 
 
 
+enter_bet('98e00329066852fb939287a87b7d4bbe', 'basketball_nba', 'San Antonio Spurs', 'Moneyline', 'draftkings', 250, 5, 5, '2025-02-22')
 
-display_pending_bets()
+#display_pending_bets()
