@@ -1,13 +1,11 @@
 
+create web interace to include an easier way to make or update bets
 
-
-start using kelly criterion
+update bookie amounts - when adding a bonus bet it changed the wagerable amount - not sure why, update bets is not getting called
 
 expand bets to more than moneyline
-
-fix interface for run_sports, asking if you want to add the bet or not
 
 clean up code inside tworesult and threeresult? - and other places (variable names, efficiency)
  - add comments
 
-if skipped during first run, dont ask again
+

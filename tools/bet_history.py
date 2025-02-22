@@ -48,6 +48,19 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
 
     update_bookie(bookie, bet_amount, -bet_amount)
 
+
+def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''
+    INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
+                ''', (bet_id,sport, team, 'Bonus', bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
+
+    conn.commit()
+    conn.close()
+
+
 def bet_exists(bet_id):
     db_path = get_path()
     conn = sqlite3.connect(db_path)
@@ -100,10 +113,19 @@ def delete_bet(bet_id):
     db_path = get_path()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+
+    cursor.execute('''SELECT odds, bet_amount, bookie FROM bets WHERE bet_id = ?''', (bet_id,))
+    response = cursor.fetchall()
+    bet_amount = response[0][1]
+    bookie = response[0][2]
+
+    
     cursor.execute('''DELETE FROM bets WHERE bet_id=?''', (bet_id,))
 
     conn.commit()
     conn.close()
+
+    #update_bookie(bookie, -bet_amount, bet_amount)
 
 def display_all_bets():
     db_path = get_path()
@@ -287,8 +309,13 @@ def edit_odds(game_id, odds):
     conn.commit()
     conn.close()
 
+#edit_odds('3539f9463b4d6ef057cee663ee667f17', 240)
+
+enter_bonus_bet('993735b51c4561b38b971451108e9fe2', 'soccer_conmebol_copa_libertadores', 'draw (Bahia v The Strongest)', 'betrivers', 690, 5, 7, '2025-02-25')
 
 
-enter_bet('98e00329066852fb939287a87b7d4bbe', 'basketball_nba', 'San Antonio Spurs', 'Moneyline', 'draftkings', 250, 5, 5, '2025-02-22')
+display_settled_bets()
 
-#display_pending_bets()
+print()
+
+display_pending_bets()
