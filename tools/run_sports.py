@@ -1,5 +1,5 @@
-from ..sports.threeresult import get_three_result_moneyline_bets
-from ..sports.tworesult import get_two_result_moneyline_bets
+from ..moneyline.threeresult import get_three_result_moneyline_bets
+from ..moneyline.tworesult import get_two_result_moneyline_bets
 from .get_sports import get_sports
 from .odds_calculator import *
 from .get_sports import two_result_sport_list

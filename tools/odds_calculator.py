@@ -1,6 +1,4 @@
 import pandas as pd
-#from .run_sports import ev_cutoff
-#from .run_sports import odds_cutoff
 from .bookies import get_bookie_wagerable_amount
 #input a list
 def get_no_vig_probability(odds):
