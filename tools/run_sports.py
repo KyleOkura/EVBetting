@@ -82,19 +82,15 @@ def run_all(sport_list):
     
     display_pending_bets()
 
-
+'''
 def run_get_sports():
     active = True
     has_outrights = False
 
     sports_list = get_sports(active, has_outrights)
     #sports_list =['basketball_ncaab']
-    global ev_cutoff
-    global odds_cutoff
-
-    ev_cutoff = 10
-    odds_cutoff = 1000
-    run_all(sports_list)
+    return sports_list
+'''
 
 def update_bets():
     pending_bet_ids = get_pending_ids()
@@ -107,4 +103,6 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
 
-#run_get_sports()
+sports = get_sports(active=True, has_outrights=False)
+
+run_all(sports)

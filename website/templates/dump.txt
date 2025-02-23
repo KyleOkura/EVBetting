@@ -1,0 +1,3 @@
+<a href="{{ url_for('run_sports') }}">Run Sports</a>
+    <a href="{{ url_for('current_bets') }}">Current Bets</a>
+    <a href="{{ url_for('settled_bets') }}">Settled Bets</a>

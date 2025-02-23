@@ -293,9 +293,8 @@ def display_settled_bets():
 
 
 def get_path():
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
     db_path = os.path.join(root_dir, 'bet_history.db')
-
     return db_path
 
 def edit_odds(game_id, odds):
@@ -350,4 +349,4 @@ def display_bookie_bets(bookie):
 
 #update_bet('048806f86cb88fd44e7e3b363a8084b7', 'loss')
 
-display_settled_bets()
+#display_settled_bets()
