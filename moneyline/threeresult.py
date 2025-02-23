@@ -1,4 +1,5 @@
-from ..tools.home import *
+#from ..tools.home import *
+import requests
 from ..tools.odds_calculator import *
 import pandas as pd
 from ..tools.get_sports import bookie_skip_list
