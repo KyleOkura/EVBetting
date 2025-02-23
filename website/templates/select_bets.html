@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Bets</title>
+</head>
+<body>
+    <h1>Select Bets</h1>
+    <ul>
+        {% for bet in bets %}
+        <li>
+            {{ bet['id'] }} - {{ bet['sport'] }} - {{ bet['team'] }} - {{ bet['bookies'] }} - {{ bet['odds'] }} - {{ bet['ev'] }}  - {{ bet['kelly'] }}  - {{ bet['date'] }}
+            <form method="post" action="{{ url_for('take_bet') }}">
+                <input type="hidden" name="id" value="{{ bet['id'] }}">
+                <input type="hidden" name="sport" value="{{ bet['sport'] }}">
+                <input type="hidden" name="team" value="{{ bet['team'] }}">
+                <input type="hidden" name="bookies" value="{{ bet['bookies'] }}">
+                <input type="hidden" name="odds" value="{{ bet['odds'] }}">
+                <input type="hidden" name="ev" value="{{ bet['ev'] }}">
+                <input type="hidden" name="kelly" value="{{ bet['kelly'] }}">
+                <input type="hidden" name="date" value="{{ bet['date'] }}">
+                <input type="number" name="amount" placeholder="Enter amount">
+                <button type="submit">Take Bet</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">Back</a>
+</body>
+</html>

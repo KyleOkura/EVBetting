@@ -154,6 +154,18 @@ def display_all_bets():
             counter=1
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
         counter+=1
+
+def get_all_bets():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM bets")
+    bets = cursor.fetchall()
+
+    conn.close()
+    return bets
         
 
 def get_pending_ids():
@@ -199,6 +211,22 @@ def display_pending_bets():
             counter=1
         print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
         counter+=1
+
+
+def get_pending_bets():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("""SELECT * FROM bets WHERE outcome = 'Pending'""")
+    bets = cursor.fetchall()
+
+    conn.close()
+
+    return bets
+
+
 
 
 
@@ -291,6 +319,20 @@ def display_settled_bets():
     print(f"Net total: {total_net}")
 
 
+def get_settled_bets():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("""SELECT * FROM bets WHERE outcome = 'loss' or outcome = 'win'""")
+    bets = cursor.fetchall()
+
+    conn.close()
+
+    return bets
+
+
 
 def get_path():
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
@@ -349,4 +391,4 @@ def display_bookie_bets(bookie):
 
 #update_bet('048806f86cb88fd44e7e3b363a8084b7', 'loss')
 
-#display_settled_bets()
+#display_pending_bets()

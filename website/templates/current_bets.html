@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Bets</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Current Bets</h1>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('all_bets') }}">All Bets</a>
+        <a href="{{ url_for('current_bets') }}">Current Bets</a>
+        <a href="{{ url_for('settled_bets') }}">Settled Bets</a>
+        <!-- Add more links as needed -->
+    </div>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Team</th>
+            <th>Sport</th>
+            <th>Bookie</th>
+            <th>Odds</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>EV</th>
+            <th>Outcome</th>
+        </tr>
+        {% for bet in bets %}
+        <tr>
+            <td>{{bet.date}} </td>
+            <td>{{bet.team}} </td>
+            <td>{{bet.sport}}</td>
+            <td>{{bet.bookie}}</td>
+            <td>{{bet.odds}}</td>
+            <td>{{bet.bet_type}}</td>
+            <td>{{bet.bet_amount}}</td>
+            <td>{{bet.this_EV}}</td>
+            <td>{{bet.outcome}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

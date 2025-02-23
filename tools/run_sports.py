@@ -30,6 +30,9 @@ def run_all(sport_list):
         else:
             not_found_list.append(x)
 
+    return(EVbetslist)
+
+
     print()
     print("Not Found: ")
     for x in not_found_list:
@@ -103,6 +106,7 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
 
-sports = get_sports(active=True, has_outrights=False)
+#sports = get_sports(active=True, has_outrights=False)
+sports =['soccer_argentina_primera_division']
 
-run_all(sports)
+print(run_all(sports))
