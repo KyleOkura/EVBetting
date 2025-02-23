@@ -309,13 +309,42 @@ def edit_odds(game_id, odds):
     conn.commit()
     conn.close()
 
-#edit_odds('3539f9463b4d6ef057cee663ee667f17', 240)
+def display_bookie_bets(bookie):
+    db_path = get_path()
 
-enter_bonus_bet('993735b51c4561b38b971451108e9fe2', 'soccer_conmebol_copa_libertadores', 'draw (Bahia v The Strongest)', 'betrivers', 690, 5, 7, '2025-02-25')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT * FROM bets WHERE bookie = ?''', (bookie,))
+    data = cursor.fetchall()
+
+    conn.close()
+
+    if not data:
+        print("No bets to display")
+        return
+    
+    print()
+    print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
+    print("-" * 207)
+
+    total_net = 0
+    expected_total = 0
+
+    counter = 1
+    for line in data:
+        bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date = line
+        total_net += net
+        expected_total += this_EV
+        if counter%4==0:
+            print("- " * 104)
+            counter=1
+        print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+        counter+=1
+
+    print()
+    print(f"Expected total: {round(expected_total,2)}")
+    print(f"Net total: {total_net}")
 
 
-display_settled_bets()
 
-print()
-
-display_pending_bets()

@@ -152,6 +152,6 @@ def update_bookie_net(name, new_net):
 
 
 
-display_bookie_table()
+#display_bookie_table()
 
 #print(get_total_bankroll())

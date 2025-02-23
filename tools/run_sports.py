@@ -107,4 +107,4 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
     
-run_get_sports()
+#run_get_sports()
