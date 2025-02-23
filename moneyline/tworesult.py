@@ -3,13 +3,17 @@ import requests
 from ..tools.odds_calculator import *
 import pandas as pd
 from ..tools.get_sports import bookie_skip_list
+from dotenv import load_dotenv
+import os
 
 
 def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
 
     print(f"Running {sport} Moneyline bets")
 
-    API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
+    load_dotenv()
+    API_KEY = os.getenv("API_KEY")
+    #API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
     SPORT = sport # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
     REGIONS = 'us,us2,eu' # uk | us | eu | au. Multiple can be specified if comma delimited
     MARKETS = 'h2h' # h2h | spreads | totals. Multiple can be specified if comma delimited

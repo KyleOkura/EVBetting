@@ -348,3 +348,6 @@ def display_bookie_bets(bookie):
 
 
 
+#update_bet('048806f86cb88fd44e7e3b363a8084b7', 'loss')
+
+display_settled_bets()

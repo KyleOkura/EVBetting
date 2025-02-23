@@ -88,7 +88,7 @@ def run_get_sports():
     has_outrights = False
 
     sports_list = get_sports(active, has_outrights)
-    #sports_list =['soccer_argentina_primera_division']
+    #sports_list =['basketball_ncaab']
     global ev_cutoff
     global odds_cutoff
 
@@ -106,5 +106,5 @@ def update_bets():
         if settled == 'y':
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
-    
+
 #run_get_sports()

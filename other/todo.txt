@@ -1,3 +1,5 @@
+betrivers leece bet not in db
+
 
 create web interace to include an easier way to make or update bets
 

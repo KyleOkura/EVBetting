@@ -2,6 +2,7 @@ import sqlite3
 import os
 
 
+
 def create_bookies_table():
     db_path = get_path()
     conn = sqlite3.connect(db_path)
@@ -94,16 +95,25 @@ def get_total_bankroll():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''SELECT total_bankroll FROM bookies''')
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
 
-    data = cursor.fetchall()
     total_bankroll = 0
+    for bookie in ev_bookie_list:
+        cursor.execute('''SELECT total_bankroll FROM bookies WHERE bookmaker = ?''', (bookie,))
+        data = cursor.fetchone()
+        total_bankroll+=data[0]
+
+    #cursor.execute('''SELECT total_bankroll,bookmaker FROM bookies''')
+
+    #data = cursor.fetchall()
+    '''
     for bankroll in range(len(data)-2):
         total_bankroll += data[bankroll][0]
+    '''
 
     conn.close()
 
-    return total_bankroll
+    return round(total_bankroll, 2)
     
 
 
@@ -150,6 +160,37 @@ def update_bookie_net(name, new_net):
     conn.commit()
     conn.close()
 
+
+def display_ev_bookie_table():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT * FROM bookies''')
+
+    data = cursor.fetchall()
+
+    print()
+    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}")
+    print('-' * 130)
+
+    total_net = 0
+
+    ev_bookie_list = ['drafkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+
+    for bookie in data:
+        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net = bookie
+        if name in ev_bookie_list:
+            print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}")
+            total_net += net
+
+
+    print()
+    print(f'Net winnings across EV bookies: {round(total_net, 2)}')
+
+
+
+#add_bookmaker('fanatics', 0, 0, 0, 0)
 
 
 #display_bookie_table()

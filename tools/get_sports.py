@@ -1,5 +1,6 @@
 import requests
-
+from dotenv import load_dotenv
+import os
 
 bookie_skip_list = ['onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 
                     'betonlineag','betsson','betvictor','coolbet','everygame','gtbets',
@@ -17,7 +18,7 @@ three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australi
                             'soccer_italy_serie_a', 'soccer_italy_serie_b', 'soccer_japan_j_league', 'soccer_korea_kleague1', 
                             'soccer_league_of_ireland', 'soccer_mexico_ligamx', 'soccer_netherlands_eredivisie', 'soccer_norway_eliteserien', 
                             'soccer_poland_ekstraklasa', 'soccer_portugal_primeira_liga', 'soccer_spain_la_liga', 
-                            'soccer_spain_segunda_division', 'soccer_spl', 'soccer_sweden_allsvenskan', 'soccer_switzerland_superleague', 
+                            'soccer_spain_segunda_division', 'soccer_spl', 'soccer_sweden_allsvenskan', 
                             'soccer_turkey_super_league', 'soccer_uefa_champs_league', 'soccer_uefa_europa_conference_league', 
                             'soccer_uefa_europa_league', 'soccer_usa_mls', 'soccer_germany_bundesliga']
 
@@ -27,11 +28,13 @@ two_result_sport_list = ['americanfootball_ncaaf', 'aussierules_afl', 'baseball_
                          'icehockey_sweden_hockey_league', 'lacrosse_ncaa', 'mma_mixed_martial_arts', 'rugbyleague_nrl', 'rugbyunion_six_nations',
                          'baseball_mlb_preseason', 'basketball_wncaab', 'cricket_international_t20']
 
-sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai']
+sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_switzerland_superleague']
 
 
 def get_sports(active, has_outrights):
-    API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
+    load_dotenv()
+    API_KEY = os.getenv("API_KEY")
+    #API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
     response = requests.get(f'https://api.the-odds-api.com/v4/sports/?apiKey={API_KEY}', params={
         'api_key': API_KEY,
     })
