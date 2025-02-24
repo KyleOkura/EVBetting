@@ -1,7 +1,4 @@
-betrivers leece bet not in db
 
-
-create web interace to include an easier way to make or update bets
 
 update bookie amounts - when adding a bonus bet it changed the wagerable amount - not sure why, update bets is not getting called
 
