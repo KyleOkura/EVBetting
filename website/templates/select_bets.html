@@ -31,7 +31,7 @@
             <td>{{ bet[7] }}</td> 
             <td>
                 <button class="btn btn-primary take-bet-btn" 
-                        data-bet-id="{{bet[0]}}""
+                        data-bet-id="{{bet[0]}}"
                         data-team="{{ bet[2] }}" 
                         data-sport="{{ bet[0] }}" 
                         data-bookies="{{ ','.join(bet[3]) }}" 
@@ -93,6 +93,7 @@
             let odds = $(this).data("odds");
             let ev = $(this).data("ev");
             let date = $(this).data("date");
+            let amount = $(this).data("amount");
 
             // Populate modal fields
             $("#modal-bet-id").val(bet_id);
@@ -101,6 +102,7 @@
             $("#modal-odds").val(odds);
             $("#modal-ev").val(ev);
             $("#modal-date").val(date);
+            $("#modal-amount").val(amount)
 
             // Populate bookie dropdown
             let bookieDropdown = $("#modal-bookie");

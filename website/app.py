@@ -58,13 +58,15 @@ def take_bet():
     team = request.form['team']
     bookie_choice = request.form['bookie']
     bet_type = 'Moneyline'
-    odds = request.form['odds']
-    bet_amount = request.form['amount']
-    bet_ev = round(request.form['ev'] * bet_amount, 2)
+    odds = int(request.form['odds'])
+    #bet_amount = request.form['amount']
+    bet_amount = float(request.form['amount'])  # If bet_amount is also from the form
+    bet_ev = round(float(request.form['ev']), 2)
+    #bet_ev = round(request.form['ev'] * bet_amount, 2)
     date = request.form['date']
     enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
 
-    return(redirect(url_for('run_all')))
+    return(redirect(url_for('select_bets.html')))
 
 @app.route('/current_bets', methods = ['GET'])
 def current_bets():
@@ -96,13 +98,13 @@ def edit_bet():
     new_amount = int(amount_str) if amount_str else 0 
 
     current_bet = get_bet(bet_id)
-    if new_odds is 0:
+    if new_odds == 0:
         new_odds = current_bet['odds']
     if new_date is None:
         new_date = current_bet['date']
     if new_outcome is None:
         new_outcome = current_bet['outcome']
-    if new_amount is 0:
+    if new_amount == 0:
         new_amount = int(current_bet['bet_amount'])
 
     update_bet2(bet_id, new_odds, new_date, new_outcome, new_amount)  

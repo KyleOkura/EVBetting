@@ -30,7 +30,7 @@ def run_all_bets(sport_list):
         else:
             not_found_list.append(x)
 
-    return(EVbetslist)
+    #return(EVbetslist)
 
 
     print()
@@ -85,15 +85,6 @@ def run_all_bets(sport_list):
     
     display_pending_bets()
 
-'''
-def run_get_sports():
-    active = True
-    has_outrights = False
-
-    sports_list = get_sports(active, has_outrights)
-    #sports_list =['basketball_ncaab']
-    return sports_list
-'''
 
 def update_bets():
     pending_bet_ids = get_pending_ids()
@@ -106,7 +97,7 @@ def update_bets():
             result = input("Result (win or loss): ")
             update_bet(x[0], result)
 
-#sports = get_sports(active=True, has_outrights=False)
-sports =['soccer_argentina_primera_division']
+sports = get_sports(active=True, has_outrights=False)
+#sports =['soccer_argentina_primera_division']
 
-#print(run_all(sports))
+print(run_all_bets(sports))

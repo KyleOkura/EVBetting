@@ -175,7 +175,7 @@ def display_ev_bookie_table():
 
     total_net = 0
 
-    ev_bookie_list = ['drafkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
 
     for bookie in data:
         id, name, deposit, withdrawl, bankroll, wagered, wagerable, net = bookie
@@ -198,6 +198,6 @@ def get_ev_bookies():
 #add_bookmaker('fanatics', 0, 0, 0, 0)
 
 
-#display_bookie_table()
+#ydisplay_ev_bookie_table()
 
 #print(get_total_bankroll())
