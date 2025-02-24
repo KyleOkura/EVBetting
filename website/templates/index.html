@@ -1,11 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}EV Betting{% endblock %}
+
+{% block content %}
+<h1> EVBets</h1>
+{%endblock%}
+
+
+
+
+
+
+
+<!-----
 <!DOCTYPE html>
 <html>
 <head>
     <title>EV Betting</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Bets</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        </style>
 </head>
 <body>
     <h1>Welcome to EV Betting</h1>
-    <a href="{{ url_for('run_all') }}">Run Sports</a>
-    <a href="{{ url_for('current_bets') }}">Current Bets</a>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('run_all') }}">Find Bets</a>
+        <a href="{{ url_for('all_bets') }}">All Bets</a>
+        <a href="{{ url_for('current_bets') }}">Current Bets</a>
+        <a href="{{ url_for('settled_bets') }}">Settled Bets</a>
+    </div>
 </body>
 </html>
+--->

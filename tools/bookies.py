@@ -189,6 +189,12 @@ def display_ev_bookie_table():
 
 
 
+def get_ev_bookies():
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+    return ev_bookie_list
+
+
+
 #add_bookmaker('fanatics', 0, 0, 0, 0)
 
 

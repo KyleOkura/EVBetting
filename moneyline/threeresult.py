@@ -113,7 +113,7 @@ def test_three_result():
         get_three_result_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")
 
-#test_three_result()
+test_three_result()
 
 
 

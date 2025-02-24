@@ -387,8 +387,58 @@ def display_bookie_bets(bookie):
     print(f"Expected total: {round(expected_total,2)}")
     print(f"Net total: {total_net}")
 
+def get_bet(bet_id):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM bets WHERE bet_id = ?", (bet_id,))
+    bet = cursor.fetchone()
+    if not bet:
+        print("error")
+    
+    conn.close()
+    return bet
 
 
-#update_bet('048806f86cb88fd44e7e3b363a8084b7', 'loss')
+def update_bet2(bet_id, new_odds, new_date, outcome, new_amount):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+
+    cursor = conn.cursor()
+    cursor.execute('''SELECT bookie FROM bets WHERE bet_id = ?''', (bet_id,))
+    response = cursor.fetchall()
+    bookie = response[0][0]
+    net = 0
+
+    if outcome == 'win':
+        if new_odds < 0:
+            net = (100/abs(new_odds)) * new_amount
+        else:
+            net = (new_odds/100) * new_amount
+    elif outcome == 'loss':
+        net = -new_amount
+    else:
+        net = 0
+
+
+    cursor.execute('''UPDATE bets SET outcome = ?, net = ?, odds = ?, date = ?, bet_amount = ? WHERE bet_id = ?''', (outcome, net, new_odds, new_date, new_amount, bet_id))
+
+    conn.commit()
+    conn.close()
+
+    if outcome == 'win':
+        update_bookie(bookie, -new_amount, net)
+    elif outcome == 'loss':
+        update_bookie(bookie, -new_amount, 0)
+    else:
+        update_bookie(bookie, -new_amount, new_amount)
+    
+
+#enter_bet('0de42f6b60c721efeb1136101e3fc46f', 'soccer_italy_serie_a', 'Leece', 'Moneyline', 'betrivers', 480, 5, 6, '2025-03-02')
+#update_bet2('0e00aae7935c62c59c634aa020766326', 550, '2025-02-24', 'win', 5)
+
+#display_settled_bets()
+#print(get_bet('0e00aae7935c62c59c634aa020766326'))
 
 #display_pending_bets()

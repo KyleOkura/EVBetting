@@ -1,3 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}EV Betting{% endblock %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Team</th>
+        <th>Bookie</th>
+        <th>Type</th>
+        <th>Odds</th>
+        <th>EV</th>
+        <th>Net</th>
+        <th>Outcome</th>
+    </tr>
+    {% for bet in bets %}
+    <tr>
+        <td>{{bet.date}} </td>
+        <td>{{bet.team}} </td>
+        <td>{{bet.bookie}}</td>
+        <td>{{bet.bet_type}}</td>
+        <td>{{bet.odds}}</td>
+        <td>{{bet.this_EV}}</td>
+        <td>{{bet.net}}</td>
+        <td class="{{bet.outcome|lower}}">{{bet.outcome}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{%endblock%}
+
+
+
+<!-----
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,12 +67,21 @@
             background-color: #ddd;
             color: black;
         }
+        .loss {
+            background-color: rgb(255, 102, 0);
+            color: rgb(0, 0, 0);
+        }
+        .win {
+            background-color: rgb(68, 243, 45);
+            color: rgb(0, 0, 0);
+        }
     </style>
 </head>
 <body>
     <h1>Settled Bets</h1>
     <div class="navbar">
         <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('run_all') }}">Find Bets</a>
         <a href="{{ url_for('all_bets') }}">All Bets</a>
         <a href="{{ url_for('current_bets') }}">Current Bets</a>
         <a href="{{ url_for('settled_bets') }}">Settled Bets</a>
@@ -50,9 +93,9 @@
             <th>Bookie</th>
             <th>Type</th>
             <th>Odds</th>
-            <th>Outcome</th>
-            <th>Net</th>
             <th>EV</th>
+            <th>Net</th>
+            <th>Outcome</th>
         </tr>
         {% for bet in bets %}
         <tr>
@@ -61,11 +104,13 @@
             <td>{{bet.bookie}}</td>
             <td>{{bet.bet_type}}</td>
             <td>{{bet.odds}}</td>
-            <td>{{bet.outcome}}</td>
-            <td>{{bet.net}}</td>
             <td>{{bet.this_EV}}</td>
+            <td>{{bet.net}}</td>
+            <td class="{{bet.outcome|lower}}">{{bet.outcome}}</td>
         </tr>
         {% endfor %}
     </table>
 </body>
 </html>
+
+--->

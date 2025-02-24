@@ -1,10 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}EV Betting{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <button type="submit">Fetch Bets</button>
+</form>
+{%endblock%}
+
+
+<!----
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Run All</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run All Bets</title>
+    <style>
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    <h1>Run All</h1>
-    <a href="{{ url_for('run_all') }}">Run All</a>
+    <h1>Run All Bets</h1>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('run_all') }}">Find Bets</a>
+        <a href="{{ url_for('all_bets') }}">All Bets</a>
+        <a href="{{ url_for('current_bets') }}">Current Bets</a>
+        <a href="{{ url_for('settled_bets') }}">Settled Bets</a>
+    </div>
+    <form method="POST">
+        <button type="submit">Fetch Bets</button>
+    </form>
 </body>
 </html>
+--->

@@ -17,7 +17,7 @@ from .bookies import get_bookie_wagerable_amount
 ev_cutoff = 10
 odds_cutoff = 1000
 
-def run_all(sport_list):
+def run_all_bets(sport_list):
     EVbetslist = []
     printdf = False
     not_found_list = []
@@ -109,4 +109,4 @@ def update_bets():
 #sports = get_sports(active=True, has_outrights=False)
 sports =['soccer_argentina_primera_division']
 
-print(run_all(sports))
+#print(run_all(sports))
