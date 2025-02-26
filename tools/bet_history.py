@@ -444,24 +444,26 @@ def update_bet2(bet_id, new_odds, new_date, outcome, new_amount):
 
 
 
-def update_bet3(bet_id, team):
+def update_bet3(bet_id, bookie):
     db_path = get_path()
     conn = sqlite3.connect(db_path)
 
     cursor = conn.cursor()
 
 
-    cursor.execute('''UPDATE bets SET bet_id = ? WHERE team = ?''', (bet_id, team))
+    cursor.execute('''UPDATE bets SET bookie = ? WHERE bet_id = ?''', (bookie, bet_id))
 
     conn.commit()
     conn.close()
 
-#enter_bet('0de42f6b60c721efeb1136101e3fc46f', 'soccer_italy_serie_a', 'Leece', 'Moneyline', 'betrivers', 480, 5, 6, '2025-03-02')
+
+#enter_bet('1de610500fc3c61eaf3e98e00fe9f7cb', 'soccer_chile_campeonato', "O'Higgins", 'Moneyline', 'betrivers', 750, 10, 8, '2025-02-24')
 #update_bet2('0e00aae7935c62c59c634aa020766326', 550, '2025-02-24', 'win', 5)
 
 #display_settled_bets()
 #print(get_bet('0e00aae7935c62c59c634aa020766326'))
 
 #update_bet2('90ce6c8fd20bee6f067292e1d183af26', 410, '2025-03-02', 'Pending', 10)
-#delete_bet("'32ba2dec7f3dff6c46151016adca05c7'")
+#delete_bet('32ba2dec7f3dff6c46151016adca05c7')
+#enter_bet('feb608f33366805a155cf145bff4f5a40', 'soccer_france_ligue_one', 'Nantes', 'Moneyline', 'betrivers', 700, 15, 15, '2025-03-02')
 #display_pending_bets()

@@ -116,10 +116,46 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
 def test_tworesult():
     EVbetlist = []
     printdf = True
-    sports = ['basketball_nba']
+    sports = ['soccer_china_superleague']
     for sport in sports:
         get_two_result_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")
+
+
+
+def get_historical_temp(sport):
+    load_dotenv()
+    API_KEY = os.getenv("API_KEY")
+    SPORT = sport # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+    REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
+    MARKETS = 'h2h' # h2h | spreads | totals. Multiple can be specified if comma delimited
+    ODDS_FORMAT = 'american' # decimal | american
+    DATE_FORMAT = 'iso' # iso | unix
+    DATE = '2025-02-24T00:00:00Z'
+    odds_response = requests.get(f'https://api.the-odds-api.com/v4/historical/sports/{SPORT}/odds', params={
+        'api_key': API_KEY,
+        'regions': REGIONS,
+        'markets': MARKETS,
+        'oddsFormat': ODDS_FORMAT,
+        'dateFormat': DATE_FORMAT,
+        'date': DATE,
+    })
+
+    if odds_response.status_code != 200:
+        print(f'Failed to get games: status_code {odds_response.status_code}, response body {odds_response.text}')
+        return []
+
+    data = odds_response.json()
+
+    for game in data['data']:
+        print(game)
+        game_id = game['id']
+        print(f'gameid: {game_id}')
+
+    print('Remaining credits', odds_response.headers['x-requests-remaining'])
+    print('Used credits', odds_response.headers['x-requests-used'])
+
+#print(get_historical_temp('soccer_chile_campeonato'))
     
 #test_tworesult()
 
