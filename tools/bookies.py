@@ -1,6 +1,6 @@
 import sqlite3
 import os
-
+from bet_history import get_pending_bets
 
 
 def create_bookies_table():
@@ -51,7 +51,7 @@ def update_bookie(name, wagered_change, wagerable_change):
     new_wagered = wagered + wagered_change
     new_wagerable = wagerable + wagerable_change
 
-    new_bankroll = bankroll + wagerable_change + wagered_change
+    new_bankroll = bankroll + new_wagered + new_wagerable
     new_net = current_net + wagerable_change + wagered_change
 
     cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ? WHERE bookmaker = ?''', (new_bankroll, new_wagered, new_wagerable, new_net, name))
@@ -159,8 +159,37 @@ def update_bookie_net(name, new_net):
     conn.commit()
     conn.close()
 
+def refresh_bookie_table():
+    data = get_pending_bets()
+    draftkings_wagered = 0
+    fanduel_wagered = 0
+    betmgm_wagered = 0
+    betrivers_wagered = 0
+    ballybet_wagered = 0
+    espnbet_wagered = 0
+
+    for x in data:
+        if x['bet_type'] == 'Bonus':
+            continue
+        elif x['bookie'] == 'draftkings':
+            draftkings_wagered += x['bet_amount']
+        elif x['bookie'] == 'fanduel':
+            fanduel_wagered += x['bet_amount']
+        elif x['bookie'] == 'betmgm':
+            betmgm_wagered += x['bet_amount']
+        elif x['bookie'] == 'betrivers':
+            betrivers_wagered += x['bet_amount']
+        elif x['bookie'] == 'ballybet':
+            ballybet_wagered += x['bet_amount']
+        elif x['bookie'] == 'espnbet':
+            espnbet_wagered += x['bet_amount']
+        else:
+            print(f'bookie not found: {x['bookie']}')
+
+        
 
 def display_ev_bookie_table():
+    refresh_bookie_table()
     db_path = get_path()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
