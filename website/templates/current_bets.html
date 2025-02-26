@@ -5,10 +5,22 @@
 {% block content %}
 <table>
     <tr>
-        <th>Date</th>
+        <th>
+            Date
+            <select id="sort-dates" class="form-select">
+                <option value="asc">earliest</option>
+                <option value="desc">latest</option>
+            </select>
+        </th>
         <th>Team</th>
         <th>Sport</th>
-        <th>Bookie</th>
+        <th>
+            Bookie
+            <select id="sort-bookies" class="form-select">
+                <option value="asc">A-Z</option>
+                <option value="desc">Z-A</option>
+            </select>
+        </th>
         <th>Odds</th>
         <th>Type</th>
         <th>Amount</th>
@@ -107,6 +119,38 @@
 
             $("#editBetModal").modal("show");  // Correctly shows the modal
         });
+    });
+</script>
+<script>
+    document.getElementById("sort-bookies").addEventListener("change", function() {
+        let order = this.value;
+        let table = document.querySelector("table");
+        let rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)")); // Skip header row
+
+        rows.sort((rowA, rowB) => {
+            let bookieA = rowA.cells[3].textContent.trim().toLowerCase();
+            let bookieB = rowB.cells[3].textContent.trim().toLowerCase();
+
+            return order === "asc" ? bookieA.localeCompare(bookieB) : bookieB.localeCompare(bookieA);
+        });
+
+        rows.forEach(row => table.appendChild(row));
+    });
+</script>
+<script>
+    document.getElementById("sort-dates").addEventListener("change", function() {
+        let order = this.value;
+        let table = document.querySelector("table");
+        let rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)")); // Skip header row
+
+        rows.sort((rowA, rowB) => {
+            let dateA = new Date(rowA.cells[0].textContent.trim()); // Assuming date is in first column (index 0)
+            let dateB = new Date(rowB.cells[0].textContent.trim());
+
+            return order === "asc" ? dateA - dateB : dateB - dateA;
+        });
+
+        rows.forEach(row => table.appendChild(row));
     });
 </script>
 {%endblock%}

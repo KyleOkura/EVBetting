@@ -9,6 +9,7 @@ from ..tools.bet_history import get_bet
 from ..tools.bet_history import update_bet2
 from ..tools.bookies import get_total_bankroll
 from ..tools.bookies import get_ev_bookies
+from ..tools.bet_history import get_pending_ids
 
 import os
 import sqlite3
@@ -36,24 +37,35 @@ def index():
 def run_all():
     if request.method == 'POST':
         sports = get_sports(active=True, has_outrights=False)
-        bets = run_all_bets(sports)
+        ev_bets = run_all_bets(sports)
         #returns list with format - [[sport, id, team, [bookies], odds, ev, kelly %, date],
         #                            [sport, id, team, [bookies], odds, ev, kelly %, date]]
 
         total_bankroll = get_total_bankroll()
 
-        for bet in bets:
+        current_ids = get_pending_ids()
+
+        for bet in ev_bets:
+            if bet[1] in current_ids:
+                print(f'bet_id: {bet[1]}')
+                print("error")
+
+        for bet in ev_bets:
             kelly_percent = bet[6]
             kelly_wager = kelly_percent * total_bankroll
             bet.append(round(kelly_wager, 2))
 
-        return render_template('select_bets.html', bets=bets)
+        return render_template('select_bets.html', bets=ev_bets)
     return render_template('run_all.html')
 
+@app.route('/select_bets')
+def select_bets():
+    return render_template('select_bets.html')
 
 @app.route('/take_bet', methods = ['POST'])
 def take_bet():
     id = request.form['bet_id']
+    print(f'id: {id}')
     sport = request.form['sport']
     team = request.form['team']
     bookie_choice = request.form['bookie']
@@ -66,7 +78,7 @@ def take_bet():
     date = request.form['date']
     enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
 
-    return(redirect(url_for('select_bets.html')))
+    return(redirect(url_for('select_bets')))
 
 @app.route('/current_bets', methods = ['GET'])
 def current_bets():
@@ -109,7 +121,7 @@ def edit_bet():
 
     update_bet2(bet_id, new_odds, new_date, new_outcome, new_amount)  
 
-    return redirect(url_for('all_bets')) 
+    return redirect(url_for('current_bets')) 
 
 if __name__ == '__main__':
     app.run(debug=True)

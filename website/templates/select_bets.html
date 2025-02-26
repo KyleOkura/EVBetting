@@ -7,6 +7,7 @@
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
+            <th>ID</th>
             <th>Sport</th>
             <th>Team</th>
             <th>Bookies</th>
@@ -21,6 +22,7 @@
     <tbody>
         {% for bet in bets %}
         <tr>
+            <td>{{ bet[1] }}</td>
             <td>{{ bet[0] }}</td>
             <td>{{ bet[2] }}</td>
             <td>{{ ", ".join(bet[3]) }}</td> 
@@ -31,13 +33,14 @@
             <td>{{ bet[7] }}</td> 
             <td>
                 <button class="btn btn-primary take-bet-btn" 
-                        data-bet-id="{{bet[0]}}"
+                        data-bet-id="{{ bet[1] }}"
                         data-team="{{ bet[2] }}" 
                         data-sport="{{ bet[0] }}" 
                         data-bookies="{{ ','.join(bet[3]) }}" 
                         data-odds="{{ bet[4] }}" 
                         data-ev="{{ bet[5] }}" 
-                        data-date="{{ bet[7] }}">
+                        data-date="{{ bet[7] }}"
+                        data-amount="0">
                     Take Bet
                 </button>
             </td>
@@ -46,7 +49,6 @@
     </tbody>
 </table>
 
-<!-- Pop-up Modal for Bet Selection -->
 <div class="modal fade" id="betModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -55,7 +57,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="betForm" method="POST" action="{{ url_for('take_bet') }}">
+                <form id="betForm">
                     <input type="hidden" name="bet_id" id="modal-bet-id">
                     <input type="hidden" name="team" id="modal-team">
                     <input type="hidden" name="sport" id="modal-sport">
@@ -65,7 +67,8 @@
 
                     <div class="mb-3">
                         <label for="bookie" class="form-label">Select Bookie:</label>
-                        <select name="bookie" id="modal-bookie" class="form-select" required></select>
+                        <select name="bookie" id="modal-bookie" class="form-select" required>
+                            </select>
                     </div>
 
                     <div class="mb-3">
@@ -80,13 +83,13 @@
     </div>
 </div>
 
-<!-- Bootstrap + jQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
 <script>
     $(document).ready(function() {
         $(".take-bet-btn").click(function() {
-            let bet_id = $(this).data("bet_id")
+            let bet_id = $(this).data("bet-id");
             let team = $(this).data("team");
             let sport = $(this).data("sport");
             let bookies = $(this).data("bookies").split(",");
@@ -95,30 +98,48 @@
             let date = $(this).data("date");
             let amount = $(this).data("amount");
 
-            // Populate modal fields
             $("#modal-bet-id").val(bet_id);
             $("#modal-team").val(team);
             $("#modal-sport").val(sport);
             $("#modal-odds").val(odds);
             $("#modal-ev").val(ev);
             $("#modal-date").val(date);
-            $("#modal-amount").val(amount)
+            $("#modal-amount").val(amount);
 
-            // Populate bookie dropdown
             let bookieDropdown = $("#modal-bookie");
-            bookieDropdown.empty();
-            bookies.forEach(bookie => {
-                bookieDropdown.append(`<option value="${bookie}">${bookie}</option>`);
+            bookieDropdown.empty(); // Clear existing options *first*
+
+            bookies.forEach(function(bookie) {  // Correct way to iterate
+                let option = $("<option></option>").val(bookie).text(bookie);
+                bookieDropdown.append(option);
             });
 
-            // Show modal
             $("#betModal").modal("show");
+        });
+
+        $("#betForm").submit(function(event) {
+            event.preventDefault();
+
+            let formData = $(this).serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('take_bet') }}",
+                data: formData,
+                success: function(response) {
+                    console.log("Success:", response);
+                    $("#betModal").modal("hide");
+                    alert("Bet placed successfully!");
+                },
+                error: function(error) {
+                    console.error("Error:", error);
+                    alert("Error placing bet. Please try again.");
+                }
+            });
         });
     });
 </script>
-{%endblock%}
-
-
+{% endblock %}
 
 
 

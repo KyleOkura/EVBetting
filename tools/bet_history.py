@@ -36,15 +36,18 @@ def create_tables():
 
 
 def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, date):
+    print("Open db enter_bet")
     db_path = get_path()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    print(f"bet_id: {bet_id}")
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
                 ''', (bet_id,sport, team, bet_type, bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
 
     conn.commit()
     conn.close()
+    print("Close db enter_bet")
 
     update_bookie(bookie, bet_amount, -bet_amount)
 
@@ -68,6 +71,11 @@ def bet_exists(bet_id):
     
     cursor.execute("SELECT 1 FROM bets WHERE bet_id = ?", (bet_id,))
     exists = cursor.fetchone() is not None
+
+    if exists:
+        cursor.execute("SELECT * FROM bets WHERE bet_id = ?", (bet_id,))
+        print(f'exists: {exists}')
+        print(cursor.fetchall())
     
     conn.close()
     return exists
@@ -433,7 +441,20 @@ def update_bet2(bet_id, new_odds, new_date, outcome, new_amount):
         update_bookie(bookie, -new_amount, 0)
     else:
         update_bookie(bookie, -new_amount, new_amount)
-    
+
+
+
+def update_bet3(bet_id, team):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+
+    cursor = conn.cursor()
+
+
+    cursor.execute('''UPDATE bets SET bet_id = ? WHERE team = ?''', (bet_id, team))
+
+    conn.commit()
+    conn.close()
 
 #enter_bet('0de42f6b60c721efeb1136101e3fc46f', 'soccer_italy_serie_a', 'Leece', 'Moneyline', 'betrivers', 480, 5, 6, '2025-03-02')
 #update_bet2('0e00aae7935c62c59c634aa020766326', 550, '2025-02-24', 'win', 5)
@@ -441,4 +462,6 @@ def update_bet2(bet_id, new_odds, new_date, outcome, new_amount):
 #display_settled_bets()
 #print(get_bet('0e00aae7935c62c59c634aa020766326'))
 
+#update_bet2('90ce6c8fd20bee6f067292e1d183af26', 410, '2025-03-02', 'Pending', 10)
+#delete_bet("'32ba2dec7f3dff6c46151016adca05c7'")
 #display_pending_bets()

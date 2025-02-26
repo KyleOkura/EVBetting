@@ -22,6 +22,8 @@ def run_all_bets(sport_list):
     printdf = False
     not_found_list = []
 
+    #sport_list =['soccer_italy_serie_a']
+
     for x in sport_list:
         if x in two_result_sport_list:
             get_two_result_moneyline_bets(EVbetslist, x, printdf)
@@ -29,6 +31,12 @@ def run_all_bets(sport_list):
             get_three_result_moneyline_bets(EVbetslist, x, printdf)
         else:
             not_found_list.append(x)
+
+    for x in EVbetslist:
+        #x[1] = str("'") + str(x[1]) + str("'")
+        print(f'x[1] run_all_bets: {x[1]}')
+
+
 
     return(EVbetslist)
 
@@ -98,6 +106,6 @@ def update_bets():
             update_bet(x[0], result)
 
 #sports = get_sports(active=True, has_outrights=False)
-#sports =['soccer_argentina_primera_division']
+sports =['soccer_italy_serie_a']
 
 #print(run_all_bets(sports))
