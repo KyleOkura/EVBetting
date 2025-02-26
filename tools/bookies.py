@@ -198,6 +198,6 @@ def get_ev_bookies():
 #add_bookmaker('fanatics', 0, 0, 0, 0)
 
 
-display_ev_bookie_table()
+#display_ev_bookie_table()
 
 #print(get_total_bankroll())
