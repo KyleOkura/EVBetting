@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}EV Betting{% endblock %}
+
+{% block content %}
+<h1>Bookie Stats</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Bookie</th>
+            <th>Net Profit/Loss</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bookie, net in combined %}
+            <tr>
+                <td>{{ bookie }}</td>
+                <td>{{ net }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

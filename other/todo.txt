@@ -1,6 +1,9 @@
 
+display bookie table on website - graphs
 
-update bookie amounts - when adding a bonus bet it changed the wagerable amount - not sure why, update bets is not getting called
+update get_bets to be a page that just refreshes with bets - dont have to push button
+when bet is taken remove it from the table
+
 
 expand bets to more than moneyline
 

@@ -7,9 +7,9 @@ from ..tools.bet_history import get_all_bets
 from ..tools.bet_history import get_settled_bets
 from ..tools.bet_history import get_bet
 from ..tools.bet_history import update_bet2
-from ..tools.bookies import get_total_bankroll
-from ..tools.bookies import get_ev_bookies
-from ..tools.bet_history import get_pending_ids
+from ..tools.bet_history import get_total_bankroll
+from ..tools.bet_history import get_ev_bookies
+from ..tools.bet_history import get_bookies_table
 
 import os
 import sqlite3
@@ -125,6 +125,19 @@ def edit_bet():
     update_bet2(bet_id, new_odds, new_date, new_outcome, new_amount)  
 
     return redirect(url_for('current_bets')) 
+
+@app.route('/bookie_stats', methods=['GET'])
+def bookie_stats():
+    bookie_data = get_bookies_table()
+    bookies = []
+    nets = []
+    for x in bookie_data:
+        bookies.append(x['bookmaker'])
+        nets.append(x['current_net'])
+
+    combined = zip(bookies, nets)
+
+    return render_template('bookie_stats.html', combined=combined)
 
 if __name__ == '__main__':
     app.run(debug=True)

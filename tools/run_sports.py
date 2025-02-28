@@ -11,8 +11,8 @@ from .bet_history import get_pending_ids
 from .bet_history import update_bet
 from .bet_history import display_all_bets
 from .bet_history import display_pending_bets
-from .bookies import get_total_bankroll
-from .bookies import get_bookie_wagerable_amount
+from .bet_history import get_total_bankroll
+from .bet_history import get_bookie_wagerable_amount
 
 ev_cutoff = 10
 odds_cutoff = 1000

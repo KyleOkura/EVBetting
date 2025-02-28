@@ -87,6 +87,22 @@ def create_tables():
     conn.close()
 
 
+def get_bookies_table():
+    print("Open db in get_bookies_table")
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT * FROM bookies''')
+    bookies_data = cursor.fetchall()
+
+    conn.close()
+    print("Close db in get_bookies_table")
+    return bookies_data
+
+
+
 def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, date):
     print("Open db enter_bet")
     db_path = get_path()
@@ -117,7 +133,7 @@ def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date)
     conn.close()
     print("Close db enter_bonus_bet")
 
-    update_bookie(bookie, bet_amount, -bet_amount)
+    update_bookie(bookie, bet_amount, 0)
 
 
 
@@ -191,32 +207,27 @@ def update_bet(bet_id, outcome):
     odds = response[0][0]
     bet_amount = response[0][1]
     bookie = response[0][2]
-    net = 0
+    net_change = 0
 
     if outcome == 'win':
         if odds < 0:
-            net = (100/abs(odds)) * bet_amount
+            net_change = (100/abs(odds)) * bet_amount
         else:
-            net = (odds/100) * bet_amount
+            net_change = (odds/100) * bet_amount
     elif outcome == 'loss':
-        net = -bet_amount
+        net_change = -bet_amount
     else:
-        net = 0
+        net_change = 0
 
-    net = round(net, 2)
+    net_change = round(net_change, 2)
 
-    cursor.execute('''UPDATE bets SET outcome = ?, net = ? WHERE bet_id = ?''', (outcome, net, bet_id))
+    cursor.execute('''UPDATE bets SET outcome = ?, net = ? WHERE bet_id = ?''', (outcome, net_change, bet_id))
 
 
     conn.commit()
     conn.close()
 
-    if outcome == 'win':
-        update_bookie(bookie, -bet_amount, net)
-    elif outcome == 'loss':
-        update_bookie(bookie, -bet_amount, 0)
-    else:
-        update_bookie(bookie, -bet_amount, bet_amount)
+    update_bookie(bookie, -bet_amount, net_change)
 
 
 def display_all_bets():
