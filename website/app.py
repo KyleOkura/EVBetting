@@ -38,17 +38,20 @@ def run_all():
     if request.method == 'POST':
         sports = get_sports(active=True, has_outrights=False)
         ev_bets = run_all_bets(sports)
-        #returns list with format - [[sport, id, team, [bookies], odds, ev, kelly %, date],
-        #                            [sport, id, team, [bookies], odds, ev, kelly %, date]]
-
         total_bankroll = get_total_bankroll()
 
-        current_ids = get_pending_ids()
+        data_ids = get_pending_bets()
+        current_ids = []
+        for id in data_ids:
+            current_ids.append(id["bet_id"])
 
+        ev_bets = [bet for bet in ev_bets if bet[1] not in current_ids]
+        '''
         for bet in ev_bets:
             if bet[1] in current_ids:
                 print(f'bet_id: {bet[1]}')
-                print("error")
+                print("already taken")
+        '''
 
         for bet in ev_bets:
             kelly_percent = bet[6]

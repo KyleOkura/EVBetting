@@ -32,6 +32,8 @@ def run_all_bets(sport_list):
         else:
             not_found_list.append(x)
 
+    
+
     for x in EVbetslist:
         #x[1] = str("'") + str(x[1]) + str("'")
         print(f'x[1] run_all_bets: {x[1]}')

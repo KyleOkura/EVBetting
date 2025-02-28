@@ -4,7 +4,7 @@ import os
 
 bookie_skip_list = ['onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_ex_eu', 
                     'betonlineag','betsson','betvictor','coolbet','everygame','gtbets',
-                    'marathonbet','matchbook','mybookieag','nordicbet', 'suprabets', 'winamax_fr',
+                    'marathonbet','matchbook','mybookieag','nordicbet', 'suprabets', 'winamax_fr', 'winamax_de',
                     'tipico_de','unibet_eu', 'williamhill', 
                     'betonlineag', 'betus', 'lowvig', 'betanysports',
                     'betparx', 'fliff', 'hardrockbet', 'windcreek', 'bovada']

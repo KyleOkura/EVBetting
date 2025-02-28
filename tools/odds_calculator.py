@@ -1,5 +1,5 @@
 import pandas as pd
-from .bookies import get_bookie_wagerable_amount
+#from .bookies import get_bookie_wagerable_amount
 #input a list
 def get_no_vig_probability(odds):
     total_implied_probability = 0
