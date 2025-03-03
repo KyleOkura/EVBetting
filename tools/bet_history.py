@@ -70,7 +70,7 @@ def create_tables():
                 net INT,
                 date VARCHAR(10)
                 );""")
-    
+    """
     cursor.execute('''CREATE TABLE IF NOT EXISTS bookies(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    bookmaker VARCHAR(20),
@@ -81,6 +81,7 @@ def create_tables():
                    wagerable float,
                    current_net float
                    );''')
+    """
     
     
     conn.commit()
@@ -100,7 +101,11 @@ def create_bookie_table():
                    total_bankroll float,
                    currently_wagered float,
                    wagerable float,
-                   current_net float
+                   current_net float,
+                   bets_placed int,
+                   bets_settled int,
+                   bets_won int,
+                   bets_lost int
                    );''')
     
     
@@ -206,10 +211,29 @@ def update_bookie(name, wagered_change, wagerable_change):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''SELECT total_bankroll, currently_wagered, wagerable, withdrawl_total, deposit_total FROM bookies WHERE bookmaker = ?''', (name,))
+    """
+    
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   bookmaker VARCHAR(20),
+                   deposit_total float,
+                   withdrawal_total float,
+                   total_bankroll float,
+                   currently_wagered float,
+                   wagerable float,
+                   current_net float,
+                   bets_placed int,
+                   bets_settled int,
+                   bets_won int,
+                   bets_lost int
+    
+    
+    """
+
+
+    cursor.execute('''SELECT * FROM bookies WHERE bookmaker = ?''', (name,))
     data = cursor.fetchone()
 
-    bankroll, wagered, wagerable, withdrawn, deposited = data
+    id, bookmaker, deposited, withdrawn, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost = data
 
     new_wagered = wagered + wagered_change
     new_wagerable = wagerable + wagerable_change
@@ -457,19 +481,15 @@ def display_ev_bookie_table():
     data = cursor.fetchall()
 
     print()
-    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}")
+    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}{'bets placed':<20}{'bets settled':<20}{'bets won':<20}{'bets lost':<20}")
     print('-' * 130)
 
     total_net = 0
 
-    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
-
     for bookie in data:
-        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net = bookie
-        if name in ev_bookie_list:
-            print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}")
-            total_net += net
-
+        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost = bookie
+        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}{bets_placed:<20}{bets_settled:<20}{bets_won:<20}{bets_lost:<20}")
+        total_net += net
 
     print()
     print(f'Net winnings across EV bookies: {round(total_net, 2)}')
@@ -479,12 +499,6 @@ def display_ev_bookie_table():
 def get_ev_bookies():
     ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
     return ev_bookie_list
-
-
-
-
-
-
 
 
 
@@ -558,14 +572,14 @@ def display_bookie_table():
     data = cursor.fetchall()
 
     print()
-    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}")
+    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}{'bets placed':<20}{'bets settled':<20}{'bets won':<20}{'bets lost':<20}")
     print('-' * 130)
 
     total_net = 0
 
     for bookie in data:
-        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net = bookie
-        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}")
+        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost = bookie
+        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}{bets_placed:<20}{bets_settled:<20}{bets_won:<20}{bets_lost:<20}")
         total_net += net
 
     print()
