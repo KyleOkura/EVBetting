@@ -785,11 +785,11 @@ def update_bet2(bet_id, new_odds, new_date, outcome, new_amount):
     conn.close()
 
     if outcome == 'win':
-        bookies.update_bookie(bookie, -new_amount, net)
+        update_bookie(bookie, -new_amount, net)
     elif outcome == 'loss':
-        bookies.update_bookie(bookie, -new_amount, 0)
+        update_bookie(bookie, -new_amount, 0)
     else:
-        bookies.update_bookie(bookie, -new_amount, new_amount)
+        update_bookie(bookie, -new_amount, new_amount)
 
 
 
@@ -822,3 +822,6 @@ ids = get_pending_bets()
 for x in ids:
     print(x["bet_id"])
 '''
+
+
+#update_bookie('betmgm', -5, -5)

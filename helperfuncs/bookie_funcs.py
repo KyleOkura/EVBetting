@@ -17,7 +17,3 @@ add_bookmaker('espnbet', 10, 0, 10, 100.02)
 add_bookmaker('fanatics', 0, 0, 0, 0)
 '''
 
-
-
-transfer_bets()
-display_ev_bookie_table()
