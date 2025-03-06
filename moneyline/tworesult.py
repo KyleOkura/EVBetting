@@ -105,7 +105,7 @@ def get_two_result_moneyline_bets(EVbetlist, sport, printdf = False):
                 EVbetlist.append(x)
 
 
-    print('Remaining credits', odds_response.headers['x-requests-remaining'])
+    print('Remaining credits', int(float(odds_response.headers['x-requests-remaining'])))
     print('Used credits', odds_response.headers['x-requests-used'])
 
     print(f"Finished Running {sport} Moneyline bets \n")
