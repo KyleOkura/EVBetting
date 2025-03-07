@@ -81,7 +81,7 @@ def take_bet():
 
 @app.route('/current_bets', methods = ['GET'])
 def current_bets():
-    current_bets = get_pending_bets()
+    current_bets = sorted(get_pending_bets(), key=lambda bet: bet["date"])
     return render_template('current_bets.html', bets=current_bets)
 
 @app.route('/all_bets', methods = ['GET'])

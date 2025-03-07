@@ -1,12 +1,7 @@
 
 
-fixed bookie numbers, will see if they hold up
+wagered seems to be right, wagerable is off by a little on betrivers, and the net/bankroll is way off
 
-
-
-change the ev percent to be rounded to 2 decimals
-
-change current bets to be sorted by earliest when page is opened
 
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table
