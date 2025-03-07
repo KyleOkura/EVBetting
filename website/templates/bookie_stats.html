@@ -8,13 +8,19 @@
     <thead>
         <tr>
             <th>Bookie</th>
+            <th>Bankroll</th>
+            <th>Wagered</th>
+            <th>Wagerable</th>
             <th>Net Profit/Loss</th>
         </tr>
     </thead>
     <tbody>
-        {% for bookie, net in combined %}
+        {% for bookie, bankroll, wagered, wagerable, net in combined %}
             <tr>
                 <td>{{ bookie }}</td>
+                <td>{{ bankroll }}</td>
+                <td>{{ wagered }}</td>
+                <td>{{ wagerable }}</td>
                 <td>{{ net }}</td>
             </tr>
         {% endfor %}

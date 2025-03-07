@@ -1,0 +1,81 @@
+
+
+
+#initially had the date as when i entered the bet - changed updated table entries so that the date reflects when the game is, not the enter date
+def update_dates(bet_ids):
+    for x in bet_ids:
+        db_path = get_path()
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        cursor.execute('''SELECT sport FROM bets WHERE bet_id = ?''', (x,))
+
+        sport = cursor.fetchall()
+
+        this_sport = sport[0][0]
+
+        
+        API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
+        SPORT = this_sport # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+        REGIONS = 'eu' # uk | us | eu | au. Multiple can be specified if comma delimited
+        MARKETS = 'h2h' # h2h | spreads | totals. Multiple can be specified if comma delimited
+        ODDS_FORMAT = 'american' # decimal | american
+        DATE_FORMAT = 'iso' # iso | unix
+        
+        odds_response = requests.get(f'https://api.the-odds-api.com/v4/sports/{SPORT}/odds/?apiKey={API_KEY}&regions={REGIONS}&markets={MARKETS}', params={
+            'api_key': API_KEY,
+            'sports': SPORT,
+            'regions': REGIONS,
+            'markets': MARKETS,
+            'oddsFormat': ODDS_FORMAT,
+            'dateFormat': DATE_FORMAT,
+            'eventIds': x,
+        })
+
+        if odds_response.status_code != 200:
+            print(f'Failed to get games: status_code {odds_response.status_code}, response body {odds_response.text}')
+            return []
+
+        data = odds_response.json()
+
+        commence_time = data[0]['commence_time'] if data else None
+
+        if not commence_time:
+            continue
+
+        commence_date = commence_time[:10]
+
+        cursor.execute('''UPDATE bets SET date = ? WHERE bet_id = ?''', (commence_date, x))
+
+        conn.commit()
+        conn.close()
+
+        display_all_bets()
+
+
+
+
+
+
+def update_EV(bet_id, ev):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bets SET bet_EV = ? WHERE bet_id = ?''', (ev, bet_id))
+
+    conn.commit()
+    conn.close()
+
+
+def update_this_EV(bet_id, ev):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bets SET this_EV = ? WHERE bet_id = ?''', (ev, bet_id))
+
+    conn.commit()
+    conn.close()

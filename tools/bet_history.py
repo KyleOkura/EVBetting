@@ -532,34 +532,6 @@ def update_bookie_net(name, new_net):
     conn.commit()
     conn.close()
 
-def refresh_bookie_table():
-    data = get_pending_bets()
-    draftkings_wagered = 0
-    fanduel_wagered = 0
-    betmgm_wagered = 0
-    betrivers_wagered = 0
-    ballybet_wagered = 0
-    espnbet_wagered = 0
-
-    for x in data:
-        if x['bet_type'] == 'Bonus':
-            continue
-        elif x['bookie'] == 'draftkings':
-            draftkings_wagered += x['bet_amount']
-        elif x['bookie'] == 'fanduel':
-            fanduel_wagered += x['bet_amount']
-        elif x['bookie'] == 'betmgm':
-            betmgm_wagered += x['bet_amount']
-        elif x['bookie'] == 'betrivers':
-            betrivers_wagered += x['bet_amount']
-        elif x['bookie'] == 'ballybet':
-            ballybet_wagered += x['bet_amount']
-        elif x['bookie'] == 'espnbet':
-            espnbet_wagered += x['bet_amount']
-        else:
-            print(f'bookie not found: {x['bookie']}')
-
-
 
 def display_bookie_table():
     db_path = get_path()
@@ -619,7 +591,7 @@ def delete_bet(bet_id):
     conn.commit()
     conn.close()
 
-    #update_bookie(bookie, -bet_amount, bet_amount)
+    update_bookie(bookie, -bet_amount, bet_amount)
 
 
 def get_all_bets():
@@ -669,61 +641,6 @@ def get_pending_bets():
 
 
 
-
-
-#initially had the date as when i entered the bet - changed updated table entries so that the date reflects when the game is, not the enter date
-def update_dates(bet_ids):
-    for x in bet_ids:
-        db_path = get_path()
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        cursor.execute('''SELECT sport FROM bets WHERE bet_id = ?''', (x,))
-
-        sport = cursor.fetchall()
-
-        this_sport = sport[0][0]
-
-        
-        API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
-        SPORT = this_sport # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
-        REGIONS = 'eu' # uk | us | eu | au. Multiple can be specified if comma delimited
-        MARKETS = 'h2h' # h2h | spreads | totals. Multiple can be specified if comma delimited
-        ODDS_FORMAT = 'american' # decimal | american
-        DATE_FORMAT = 'iso' # iso | unix
-        
-        odds_response = requests.get(f'https://api.the-odds-api.com/v4/sports/{SPORT}/odds/?apiKey={API_KEY}&regions={REGIONS}&markets={MARKETS}', params={
-            'api_key': API_KEY,
-            'sports': SPORT,
-            'regions': REGIONS,
-            'markets': MARKETS,
-            'oddsFormat': ODDS_FORMAT,
-            'dateFormat': DATE_FORMAT,
-            'eventIds': x,
-        })
-
-        if odds_response.status_code != 200:
-            print(f'Failed to get games: status_code {odds_response.status_code}, response body {odds_response.text}')
-            return []
-
-        data = odds_response.json()
-
-        commence_time = data[0]['commence_time'] if data else None
-
-        if not commence_time:
-            continue
-
-        commence_date = commence_time[:10]
-
-        cursor.execute('''UPDATE bets SET date = ? WHERE bet_id = ?''', (commence_date, x))
-
-        conn.commit()
-        conn.close()
-
-        display_all_bets()
-
-
-
 def get_settled_bets():
     db_path = get_path()
     conn = sqlite3.connect(db_path)
@@ -758,30 +675,6 @@ def get_bet(bet_id):
     
     conn.close()
     return bet
-
-
-def update_EV(bet_id, ev):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-
-    cursor = conn.cursor()
-
-    cursor.execute('''UPDATE bets SET bet_EV = ? WHERE bet_id = ?''', (ev, bet_id))
-
-    conn.commit()
-    conn.close()
-
-
-def update_this_EV(bet_id, ev):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-
-    cursor = conn.cursor()
-
-    cursor.execute('''UPDATE bets SET this_EV = ? WHERE bet_id = ?''', (ev, bet_id))
-
-    conn.commit()
-    conn.close()
 
 
 #updates the odds and the EVs (/100 and for this bet)
@@ -842,3 +735,40 @@ def update_bet_amount(bet_id, new_amount):
     wagered_change = new_amount - old_amount
 
     update_bookie(bookie, wagered_change, 0)
+
+
+
+
+def reset_bookie():
+    bankroll = 126.27
+    wagered = 15
+    wagerable = 111.27
+    net = 116.27
+    bookmaker = 'espnbet'
+
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ? WHERE bookmaker = ?''', (bankroll, wagered, wagerable, net, bookmaker))
+    conn.commit()
+    conn.close()
+
+
+
+
+
+
+
+
+'''
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   bookmaker VARCHAR(20),
+                   deposit_total float,
+                   withdrawl_total float,
+                   total_bankroll float,
+                   currently_wagered float,
+                   wagerable float,
+                   current_net float
+
+'''

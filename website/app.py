@@ -107,9 +107,6 @@ def edit_bet():
     amount_str = request.form.get('amount', '').strip()
     new_amount = float(amount_str) if amount_str else 0 
 
-    current_bet = get_bet(bet_id)
-
-
     if new_amount != 0:
         update_bet_amount(bet_id, new_amount)
 
@@ -128,12 +125,18 @@ def edit_bet():
 def bookie_stats():
     bookie_data = get_bookies_table()
     bookies = []
+    bankroll = []
+    wagered = []
+    wagerable = []
     nets = []
     for x in bookie_data:
         bookies.append(x['bookmaker'])
+        bankroll.append(x['total_bankroll'])
+        wagered.append(x['currently_wagered'])
+        wagerable.append(x['wagerable'])
         nets.append(x['current_net'])
 
-    combined = zip(bookies, nets)
+    combined = zip(bookies, bankroll, wagered, wagerable, nets)
 
     return render_template('bookie_stats.html', combined=combined)
 

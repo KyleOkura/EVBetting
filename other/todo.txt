@@ -1,7 +1,8 @@
 
 
-fix bookie totals 
-    - and on bookie page - espn bet is not 2 decimal
+fixed bookie numbers, will see if they hold up
+
+
 
 change the ev percent to be rounded to 2 decimals
 
