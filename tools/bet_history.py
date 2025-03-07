@@ -182,7 +182,7 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
     conn.close()
     print("Close db enter_bet")
 
-    update_bookie(bookie, bet_amount, -bet_amount)
+    #update_bookie(bookie, bet_amount, -bet_amount)
 
 
 def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date):
@@ -198,7 +198,7 @@ def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date)
     conn.close()
     print("Close db enter_bonus_bet")
 
-    update_bookie(bookie, bet_amount, 0)
+    #update_bookie(bookie, bet_amount, 0)
 
 
 
@@ -230,7 +230,7 @@ def update_bookie(name, wagered_change, wagerable_change):
     cursor.execute('''SELECT * FROM bookies WHERE bookmaker = ?''', (name,))
     data = cursor.fetchone()
 
-    id, bookmaker, deposited, withdrawn, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost = data
+    id, bookmaker, deposited, withdrawn, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending = data
 
     new_wagered = wagered + wagered_change
     new_wagerable = wagerable + wagerable_change
@@ -311,9 +311,9 @@ def update_outcome(bet_id, outcome):
     conn.commit()
     conn.close()
 
-    bookie_wagerable_change = this_bet_net + bet_amount
+    #bookie_wagerable_change = this_bet_net + bet_amount
 
-    update_bookie(bookie, -bet_amount, bookie_wagerable_change)
+    #update_bookie(bookie, -bet_amount, bookie_wagerable_change)
 
 
 def display_all_bets():
@@ -591,7 +591,7 @@ def delete_bet(bet_id):
     conn.commit()
     conn.close()
 
-    update_bookie(bookie, -bet_amount, bet_amount)
+    #update_bookie(bookie, -bet_amount, bet_amount)
 
 
 def get_all_bets():
@@ -712,7 +712,20 @@ def update_date(bet_id, new_date):
     conn.commit()
     conn.close()
 
+#used to initially change bonus bets with negative nets
+def update_bet_net(bet_id, new_net):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
 
+    cursor = conn.cursor()
+    cursor.execute('''UPDATE bets SET net = ?  WHERE bet_id = ?''', (new_net, bet_id))
+    conn.commit()
+    conn.close()
+
+
+update_bet_net('2e4cd113084093a6c02d5a6b0f0f101d', 0)
+update_bet_net('993735b51c4561b38b971451108e9fe2', 0)
+update_bet_net('f4556d715ed72f9d5831c5944aee4508', 0)
 
 def update_bet_amount(bet_id, new_amount):
     db_path = get_path()
@@ -734,7 +747,7 @@ def update_bet_amount(bet_id, new_amount):
 
     wagered_change = new_amount - old_amount
 
-    update_bookie(bookie, wagered_change, 0)
+    #update_bookie(bookie, wagered_change, 0)
 
 
 
@@ -791,27 +804,45 @@ def update_bookie_values():
         pending_bets = 0
 
         for x in response:
+            bet_type = x[3]
             bet_amount = x[6]
             outcome = x[9]
             net = x[10]
             bets_placed += 1
 
-            if outcome == "win":
-                bookie_wagerable += net
-                #bookie_wagerable += bet_amount
-                bets_won += 1
-                bets_settled += 1
-            elif outcome == "loss":
-                bookie_wagerable += net
-                bets_lost += 1
-                bets_settled += 1
-            elif outcome == "Pending":
-                bookie_wagered += bet_amount
-                pending_bets += 1
-
+            if bet_type == "Bonus":
+                if outcome == "win":
+                    bookie_wagerable += net
+                    bets_won += 1
+                    bets_settled += 1
+                elif outcome == "loss":
+                    bets_lost += 1
+                    bets_settled += 1
+                elif outcome == "Pending":
+                    pending_bets += 1
+                else:
+                    print("status not found")
+                    continue
             else:
-                print("status not found")
-                continue
+                if outcome == "win":
+                    bookie_wagerable += net
+                    #bookie_wagerable += bet_amount
+                    bets_won += 1
+                    bets_settled += 1
+                elif outcome == "loss":
+                    bookie_wagerable += net
+                    bets_lost += 1
+                    bets_settled += 1
+                elif outcome == "Pending":
+                    bookie_wagered += bet_amount
+                    bookie_wagerable -= bet_amount
+                    pending_bets += 1
+                elif outcome == "offset":
+                    bookie_wagerable += net
+                    bets_placed -= 1
+                else:
+                    print("status not found")
+                    continue
         
         bookie_wagerable += deposits[counter] - withdraws[counter]
         bookie_bankroll = bookie_wagerable + bookie_wagered
@@ -827,8 +858,17 @@ def update_bookie_values():
     conn.close()
 
 
-
 """
+enter_bet('2', 'offset', 'offset', 'offset', 'draftkings', 100, 0, 0, '2000-00-00')
+update_outcome('1', 'offset')
+update_bet_net('1', 37.84)
+
+
+update_bookie_values()
+display_pending_bets()
+display_ev_bookie_table()
+
+
 display_all_bets()
 
 #display_ev_bookie_table()

@@ -2,6 +2,8 @@
 
 wagered seems to be right, wagerable is off by a little on betrivers, and the net/bankroll is way off
 
+bonus bets have negative net - change to 0 when updating
+
 
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table

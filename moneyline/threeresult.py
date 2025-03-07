@@ -85,6 +85,7 @@ def get_three_result_moneyline_bets(EVbetlist, sport, printdf = False):
             continue
 
         if(printdf):
+            print(f'gameid: {gameid}')
             print(game_df)
 
         ev_bet = find_ev_bet_three_result(game_df)
@@ -108,7 +109,7 @@ def get_three_result_moneyline_bets(EVbetlist, sport, printdf = False):
 def test_three_result():
     EVbetlist = []
     printdf = True
-    sports = ['soccer_italy_serie_a']
+    sports = ['soccer_spain_la_liga']
     for sport in sports:
         get_three_result_moneyline_bets(EVbetlist, sport, printdf)
     print(f"EVbetlist: {EVbetlist}")
