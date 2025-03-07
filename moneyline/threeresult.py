@@ -99,9 +99,7 @@ def get_three_result_moneyline_bets(EVbetlist, sport, printdf = False):
                 x.append(commence_date)
                 EVbetlist.append(x)
 
-    print("test")
-    remaining = odds_response.headers['x-requests-remaining']
-    print(remaining)
+
     print('Remaining credits', int(float(odds_response.headers['x-requests-remaining'])))
     print('Used credits', odds_response.headers['x-requests-used'])
 

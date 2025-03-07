@@ -1,6 +1,5 @@
 import pandas as pd
-#from .bookies import get_bookie_wagerable_amount
-#input a list
+
 def get_no_vig_probability(odds):
     total_implied_probability = 0
     implied_probabilities = []
@@ -75,6 +74,15 @@ def american_to_decimal(odds):
             return_odds.append(temp)
 
     return return_odds
+
+def american_payout(odds):
+    return_payouts = []
+    for x in odds:
+        if x > 0:
+            return_payouts.append(x/100)
+        else:
+            return_payouts.append(100/-x)
+    return return_payouts
 
 
 def find_ev_bet_two_result(game_df):

@@ -1,8 +1,7 @@
 
-fix get bets- failed last time tried to run
- - fix amounts to allow for decimals (didnt take 2.93)
 
-fix bookie totals - and on bookie page - espn bet is not 2 decimal
+fix bookie totals 
+    - and on bookie page - espn bet is not 2 decimal
 
 change the ev percent to be rounded to 2 decimals
 

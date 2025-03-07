@@ -8,7 +8,6 @@ from .bet_history import enter_bet
 from .bet_history import bet_exists
 from .bet_history import display_pending_bets
 from .bet_history import get_pending_ids
-from .bet_history import update_bet
 from .bet_history import display_all_bets
 from .bet_history import display_pending_bets
 from .bet_history import get_total_bankroll
@@ -22,7 +21,6 @@ def run_all_bets(sport_list):
     printdf = False
     not_found_list = []
 
-    #sport_list =['soccer_italy_serie_a']
 
     for x in sport_list:
         if x in two_result_sport_list:
@@ -32,12 +30,8 @@ def run_all_bets(sport_list):
         else:
             not_found_list.append(x)
 
-    
-
-    for x in EVbetslist:
-        #x[1] = str("'") + str(x[1]) + str("'")
-        print(f'x[1] run_all_bets: {x[1]}')
-
+    for x in not_found_list:
+        print(f'{x} not found in sports list')
 
 
     return(EVbetslist)
@@ -96,18 +90,9 @@ def run_all_bets(sport_list):
     display_pending_bets()
 
 
-def update_bets():
-    pending_bet_ids = get_pending_ids()
-    display_pending_bets()
-    print('\n')
-    for x in pending_bet_ids:
-        print(x)
-        settled = input("Is the bet settled? (y/n): ")
-        if settled == 'y':
-            result = input("Result (win or loss): ")
-            update_bet(x[0], result)
+
 
 #sports = get_sports(active=True, has_outrights=False)
-sports =['soccer_italy_serie_a']
+#sports =['soccer_italy_serie_a']
 
 #print(run_all_bets(sports))

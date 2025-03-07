@@ -6,10 +6,12 @@ from ..tools.bet_history import get_pending_bets
 from ..tools.bet_history import get_all_bets
 from ..tools.bet_history import get_settled_bets
 from ..tools.bet_history import get_bet
-from ..tools.bet_history import update_bet2
+from ..tools.bet_history import update_outcome
 from ..tools.bet_history import get_total_bankroll
-from ..tools.bet_history import get_ev_bookies
 from ..tools.bet_history import get_bookies_table
+from ..tools.bet_history import update_bet_amount
+from ..tools.bet_history import update_bet_odds
+from ..tools.bet_history import update_date
 
 import os
 import sqlite3
@@ -46,12 +48,6 @@ def run_all():
             current_ids.append(id["bet_id"])
 
         ev_bets = [bet for bet in ev_bets if bet[1] not in current_ids]
-        '''
-        for bet in ev_bets:
-            if bet[1] in current_ids:
-                print(f'bet_id: {bet[1]}')
-                print("already taken")
-        '''
 
         for bet in ev_bets:
             kelly_percent = bet[6]
@@ -91,7 +87,6 @@ def current_bets():
 @app.route('/all_bets', methods = ['GET'])
 def all_bets():
     all_bets = get_all_bets()
-    bookies = get_ev_bookies()
     return render_template('all_bets.html', bets=all_bets)
 
 @app.route('/settled_bets', methods = ['GET'])
@@ -110,19 +105,22 @@ def edit_bet():
     new_odds = int(odds_str) if odds_str else 0
 
     amount_str = request.form.get('amount', '').strip()
-    new_amount = int(amount_str) if amount_str else 0 
+    new_amount = float(amount_str) if amount_str else 0 
 
     current_bet = get_bet(bet_id)
-    if new_odds == 0:
-        new_odds = current_bet['odds']
-    if new_date is None:
-        new_date = current_bet['date']
-    if new_outcome is None:
-        new_outcome = current_bet['outcome']
-    if new_amount == 0:
-        new_amount = int(current_bet['bet_amount'])
 
-    update_bet2(bet_id, new_odds, new_date, new_outcome, new_amount)  
+
+    if new_amount != 0:
+        update_bet_amount(bet_id, new_amount)
+
+    if new_odds != 0:
+        update_bet_odds(bet_id, new_odds)
+
+    if new_date is not None:
+        update_date(bet_id, new_date)
+    
+    if new_outcome is not None:
+        update_outcome(bet_id, new_outcome)  
 
     return redirect(url_for('current_bets')) 
 
