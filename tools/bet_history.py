@@ -470,7 +470,7 @@ def get_bookie_wagerable_amount(bookie):
 
 
 def display_ev_bookie_table():
-    refresh_bookie_table()
+    #refresh_bookie_table()
     db_path = get_path()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -480,14 +480,14 @@ def display_ev_bookie_table():
     data = cursor.fetchall()
 
     print()
-    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}{'bets placed':<20}{'bets settled':<20}{'bets won':<20}{'bets lost':<20}")
+    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}{'bets placed':<20}{'bets settled':<20}{'bets pending':<20}{'bets won':<20}{'bets lost':<20}")
     print('-' * 130)
 
     total_net = 0
 
     for bookie in data:
-        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost = bookie
-        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}{bets_placed:<20}{bets_settled:<20}{bets_won:<20}{bets_lost:<20}")
+        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending = bookie
+        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}{bets_placed:<20}{bets_settled:<20}{bets_pending:<20}{bets_won:<20}{bets_lost:<20}")
         total_net += net
 
     print()
@@ -757,18 +757,151 @@ def reset_bookie():
 
 
 
+def update_bookie_values():
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+    deposits = []
+    withdraws = []
+
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    for bookie in ev_bookie_list:
+        cursor.execute('''SELECT deposit_total, withdrawal_total FROM bookies WHERE bookmaker = ?''',(bookie,))
+        response = cursor.fetchone()
+        if response:
+            deposits.append(response[0])
+            withdraws.append(response[1])
+        else:
+            print("error")
+
+    counter = 0
+
+    for bookie in ev_bookie_list:
+        cursor.execute('''SELECT * FROM bets WHERE bookie = ?''',(bookie,))
+        response = cursor.fetchall()
+
+        bookie_wagerable = 0
+        bookie_wagered = 0
+        bets_placed = 0
+        bets_settled = 0
+        bets_won = 0
+        bets_lost = 0
+        pending_bets = 0
+
+        for x in response:
+            bet_amount = x[6]
+            outcome = x[9]
+            net = x[10]
+            bets_placed += 1
+
+            if outcome == "win":
+                bookie_wagerable += net
+                bets_won += 1
+                bets_settled += 1
+            elif outcome == "loss":
+                bookie_wagerable += net
+                bets_lost += 1
+                bets_settled += 1
+            elif outcome == "Pending":
+                bookie_wagered += bet_amount
+                pending_bets += 1
+
+            else:
+                print("status not found")
+                continue
+        
+        bookie_bankroll = bookie_wagerable + bookie_wagered
+        bookie_net = bookie_bankroll - deposits[counter] + withdraws[counter]
+
+        counter += 1
+
+        cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ?, bets_placed = ?, bets_settled = ?, bets_won = ?, bets_lost = ?, bets_pending = ? WHERE bookmaker = ?''', (bookie_bankroll, bookie_wagered, bookie_wagerable, bookie_net, bets_placed, bets_settled, bets_won, bets_lost, pending_bets, bookie))
+
+
+
+    conn.commit()
+    conn.close()
+
+display_all_bets()
+
+#display_ev_bookie_table()
+update_bookie_values()
+display_ev_bookie_table()
 
 
 
 
-'''
-id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+
+
+
+"""
+bet_id VARCHAR(35) PRIMARY KEY,
+                sport VARCHAR(50),
+                team VARCHAR(50),
+                bet_type VARCHAR(50),
+                bookie VARCHAR(50),
+                odds INT,
+                bet_amount INT,
+                bet_EV INT,
+                this_EV INT,
+                outcome VARCHAR(10),
+                net INT,
+                date VARCHAR(10)
+
+
+
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    bookmaker VARCHAR(20),
                    deposit_total float,
-                   withdrawl_total float,
+                   withdrawal_total float,
                    total_bankroll float,
                    currently_wagered float,
                    wagerable float,
-                   current_net float
+                   current_net float,
+                   bets_placed int,
+                   bets_settled int,
+                   bets_won int,
+                   bets_lost int
+    
 
-'''
+                   
+
+    cursor.execute('''DROP TABLE bookies;''')
+
+    cursor.execute('''
+                   CREATE TABLE bookies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bookmaker TEXT UNIQUE,
+    deposit_total REAL DEFAULT 0.0,
+    withdrawal_total REAL DEFAULT 0.0,
+    total_bankroll REAL DEFAULT 0.0,
+    currently_wagered REAL DEFAULT 0.0,
+    wagerable REAL DEFAULT 0.0,
+    current_net REAL DEFAULT 0.0,
+    bets_placed INTEGER DEFAULT 0,
+    bets_settled INTEGER DEFAULT 0,
+    bets_won INTEGER DEFAULT 0,
+    bets_lost INTEGER DEFAULT 0,
+    bets_pending INTEGER DEFAULT 0
+);
+                   ''')
+    
+    cursor.execute('''
+                    INSERT INTO bookies (bookmaker, deposit_total, withdrawal_total, total_bankroll, currently_wagered, wagerable, current_net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending) VALUES
+('draftkings', 100.0, 0.0, 20.0, 20.0, 0.0, -80.0, 8, 7, 2, 5, 0),
+('fanduel', 100.0, 0.0, 6.65, 10.0, -3.35, -93.35, 30, 29, 5, 24, 0),
+('betmgm', 150.0, 0.0, -18.0, 20.0, -38.0, -168.0, 9, 7, 1, 6, 0),
+('betrivers', 100.0, 0.0, 143.63, 112.63, 31.0, 43.63, 60, 44, 9, 35, 0),
+('ballybet', 60.0, 0.0, 64.25, 35.0, 29.25, 4.25, 14, 11, 5, 6, 0),
+('espnbet', 10.0, 0.0, 40.0, 15.0, 25.0, 30.0, 13, 12, 3, 9, 0),
+('fanatics', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0);
+''')
+
+
+
+
+
+"""
