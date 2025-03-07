@@ -781,6 +781,7 @@ def update_bookie_values():
         cursor.execute('''SELECT * FROM bets WHERE bookie = ?''',(bookie,))
         response = cursor.fetchall()
 
+        print(f'response length: {len(response)}')
         bookie_wagerable = 0
         bookie_wagered = 0
         bets_placed = 0
@@ -797,6 +798,7 @@ def update_bookie_values():
 
             if outcome == "win":
                 bookie_wagerable += net
+                #bookie_wagerable += bet_amount
                 bets_won += 1
                 bets_settled += 1
             elif outcome == "loss":
@@ -811,6 +813,7 @@ def update_bookie_values():
                 print("status not found")
                 continue
         
+        bookie_wagerable += deposits[counter] - withdraws[counter]
         bookie_bankroll = bookie_wagerable + bookie_wagered
         bookie_net = bookie_bankroll - deposits[counter] + withdraws[counter]
 
@@ -823,6 +826,9 @@ def update_bookie_values():
     conn.commit()
     conn.close()
 
+
+
+"""
 display_all_bets()
 
 #display_ev_bookie_table()
@@ -831,7 +837,7 @@ display_ev_bookie_table()
 
 
 
-
+"""
 
 
 
