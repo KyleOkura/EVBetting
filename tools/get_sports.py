@@ -26,7 +26,8 @@ two_result_sport_list = ['americanfootball_ncaaf', 'aussierules_afl', 'baseball_
                          'basketball_nba', 'basketball_nbl', 'basketball_ncaab', 'boxing_boxing', 'cricket_odi', 
                          'icehockey_ahl', 'icehockey_liiga', 'icehockey_mestis', 'icehockey_nhl', 'icehockey_sweden_allsvenskan', 
                          'icehockey_sweden_hockey_league', 'lacrosse_ncaa', 'mma_mixed_martial_arts', 'rugbyleague_nrl', 'rugbyunion_six_nations',
-                         'baseball_mlb_preseason', 'basketball_wncaab', 'cricket_international_t20']
+                         'baseball_mlb_preseason', 'basketball_wncaab', 'cricket_international_t20', 'baseball_mlb', 'cricket_icc_trophy', 'cricket_ipl',
+                         ]
 
 sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_switzerland_superleague']
 

@@ -580,18 +580,12 @@ def delete_bet(bet_id):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''SELECT odds, bet_amount, bookie FROM bets WHERE bet_id = ?''', (bet_id,))
-    response = cursor.fetchall()
-    bet_amount = response[0][1]
-    bookie = response[0][2]
-
     
     cursor.execute('''DELETE FROM bets WHERE bet_id=?''', (bet_id,))
 
     conn.commit()
     conn.close()
 
-    #update_bookie(bookie, -bet_amount, bet_amount)
 
 
 def get_all_bets():
@@ -867,9 +861,6 @@ def update_bookie_values():
     conn.commit()
     conn.close()
 
-
-
-#display_settled_bets()
 
 
 #update_bookie_values()
