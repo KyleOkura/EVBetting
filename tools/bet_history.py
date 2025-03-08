@@ -856,6 +856,10 @@ def update_bookie_values():
 
         counter += 1
 
+        bookie_wagerable = round(bookie_wagerable, 2)
+        bookie_bankroll = round(bookie_bankroll, 2)
+        bookie_net = round(bookie_net, 2)
+
         cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ?, bets_placed = ?, bets_settled = ?, bets_won = ?, bets_lost = ?, bets_pending = ? WHERE bookmaker = ?''', (bookie_bankroll, bookie_wagered, bookie_wagerable, bookie_net, bets_placed, bets_settled, bets_won, bets_lost, pending_bets, bookie))
 
 
@@ -869,7 +873,7 @@ def update_bookie_values():
 
 
 #update_bookie_values()
-display_ev_bookie_table()
+#display_ev_bookie_table()
 
 
 

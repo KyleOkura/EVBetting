@@ -5,13 +5,13 @@ from ..tools.bet_history import enter_bet
 from ..tools.bet_history import get_pending_bets
 from ..tools.bet_history import get_all_bets
 from ..tools.bet_history import get_settled_bets
-from ..tools.bet_history import get_bet
 from ..tools.bet_history import update_outcome
 from ..tools.bet_history import get_total_bankroll
 from ..tools.bet_history import get_bookies_table
 from ..tools.bet_history import update_bet_amount
 from ..tools.bet_history import update_bet_odds
 from ..tools.bet_history import update_date
+from ..tools.bet_history import update_bookie_values
 
 import os
 import sqlite3
@@ -123,6 +123,7 @@ def edit_bet():
 
 @app.route('/bookie_stats', methods=['GET'])
 def bookie_stats():
+    update_bookie_values()
     bookie_data = get_bookies_table()
     bookies = []
     bankroll = []
