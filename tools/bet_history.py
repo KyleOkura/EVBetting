@@ -712,6 +712,15 @@ def update_date(bet_id, new_date):
     conn.commit()
     conn.close()
 
+def update_bet_bookie(bet_id, new_bookie):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+
+    cursor = conn.cursor()
+    cursor.execute('''UPDATE bets SET bookie = ?  WHERE bet_id = ?''', (new_bookie, bet_id))
+    conn.commit()
+    conn.close()
+
 #used to initially change bonus bets with negative nets
 def update_bet_net(bet_id, new_net):
     db_path = get_path()
@@ -723,9 +732,6 @@ def update_bet_net(bet_id, new_net):
     conn.close()
 
 
-update_bet_net('2e4cd113084093a6c02d5a6b0f0f101d', 0)
-update_bet_net('993735b51c4561b38b971451108e9fe2', 0)
-update_bet_net('f4556d715ed72f9d5831c5944aee4508', 0)
 
 def update_bet_amount(bet_id, new_amount):
     db_path = get_path()
@@ -858,26 +864,13 @@ def update_bookie_values():
     conn.close()
 
 
-"""
-enter_bet('2', 'offset', 'offset', 'offset', 'draftkings', 100, 0, 0, '2000-00-00')
-update_outcome('1', 'offset')
-update_bet_net('1', 37.84)
+
+#display_settled_bets()
 
 
-update_bookie_values()
-display_pending_bets()
+#update_bookie_values()
 display_ev_bookie_table()
 
-
-display_all_bets()
-
-#display_ev_bookie_table()
-update_bookie_values()
-display_ev_bookie_table()
-
-
-
-"""
 
 
 

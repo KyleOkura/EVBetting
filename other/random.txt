@@ -1,3 +1,8 @@
+enter_bet('2', 'offset', 'offset', 'offset', 'draftkings', 100, 0, 0, '2000-00-00')
+update_outcome('1', 'offset')
+update_bet_net('1', 37.84)
+update_bookie_values()
+
 
 
 
