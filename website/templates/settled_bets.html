@@ -32,7 +32,19 @@
         <td class="{{bet.outcome|lower}}">{{bet.outcome}}</td>
     </tr>
     {% endfor %}
+    <tr>
+        <th>2000-00-00</th>
+        <th>NET</th>
+        <th>NET</th>
+        <th>NET</th>
+        <th>NET</th>
+        <th>EV: {{ "%.2f"|format(bets_ev)}}</th>
+        <th>NET: {{bets_net}}</th>
+        <th>Bets Won: {{bets_won}}       Bets Lost: {{bets_lost}}</th>
+    </tr>
 </table>
+
+
 <script>
     document.getElementById("sort-bookies").addEventListener("change", function() {
         let order = this.value;
@@ -52,87 +64,3 @@
 {%endblock%}
 
 
-
-<!-----
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settled Bets</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .navbar {
-            overflow: hidden;
-            background-color: #333;
-        }
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-        .loss {
-            background-color: rgb(255, 102, 0);
-            color: rgb(0, 0, 0);
-        }
-        .win {
-            background-color: rgb(68, 243, 45);
-            color: rgb(0, 0, 0);
-        }
-    </style>
-</head>
-<body>
-    <h1>Settled Bets</h1>
-    <div class="navbar">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('run_all') }}">Find Bets</a>
-        <a href="{{ url_for('all_bets') }}">All Bets</a>
-        <a href="{{ url_for('current_bets') }}">Current Bets</a>
-        <a href="{{ url_for('settled_bets') }}">Settled Bets</a>
-    </div>
-    <table>
-        <tr>
-            <th>Date</th>
-            <th>Team</th>
-            <th>Bookie</th>
-            <th>Type</th>
-            <th>Odds</th>
-            <th>EV</th>
-            <th>Net</th>
-            <th>Outcome</th>
-        </tr>
-        {% for bet in bets %}
-        <tr>
-            <td>{{bet.date}} </td>
-            <td>{{bet.team}} </td>
-            <td>{{bet.bookie}}</td>
-            <td>{{bet.bet_type}}</td>
-            <td>{{bet.odds}}</td>
-            <td>{{bet.this_EV}}</td>
-            <td>{{bet.net}}</td>
-            <td class="{{bet.outcome|lower}}">{{bet.outcome}}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
-
---->

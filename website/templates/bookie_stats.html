@@ -16,14 +16,21 @@
     </thead>
     <tbody>
         {% for bookie, bankroll, wagered, wagerable, net in combined %}
-            <tr>
-                <td>{{ bookie }}</td>
-                <td>{{ bankroll }}</td>
-                <td>{{ wagered }}</td>
-                <td>{{ wagerable }}</td>
-                <td>{{ net }}</td>
-            </tr>
+        <tr>
+            <td>{{ bookie }}</td>
+            <td>{{ bankroll }}</td>
+            <td>{{ wagered }}</td>
+            <td>{{ wagerable }}</td>
+            <td>{{ net }}</td>
+        </tr>
         {% endfor %}
+        <tr class = "bold-row">
+            <td>NETS</td>
+            <td>{{ "%.2f"|format(net_bankroll)}}</td>
+            <td>{{ net_wagered }}</td>
+            <td>{{ net_wagerable }}</td>
+            <td>{{ net_total }}</td>
+        </tr>
     </tbody>
 </table>
 {% endblock %}

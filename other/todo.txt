@@ -1,7 +1,5 @@
 
 
-betrivers jewd me out of $7 - update the bet
-
 
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table

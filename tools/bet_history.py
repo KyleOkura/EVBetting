@@ -161,9 +161,20 @@ def get_bookies_table():
     cursor.execute('''SELECT * FROM bookies''')
     bookies_data = cursor.fetchall()
 
+    total_bankroll = 0
+    total_wagered = 0
+    total_wagerable = 0
+    net_total = 0
+
+    for bookie in bookies_data:
+        total_bankroll += bookie['total_bankroll']
+        total_wagered += bookie['currently_wagered']
+        total_wagerable += bookie['wagerable']
+        net_total += bookie['current_net']
+
     conn.close()
     print("Close db in get_bookies_table")
-    return bookies_data
+    return bookies_data, (total_bankroll, total_wagered, total_wagerable, net_total)
 
 
 
@@ -644,9 +655,29 @@ def get_settled_bets():
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'loss' or outcome = 'win'""")
     bets = cursor.fetchall()
 
+    total_ev = 0
+    total_net = 0
+    bets_won = 0
+    bets_lost = 0
+
+    for bet in bets:
+        this_ev = bet['this_ev']
+        this_net = bet['net']
+        total_ev += this_ev
+        total_net += this_net
+
+        if bet['outcome'] == 'win':
+            bets_won += 1
+        elif bet['outcome'] == 'loss':
+            bets_lost += 1
+        else:
+            print('result not found')
+            continue
+
+
     conn.close()
 
-    return bets
+    return (bets, (total_ev, total_net), (bets_won, bets_lost))
 
 
 
@@ -860,13 +891,6 @@ def update_bookie_values():
 
     conn.commit()
     conn.close()
-
-
-
-#update_bookie_values()
-#display_ev_bookie_table()
-
-
 
 
 

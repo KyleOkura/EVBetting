@@ -91,8 +91,17 @@ def all_bets():
 
 @app.route('/settled_bets', methods = ['GET'])
 def settled_bets():
-    settled_bets = get_settled_bets()
-    return render_template('settled_bets.html', bets=settled_bets)
+    response = get_settled_bets()
+    settled_bets = response[0]
+    nums = response[1]
+    results = response[2]
+
+    total_ev = nums[0]
+    total_net = nums[1]
+
+    bets_won = results[0]
+    bets_lost = results[1]
+    return render_template('settled_bets.html', bets=settled_bets, bets_ev=total_ev, bets_net=total_net, bets_won=bets_won, bets_lost=bets_lost)
 
 @app.route('/edit_bet', methods=['POST'])
 def edit_bet():
@@ -130,16 +139,20 @@ def bookie_stats():
     wagered = []
     wagerable = []
     nets = []
-    for x in bookie_data:
+    info = bookie_data[0]
+
+    for x in info:
         bookies.append(x['bookmaker'])
         bankroll.append(x['total_bankroll'])
         wagered.append(x['currently_wagered'])
         wagerable.append(x['wagerable'])
         nets.append(x['current_net'])
 
+    totals = bookie_data[1]
+
     combined = zip(bookies, bankroll, wagered, wagerable, nets)
 
-    return render_template('bookie_stats.html', combined=combined)
+    return render_template('bookie_stats.html', combined=combined, net_bankroll=totals[0], net_wagered=totals[1], net_wagerable=totals[2], net_total=totals[3])
 
 if __name__ == '__main__':
     app.run(debug=True)
