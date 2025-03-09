@@ -1,12 +1,12 @@
 
-
-
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table
 
-display bookie table on website - graphs
+put a list of funcs at the top of bet history with inputs and outputs, and a descirption of what it does
 
 expand bets to more than moneyline
+
+graphs with bets and bookie numbers over time?
 
 clean up code inside tworesult and threeresult? - and other places (variable names, efficiency)
  - add comments
