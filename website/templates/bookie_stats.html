@@ -11,7 +11,7 @@
             <th>Bankroll</th>
             <th>Wagered</th>
             <th>Wagerable</th>
-            <th>Net Profit/Loss</th>
+            <th>Net Profit</th>
         </tr>
     </thead>
     <tbody>
@@ -29,7 +29,7 @@
             <td>{{ "%.2f"|format(net_bankroll)}}</td>
             <td>{{ net_wagered }}</td>
             <td>{{ net_wagerable }}</td>
-            <td>{{ net_total }}</td>
+            <td>{{ "%.2f"|format(net_total)}}</td>
         </tr>
     </tbody>
 </table>
