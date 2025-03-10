@@ -854,8 +854,7 @@ def update_bookie_values():
 
     conn.commit()
     conn.close()
-
-
+"""
 def get_total_money_wagered_all_time():
     db_path = get_path()
     conn = sqlite3.connect(db_path)
@@ -872,7 +871,9 @@ def get_total_money_wagered_all_time():
 
     return sum
 
+    
 print(get_total_money_wagered_all_time())
+"""
 
 """
 bet_id VARCHAR(35) PRIMARY KEY,
