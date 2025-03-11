@@ -154,5 +154,26 @@ def bookie_stats():
 
     return render_template('bookie_stats.html', combined=combined, net_bankroll=totals[0], net_wagered=totals[1], net_wagerable=totals[2], net_total=totals[3])
 
+
+"""
+@app.route('/bets_graph', methods=['POST'])
+def bets_graph():
+    bets = get_all_bets()
+
+    expected_value_nums = []
+    net_nums = []
+
+    for bet in bets:
+        expected_value_nums.append(bet['this_EV'])
+        net_nums.append(bet['net'])
+
+
+    return jsonify({"actual": actual_profits, "expected": expected_profits})
+"""
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+

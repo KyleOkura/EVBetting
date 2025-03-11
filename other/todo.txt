@@ -1,4 +1,11 @@
 
+draftkings offset increase by 2
+
+transfer 137.84 out of draftkings
+ - 100 to betrivers
+ - 37.84 keep as cash
+
+
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table
 

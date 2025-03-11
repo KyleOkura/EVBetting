@@ -23,21 +23,12 @@ enters bet as type bonus, and does not call update_bookie <- should call to incr
 update_bookie(name, wagered_change, wagerable_change)
 
 
-
-
-
-
-
-
 add_bookmaker(name, deposit, wagered, wagerable, withdrawl)
 adds bookmaker
 
 
 
 '''
-
-
-
 
 
 
@@ -248,7 +239,7 @@ def add_bookmaker(name, deposit, withdrawn, wagered, wagerable):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''INSERT INTO bookies (bookmaker, deposit_total, withdrawl_total, total_bankroll, currently_wagered, wagerable, current_net)
+    cursor.execute('''INSERT INTO bookies (bookmaker, deposit_total, withdrawal_total, total_bankroll, currently_wagered, wagerable, current_net)
                     VALUES(?,?,?,?,?,?,?)''', (name, deposit, withdrawn, bankroll, wagered, wagerable, net))
     conn.commit()
     conn.close()
@@ -517,18 +508,18 @@ def display_bookie_table():
     data = cursor.fetchall()
 
     print()
-    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}{'bets placed':<20}{'bets settled':<20}{'bets won':<20}{'bets lost':<20}")
-    print('-' * 130)
+    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawal total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<15}{'bets placed':<15}{'bets settled':<15}{'bets pending':<15}{'bets won':<15}{'bets lost':<15}")
+    print('-' * 200)
 
     total_net = 0
 
     for bookie in data:
-        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost = bookie
-        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}{bets_placed:<20}{bets_settled:<20}{bets_won:<20}{bets_lost:<20}")
+        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending = bookie
+        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<15}{bets_placed:<15}{bets_settled:<15}{bets_pending:<15}{bets_won:<15}{bets_lost:<15}")
         total_net += net
 
     print()
-    print(f'Net winnings across all bookies: {round(total_net, 2)}')
+    print(f'Net winnings across EV bookies: {round(total_net, 2)}')
 
 
 
@@ -745,7 +736,7 @@ def update_bet_amount(bet_id, new_amount):
 
 
 
-
+"""
 def reset_bookie():
     bankroll = 126.27
     wagered = 15
@@ -760,12 +751,12 @@ def reset_bookie():
     cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ? WHERE bookmaker = ?''', (bankroll, wagered, wagerable, net, bookmaker))
     conn.commit()
     conn.close()
-
+"""
 
 
 
 def update_bookie_values():
-    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'cash']
     deposits = []
     withdraws = []
 
@@ -854,6 +845,89 @@ def update_bookie_values():
 
     conn.commit()
     conn.close()
+
+
+"""
+HAVEN'T TESTED YET
+def withdrawal(bookie, amount):
+    bookie_wagerable = get_bookie_wagerable_amount(bookie)
+
+    if amount > bookie_wagerable or amount < 0:
+        print("Invalid input (insufficient funds or negative amount)")
+        return
+    
+    new_wagerable = bookie_wagerable - amount
+
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''FROM bookies SET wagerable = ? WHERE bookmaker = ?''',(new_wagerable, bookie))
+
+    conn.commit()
+    conn.close()
+"""
+
+def get_bookie_withdrawal(bookie):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT withdrawal_total FROM bookies WHERE bookmaker=?''',(bookie,)) 
+    num = cursor.fetchone()
+    conn.close()
+
+    return num[0]
+
+
+def get_bookie_deposit(bookie):
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT deposit_total FROM bookies WHERE bookmaker=?''',(bookie,)) 
+    num = cursor.fetchone()
+    conn.close()
+
+    return num[0]
+
+
+
+def transfer_funds(sending_bookie, receive_bookie, amount):
+    if amount < 0:
+        print("Not a valid amount")
+        return
+
+    sending_bookie_wagerable = get_bookie_wagerable_amount(sending_bookie)
+    receive_bookie_wagerable = get_bookie_wagerable_amount(receive_bookie)
+
+    if sending_bookie_wagerable < amount:
+        print("Not enough funds")
+        return
+    
+    sending_bookie_new_wagerable = sending_bookie_wagerable - amount
+    receive_bookie_new_wagerable = receive_bookie_wagerable + amount
+
+    sending_bookie_withdrawal = get_bookie_withdrawal(sending_bookie)
+    sending_bookie_new_withdrawal = sending_bookie_withdrawal + amount
+
+    receive_bookie_deposit = get_bookie_deposit(receive_bookie)
+    receive_booke_new_deposit = receive_bookie_deposit + amount
+
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bookies SET withdrawal_total = ?, wagerable = ? WHERE bookmaker = ?''',(sending_bookie_new_withdrawal, sending_bookie_new_wagerable, sending_bookie))
+    cursor.execute('''UPDATE bookies SET deposit_total = ?, wagerable = ? WHERE bookmaker = ?''',(receive_booke_new_deposit, receive_bookie_new_wagerable, receive_bookie))    
+
+    conn.commit()
+    conn.close()
+
+#update_bookie_values()
+#display_bookie_table()
+
+
 """
 def get_total_money_wagered_all_time():
     db_path = get_path()
