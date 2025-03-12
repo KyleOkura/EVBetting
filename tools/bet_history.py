@@ -215,7 +215,7 @@ def get_total_bankroll():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'williamhill_us', 'cash']
 
     total_bankroll = 0
     for bookie in ev_bookie_list:
@@ -940,8 +940,7 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
 #update_bookie_values()
 #display_bookie_table()
-#display_all_bets()
-
+#print(get_total_bankroll())
 """
 def get_total_money_wagered_all_time():
     db_path = get_path()
