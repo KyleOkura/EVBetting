@@ -879,6 +879,20 @@ def get_bookie_withdrawal(bookie):
 
     return num[0]
 
+def deposit(bookie, amount):
+    curr_deposit = get_bookie_deposit(bookie)
+    new_deposit = curr_deposit + amount
+
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bookies SET deposit_total = ? WHERE bookmaker = ?''', (new_deposit, bookie))
+
+    conn.commit()
+    conn.close()
+    
+
 
 def get_bookie_deposit(bookie):
     db_path = get_path()
@@ -925,6 +939,7 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
     conn.close()
 
 #update_bookie_values()
+
 #display_bookie_table()
 
 
