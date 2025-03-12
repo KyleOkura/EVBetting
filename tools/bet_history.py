@@ -939,9 +939,8 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
     conn.close()
 
 #update_bookie_values()
-
 #display_bookie_table()
-
+#display_all_bets()
 
 """
 def get_total_money_wagered_all_time():
