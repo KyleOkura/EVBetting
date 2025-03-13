@@ -461,7 +461,7 @@ def display_ev_bookie_table():
 
 
 def get_ev_bookies():
-    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics']
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'cash', 'williamhill_us']
     return ev_bookie_list
 
 
@@ -514,8 +514,15 @@ def display_bookie_table():
     total_net = 0
 
     for bookie in data:
-        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending = bookie
-        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<15}{bets_placed:<15}{bets_settled:<15}{bets_pending:<15}{bets_won:<15}{bets_lost:<15}")
+        id, name, deposit, withdrawals, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending = bookie
+        
+        deposit = round(deposit, 2)
+        withdrawals = round(withdrawals, 2)
+        wagered = round(wagered, 2)
+        wagerable = round(wagerable, 2)
+        net = round(net, 2)
+        
+        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawals:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<15}{bets_placed:<15}{bets_settled:<15}{bets_pending:<15}{bets_won:<15}{bets_lost:<15}")
         total_net += net
 
     print()
@@ -756,7 +763,7 @@ def reset_bookie():
 
 
 def update_bookie_values():
-    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'cash']
+    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'cash', 'williamhill_us']
     deposits = []
     withdraws = []
 
@@ -938,9 +945,10 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
     conn.commit()
     conn.close()
 
-#update_bookie_values()
+
+
 #display_bookie_table()
-#print(get_total_bankroll())
+
 """
 def get_total_money_wagered_all_time():
     db_path = get_path()
