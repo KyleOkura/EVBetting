@@ -1,14 +1,23 @@
 
 update willhill deposit and withdrawals? I fucked it up
+should be 100 deposit 0 withdrawal
 
 insert bet - let it take a decimal
 
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table
+ - new table in db?
 
 add transfer funds functionally to website
 
-expand bets to more than moneyline
+expand bets to more than moneyline{
+    store pinnacle spread in new table (new func not moneyline)
+
+    if the spreads are the same just compare the juice with the spread
+    - can add different spread later?
+        - have to calculate how much a point costs in spread with each sport
+}
+
 
 graphs with bets and bookie numbers over time?
 
