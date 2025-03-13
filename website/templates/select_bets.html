@@ -75,6 +75,7 @@
                     <div class="mb-3">
                         <label for="amount" class="form-label">Bet Amount ($):</label>
                         <input type="number" name="amount" id="modal-amount" class="form-control" min="1" required>
+                        <!-- add step="any" above to test for decimal entries-->
                     </div>
 
                     <button type="submit" class="btn btn-success">Confirm Bet</button>
@@ -108,9 +109,9 @@
             $("#modal-amount").val(amount);
 
             let bookieDropdown = $("#modal-bookie");
-            bookieDropdown.empty(); // Clear existing options *first*
+            bookieDropdown.empty(); 
 
-            bookies.forEach(function(bookie) {  // Correct way to iterate
+            bookies.forEach(function(bookie) {  
                 let option = $("<option></option>").val(bookie).text(bookie);
                 bookieDropdown.append(option);
             });

@@ -1,6 +1,8 @@
 
 update willhill deposit and withdrawals? I fucked it up
 
+insert bet - let it take a decimal
+
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table
 
