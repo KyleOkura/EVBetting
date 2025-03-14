@@ -979,9 +979,9 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
     conn.commit()
     conn.close()
 
-#deposit('cash', 475.65)
-#update_bookie_values()
-#display_bookie_table()
+
+
+
 
 """
 def get_total_money_wagered_all_time():
