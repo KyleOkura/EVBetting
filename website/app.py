@@ -12,6 +12,8 @@ from ..tools.bet_history import update_bet_amount
 from ..tools.bet_history import update_bet_odds
 from ..tools.bet_history import update_date
 from ..tools.bet_history import update_bookie_values
+from ..tools.bet_history import get_pending_ev
+from ..tools.bet_history import get_pending_wagered
 
 import os
 import sqlite3
@@ -82,7 +84,9 @@ def take_bet():
 @app.route('/current_bets', methods = ['GET'])
 def current_bets():
     current_bets = sorted(get_pending_bets(), key=lambda bet: bet["date"])
-    return render_template('current_bets.html', bets=current_bets)
+    current_total_ev = get_pending_ev()
+    current_total_wagered = get_pending_wagered()
+    return render_template('current_bets.html', bets=current_bets, total_ev=current_total_ev, total_wagered = current_total_wagered)
 
 @app.route('/all_bets', methods = ['GET'])
 def all_bets():
