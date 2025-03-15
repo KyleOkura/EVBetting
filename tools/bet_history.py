@@ -981,8 +981,6 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
 
 
-
-
 """
 def get_total_money_wagered_all_time():
     db_path = get_path()
