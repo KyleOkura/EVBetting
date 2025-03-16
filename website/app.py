@@ -35,7 +35,46 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    update_bookie_values()
+    bookie_table = get_bookies_table()
+    draftkings_net = 0
+    fanduel_net = 0
+    betmgm_net = 0
+    betrivers_net = 0
+    ballybet_net = 0
+    williamhill_net = 0
+    espnbet_net = 0
+    fanatics_net = 0
+    cash_net = 0
+
+
+    for bookie in bookie_table[0]:
+        bookie_name = bookie['bookmaker']
+        match bookie_name:
+            case 'draftkings':
+                draftkings_net = bookie['current_net']
+            case 'fanduel':
+                fanduel_net = bookie['current_net']
+            case 'betmgm':
+                betmgm_net = bookie['current_net']
+            case 'betrivers':
+                betrivers_net = bookie['current_net']
+            case 'ballybet':
+                ballybet_net = bookie['current_net']
+            case 'williamhill_us':
+                williamhill_net = bookie['current_net']
+            case 'espnbet':
+                espnbet_net = bookie['current_net']
+            case 'fanatics':
+                fanatics_net = bookie['current_net']
+            case 'cash':
+                cash_net = bookie['total_bankroll']
+            case _:
+                raise ValueError(f"{bookie_name} not found")
+            
+    bookie_nets = (draftkings_net, fanduel_net, betmgm_net, betrivers_net, ballybet_net, williamhill_net, espnbet_net, fanatics_net, cash_net)
+
+    return render_template('index.html', bookie_nets=bookie_nets)
 
 @app.route('/run_all', methods = ['GET', 'POST'])
 def run_all():
