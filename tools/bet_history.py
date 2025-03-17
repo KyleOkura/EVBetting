@@ -3,6 +3,7 @@ from datetime import datetime
 import numpy as np
 import requests
 import os
+import json
 
 from .odds_calculator import american_to_decimal
 from .odds_calculator import american_payout
@@ -30,6 +31,10 @@ adds bookmaker
 
 '''
 
+def get_path():
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
+    db_path = os.path.join(root_dir, 'bet_history.db')
+    return db_path
 
 
 def adapt_datetime(date):
@@ -113,22 +118,15 @@ def create_evbets_table():
                     bet_id VARCHAR(35) PRIMARY KEY,
                     sport VARCHAR(50),
                     team VARCHAR(50),
-                    bet_type VARCHAR(50),
-                    bookie VARCHAR(50),
+                    bookie_list VARCHAR(100),
                     odds INT,
-                    bet_amount INT,
                     bet_EV INT,
-                    this_EV INT,
-                    outcome VARCHAR(10),
-                    net INT,
+                    kelly_percent INT,
                     date VARCHAR(10)
                    );''')
     
-    
     conn.commit()
     conn.close()
-
-
     
 
 def get_bookies_table():
@@ -168,12 +166,12 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
                 ''', (bet_id,sport, team, bet_type, bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
+    
+    cursor.execute('''DELETE FROM evbets WHERE bet_id = ?''', (bet_id,))
 
     conn.commit()
     conn.close()
     print("Close db enter_bet")
-
-    #update_bookie(bookie, bet_amount, -bet_amount)
 
 
 def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date):
@@ -184,13 +182,65 @@ def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date)
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
                 ''', (bet_id,sport, team, 'Bonus', bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
+    
+    cursor.execute('''DELETE FROM evbets WHERE bet_id = ?''', (bet_id,))
 
     conn.commit()
     conn.close()
     print("Close db enter_bonus_bet")
 
-    #update_bookie(bookie, bet_amount, 0)
 
+def get_current_evbets():
+    print("Open db get_current_evbets")
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT * FROM evbets''')
+    data = cursor.fetchall()
+
+    conn.commit()
+    conn.close()
+
+    print("Close db get_current_evbets")
+    return data
+
+
+def update_evbets(bets):
+    print("Open db update_evbets")
+    create_evbets_table()
+    
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    for bet in bets:
+        sport, bet_id, team, bookie_list, odds, bet_ev, kelly_percent, date, kelly_wager = bet
+        bookie_list_json = json.dumps(bookie_list)
+        cursor.execute('''INSERT OR REPLACE INTO evbets (bet_id, sport, team, bookie_list, odds, bet_EV, kelly_percent, date) VALUES (?,?,?,?,?,?,?,?)''', 
+                        (bet_id, sport, team, bookie_list_json, odds, bet_ev, kelly_percent, date))
+    
+    conn.commit()
+    conn.close()
+
+    print("Close db update_evbets")
+
+
+def print_evbets():
+    print("Open db print_evbets")
+    
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT * FROM evbets''')
+    data = cursor.fetchall()
+    conn.close()
+
+    for bet in data:
+        sport, bet_id, team, bookie_list, odds, bet_ev, kelly_percent, date, kelly_wager = bet
+        print(f"{bet_id:<34}{sport:<37}{team:<49}{bookie_list:<20}{odds:<6}{bet_ev:<10}{kelly_percent<10}{date:<12}")
+        print()
+
+
+    print("Close db print_evbets")
 
 
 def update_bookie(name, wagered_change, wagerable_change):
@@ -302,9 +352,6 @@ def update_outcome(bet_id, outcome):
     conn.commit()
     conn.close()
 
-    #bookie_wagerable_change = this_bet_net + bet_amount
-
-    #update_bookie(bookie, -bet_amount, bookie_wagerable_change)
 
 
 def display_all_bets():
@@ -457,32 +504,6 @@ def get_bookie_wagerable_amount(bookie):
     conn.close()
 
     return wagerable_amount[0]
-
-
-
-def display_ev_bookie_table():
-    #refresh_bookie_table()
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute('''SELECT * FROM bookies''')
-
-    data = cursor.fetchall()
-
-    print()
-    print(f"{'id':<3}{'bookie':<15}{'deposit total':<20}{'withdrawl total':<20}{'total bankroll':<20}{'currently wagered':<20}{'wagerable amount':<20}{'current net':<20}{'bets placed':<20}{'bets settled':<20}{'bets pending':<20}{'bets won':<20}{'bets lost':<20}")
-    print('-' * 130)
-
-    total_net = 0
-
-    for bookie in data:
-        id, name, deposit, withdrawl, bankroll, wagered, wagerable, net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending = bookie
-        print(f"{id:<3}{name:<20}{deposit:<20}{withdrawl:<20}{bankroll:<20}{wagered:<20}{wagerable:<20}{net:<20}{bets_placed:<20}{bets_settled:<20}{bets_pending:<20}{bets_won:<20}{bets_lost:<20}")
-        total_net += net
-
-    print()
-    print(f'Net winnings across EV bookies: {round(total_net, 2)}')
 
 
 
@@ -702,13 +723,6 @@ def get_settled_bets():
 
 
 
-def get_path():
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
-    db_path = os.path.join(root_dir, 'bet_history.db')
-    return db_path
-
-
-
 def get_bet(bet_id):
     db_path = get_path()
     conn = sqlite3.connect(db_path)
@@ -800,26 +814,6 @@ def update_bet_amount(bet_id, new_amount):
     wagered_change = new_amount - old_amount
 
     #update_bookie(bookie, wagered_change, 0)
-
-
-
-"""
-def reset_bookie():
-    bankroll = 126.27
-    wagered = 15
-    wagerable = 111.27
-    net = 116.27
-    bookmaker = 'espnbet'
-
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute('''UPDATE bookies SET total_bankroll = ?, currently_wagered = ?, wagerable = ?, current_net = ? WHERE bookmaker = ?''', (bankroll, wagered, wagerable, net, bookmaker))
-    conn.commit()
-    conn.close()
-"""
-
 
 
 def update_bookie_values():
@@ -1004,6 +998,22 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
     conn.commit()
     conn.close()
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
 
 
 """

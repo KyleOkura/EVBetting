@@ -3,6 +3,9 @@
 {% block title %}EV Betting{% endblock %}
 
 {% block content %}
+<form method="POST">
+    <button type="submit">Refresh Bets</button>
+</form>
 <h1 class="text-center">Available Bets</h1>
 <table class="table table-bordered table-striped">
     <thead>
@@ -28,7 +31,6 @@
             <td>{{ ", ".join(bet[3]) }}</td> 
             <td>{{ bet[4] }}</td> 
             <td>{{ bet[5] | round(2)}}</td> 
-            <!---<td>{{ (bet[6] * 100 | round(2))}}%</td> --->
             <td>{{ "%.2f"|format(bet[6] * 100) }}%</td>
             <td>{{ bet[8] }}</td>
             <td>{{ bet[7] }}</td> 

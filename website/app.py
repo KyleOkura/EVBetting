@@ -14,6 +14,8 @@ from ..tools.bet_history import update_date
 from ..tools.bet_history import update_bookie_values
 from ..tools.bet_history import get_pending_ev
 from ..tools.bet_history import get_pending_wagered
+from ..tools.bet_history import get_current_evbets
+from ..tools.bet_history import update_evbets
 
 import os
 import sqlite3
@@ -47,7 +49,6 @@ def index():
     fanatics_net = 0
     cash_net = 0
 
-
     for bookie in bookie_table[0]:
         bookie_name = bookie['bookmaker']
         match bookie_name:
@@ -76,11 +77,11 @@ def index():
 
     return render_template('index.html', bookie_nets=bookie_nets)
 
-@app.route('/run_all', methods = ['GET', 'POST'])
-def run_all():
+@app.route('/select_bets', methods = ['POST', 'GET'])
+def select_bets():
     if request.method == 'POST':
         sports = get_sports(active=True, has_outrights=False)
-        ev_bets = run_all_bets(sports)
+        evbets = run_all_bets(sports)
         total_bankroll = get_total_bankroll()
 
         data_ids = get_pending_bets()
@@ -88,19 +89,20 @@ def run_all():
         for id in data_ids:
             current_ids.append(id["bet_id"])
 
-        ev_bets = [bet for bet in ev_bets if bet[1] not in current_ids]
+        evbets = [bet for bet in evbets if bet[1] not in current_ids]
 
-        for bet in ev_bets:
+        for bet in evbets:
             kelly_percent = bet[6]
             kelly_wager = kelly_percent * total_bankroll
             bet.append(round(kelly_wager, 2))
 
-        return render_template('select_bets.html', bets=ev_bets)
-    return render_template('run_all.html')
+        update_evbets(evbets)
 
-@app.route('/select_bets')
-def select_bets():
-    return render_template('select_bets.html')
+        return render_template('select_bets.html', bets=evbets)
+    
+    else:
+        evbets = get_current_evbets()
+        return render_template('select_bets.html', bets=evbets)
 
 @app.route('/take_bet', methods = ['POST'])
 def take_bet():
@@ -111,14 +113,13 @@ def take_bet():
     bookie_choice = request.form['bookie']
     bet_type = 'Moneyline'
     odds = int(request.form['odds'])
-    #bet_amount = request.form['amount']
-    bet_amount = float(request.form['amount'])  # If bet_amount is also from the form
+    bet_amount = float(request.form['amount'])
     bet_ev = round(float(request.form['ev']), 2)
-    #bet_ev = round(request.form['ev'] * bet_amount, 2)
     date = request.form['date']
     enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
 
-    return(redirect(url_for('select_bets')))
+    evbets = get_current_evbets()
+    return render_template('select_bets.html', bets=evbets)
 
 @app.route('/current_bets', methods = ['GET'])
 def current_bets():

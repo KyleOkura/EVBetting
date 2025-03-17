@@ -1,12 +1,21 @@
 
-update willhill deposit and withdrawals? I fucked it up
-should be 100 deposit 0 withdrawal
-
-insert bet - let it take a decimal
-
+ done but might not work
 update get_bets to be a page that just refreshes with bets - dont have to push button
 when bet is taken remove it from the table
  - new table in db?
+
+
+
+insert
+e5b1d93a82e4c63b82f63884bad40068
+draw st etienne vs psg
++800
+$20
+just say 5 ev?
+
+
+insert bet - let it take a decimal
+
 
 add transfer funds functionally to website
 

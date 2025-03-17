@@ -138,9 +138,7 @@ def find_ev_bet_two_result(game_df):
         if home_ev > ev_cutoff:
             if home_team_best_line < odds_cutoff:
                 bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
-
                 percent_wager = kelly_criterion(home_true_pinnacle_prob, home_team_best_line)
-
                 ret_list.append([home_team, bookie_list, home_team_best_line, home_ev, percent_wager])
 
 
