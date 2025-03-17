@@ -103,6 +103,32 @@ def create_bookie_table():
     conn.commit()
     conn.close()
 
+def create_evbets_table():
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''DROP TABLE evbets''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS evbets(
+                    bet_id VARCHAR(35) PRIMARY KEY,
+                    sport VARCHAR(50),
+                    team VARCHAR(50),
+                    bet_type VARCHAR(50),
+                    bookie VARCHAR(50),
+                    odds INT,
+                    bet_amount INT,
+                    bet_EV INT,
+                    this_EV INT,
+                    outcome VARCHAR(10),
+                    net INT,
+                    date VARCHAR(10)
+                   );''')
+    
+    
+    conn.commit()
+    conn.close()
+
+
     
 
 def get_bookies_table():
@@ -978,7 +1004,6 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
     conn.commit()
     conn.close()
-
 
 
 """
