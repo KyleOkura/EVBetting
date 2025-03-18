@@ -118,16 +118,24 @@ def create_evbets_table():
                     bet_id VARCHAR(35) PRIMARY KEY,
                     sport VARCHAR(50),
                     team VARCHAR(50),
-                    bookie_list VARCHAR(100),
-                    odds INT,
+                    odds INTEGER,
                     bet_EV INT,
                     kelly_percent INT,
-                    date VARCHAR(10)
+                    date VARCHAR(10),
+                    kelly_wager INT
+                   );''')
+    
+    cursor.execute('''DROP TABLE evbets_bookies''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS evbets_bookies(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    bet_id VARCHAR(35),
+                    bookie VARCHAR(20),
+                    FOREIGN KEY (bet_id) REFERENCES evbets(bet_id) ON DELETE CASCADE
                    );''')
     
     conn.commit()
     conn.close()
-    
+
 
 def get_bookies_table():
     print("Open db in get_bookies_table")
@@ -196,12 +204,34 @@ def get_current_evbets():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''SELECT * FROM evbets''')
+    bets = cursor.fetchall()
+
+    evbets = []
+    for bet in bets:
+        bet_id = bet[0]
+        cursor.execute('''SELECT bookie FROM evbets_bookies WHERE bet_id=?''',(bet_id,))
+        bookie_list = [bookie[0] for bookie in cursor.fetchall()]
+        bet = list(bet)
+        bet.insert(3, bookie_list)
+        evbets.append(bet)
+
+    conn.close()
+    print("Close db get_current_evbets")
+    return evbets
+
+
+def get_evbet_bookies(bet_id):
+    print("Open db get_evbet_bookies")
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT bookie FROM evbets_bookies WHERE bet_id = ?''', (bet_id,))
     data = cursor.fetchall()
 
     conn.commit()
     conn.close()
 
-    print("Close db get_current_evbets")
+    print("Close db get_evbet_bookies")
     return data
 
 
@@ -214,9 +244,10 @@ def update_evbets(bets):
     cursor = conn.cursor()
     for bet in bets:
         sport, bet_id, team, bookie_list, odds, bet_ev, kelly_percent, date, kelly_wager = bet
-        bookie_list_json = json.dumps(bookie_list)
-        cursor.execute('''INSERT OR REPLACE INTO evbets (bet_id, sport, team, bookie_list, odds, bet_EV, kelly_percent, date) VALUES (?,?,?,?,?,?,?,?)''', 
-                        (bet_id, sport, team, bookie_list_json, odds, bet_ev, kelly_percent, date))
+        cursor.execute('''INSERT OR REPLACE INTO evbets (bet_id, sport, team, odds, bet_EV, kelly_percent, date, kelly_wager) VALUES (?,?,?,?,?,?,?,?)''', 
+                        (bet_id, sport, team, int(odds), bet_ev, kelly_percent, date, kelly_wager))
+        for bookie in bookie_list:
+            cursor.execute('''INSERT OR REPLACE INTO evbets_bookies (bet_id, bookie) VALUES (?,?)''', (bet_id, bookie))
     
     conn.commit()
     conn.close()
@@ -236,7 +267,7 @@ def print_evbets():
 
     for bet in data:
         sport, bet_id, team, bookie_list, odds, bet_ev, kelly_percent, date, kelly_wager = bet
-        print(f"{bet_id:<34}{sport:<37}{team:<49}{bookie_list:<20}{odds:<6}{bet_ev:<10}{kelly_percent<10}{date:<12}")
+        print(f"{bet_id:<34}{sport:<37}{team:<49}{bookie_list:<20}{odds:<6}{bet_ev:<10}{kelly_percent<10}{date:<12}{kelly_wager<10}")
         print()
 
 
