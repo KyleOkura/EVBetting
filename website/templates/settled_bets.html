@@ -7,13 +7,7 @@
     <tr>
         <th>Date</th>
         <th>Team</th>
-        <th>
-            Bookie
-            <select id="sort-bookies" class="form-select">
-                <option value="asc">A-Z</option>
-                <option value="desc">Z-A</option>
-            </select>
-        </th>
+        <th>Bookie</th>
         <th>Type</th>
         <th>Odds</th>
         <th>EV</th>
@@ -43,24 +37,6 @@
         <th>Bets Won: {{bets_won}}       Bets Lost: {{bets_lost}}</th>
     </tr>
 </table>
-
-
-<script>
-    document.getElementById("sort-bookies").addEventListener("change", function() {
-        let order = this.value;
-        let table = document.querySelector("table");
-        let rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)")); // Skip header row
-
-        rows.sort((rowA, rowB) => {
-            let bookieA = rowA.cells[2].textContent.trim().toLowerCase();
-            let bookieB = rowB.cells[2].textContent.trim().toLowerCase();
-
-            return order === "asc" ? bookieA.localeCompare(bookieB) : bookieB.localeCompare(bookieA);
-        });
-
-        rows.forEach(row => table.appendChild(row));
-    });
-</script>
 {%endblock%}
 
 

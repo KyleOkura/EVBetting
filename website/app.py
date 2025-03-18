@@ -97,6 +97,8 @@ def select_bets():
             bet.append(round(kelly_wager, 2))
 
         update_evbets(evbets)
+        evbets = get_current_evbets()
+
 
         return render_template('select_bets.html', bets=evbets)
     
@@ -118,8 +120,7 @@ def take_bet():
     date = request.form['date']
     enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
 
-    evbets = get_current_evbets()
-    return render_template('select_bets.html', bets=evbets)
+    return redirect(url_for('select_bets'))
 
 @app.route('/current_bets', methods = ['GET'])
 def current_bets():
@@ -136,7 +137,7 @@ def all_bets():
 @app.route('/settled_bets', methods = ['GET'])
 def settled_bets():
     response = get_settled_bets()
-    settled_bets = response[0]
+    settled_bets = sorted(response[0], key=lambda bet: bet["date"])
     nums = response[1]
     results = response[2]
 

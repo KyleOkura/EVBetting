@@ -1,0 +1,26 @@
+
+fix select_bets to refresh with the bet missing when a bet is taken
+
+add transfer funds functionally to website
+add a delete bet to current bets
+add an edit bet to settled bets - maybe only include the button on all bets
+
+
+graphs with bets and bookie numbers over time?
+
+put a list of funcs at the top of bet history with inputs and outputs, and a descirption of what it does
+
+clean up code inside tworesult and threeresult? - and other places (variable names, efficiency)
+ - add comments
+
+
+ 
+expand bets to more than moneyline{
+    store pinnacle spread in new table (new func not moneyline)
+
+    if the spreads are the same just compare the juice with the spread
+    - can add different spread later?
+        - have to calculate how much a point costs in spread with each sport
+}
+
+

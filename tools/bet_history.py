@@ -173,7 +173,7 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
     bet_amount = int(bet_amount)
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
-                ''', (bet_id,sport, team, bet_type, bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
+                ''', (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, round(bet_EV*(bet_amount/100), 2), 'Pending', 0, date))
     
     cursor.execute('''DELETE FROM evbets WHERE bet_id = ?''', (bet_id,))
 
@@ -1029,17 +1029,6 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
     conn.commit()
     conn.close()
-
-
-
-
-
-
-
-
- 
-
-
 
 
 
