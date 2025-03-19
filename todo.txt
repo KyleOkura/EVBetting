@@ -3,7 +3,6 @@ fix select_bets to refresh with the bet missing when a bet is taken
 
 add transfer funds functionally to website
 add a delete bet to current bets
-add an edit bet to settled bets - maybe only include the button on all bets
 
 
 graphs with bets and bookie numbers over time?
