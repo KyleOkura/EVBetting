@@ -498,7 +498,7 @@ def display_bookie_bets(bookie):
         return
     
     print()
-    print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<49}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<5}{'Date':<12}")
+    print(f"{'Bet ID':<34}{'Sport':<37}{'Team':<55}{'Bet_Type':<12}{'Bookie':<13}{'Odds':<6}{'Bet Amount':<12}{'EV (/100)':<10}{'This EV':<10}{'Outcome':<10}{'Net':<7}{'Date':<12}")
     print("-" * 207)
 
     total_net = 0
@@ -512,7 +512,7 @@ def display_bookie_bets(bookie):
         if counter%4==0:
             print("- " * 104)
             counter=1
-        print(f"{bet_id:<34}{sport:<37}{team:<49}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<5}{date:<12}")
+        print(f"{bet_id:<34}{sport:<37}{team:<55}{bet_type:<12}{bookie:<13}{odds:<6}{bet_amount:<12}{bet_EV:<10}{this_EV:<10}{outcome:<10}{net:<7}{date:<12}")
         counter+=1
 
     print()
@@ -1029,8 +1029,6 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
     conn.commit()
     conn.close()
-
-display_bookie_bets('betrivers')
 
 
 """
