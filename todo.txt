@@ -4,6 +4,10 @@ fix select_bets to refresh with the bet missing when a bet is taken
 add transfer funds functionally to website
 add a delete bet to current bets
 
+edit bookie functional
+
+enter bet still wont take decimal
+
 
 graphs with bets and bookie numbers over time?
 
