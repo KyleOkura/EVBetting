@@ -1,5 +1,10 @@
 
-fix select_bets to refresh with the bet missing when a bet is taken
+411.87 ballybet to cash 4/1
+100 cash to fanduel 4/1
+
+
+
+
 
 add transfer funds functionally to website
 add a delete bet to current bets
