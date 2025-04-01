@@ -1,11 +1,4 @@
 
-411.87 ballybet to cash 4/1
-100 cash to fanduel 4/1
-
-
-
-
-
 add transfer funds functionally to website
 add a delete bet to current bets
 

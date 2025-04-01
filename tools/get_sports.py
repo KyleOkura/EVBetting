@@ -7,7 +7,8 @@ bookie_skip_list = ['onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_e
                     'marathonbet','matchbook','mybookieag','nordicbet', 'suprabets', 'winamax_fr', 'winamax_de',
                     'tipico_de','unibet_eu', 'williamhill', 
                     'betonlineag', 'betus', 'lowvig', 'betanysports',
-                    'betparx', 'fliff', 'hardrockbet', 'windcreek']
+                    'betparx', 'fliff', 'hardrockbet', 'windcreek', 'bovada',
+                    'betrivers', 'ballybet']
 
 three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australia_aleague', 'soccer_austria_bundesliga',
                             'soccer_belgium_first_div', 'soccer_brazil_campeonato', 'soccer_chile_campeonato',
