@@ -539,7 +539,7 @@ def get_bookie_wagerable_amount(bookie):
 
 
 def get_ev_bookies():
-    ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'cash', 'williamhill_us']
+    ev_bookie_list = ['cash', 'draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'williamhill_us']
     return ev_bookie_list
 
 
@@ -999,7 +999,7 @@ def get_bookie_deposit(bookie):
 
 
 
-def transfer_funds(sending_bookie, receive_bookie, amount):
+def transfer_bookie_funds(sending_bookie, receive_bookie, amount):
     if amount < 0:
         print("Not a valid amount")
         return
@@ -1029,9 +1029,6 @@ def transfer_funds(sending_bookie, receive_bookie, amount):
 
     conn.commit()
     conn.close()
-
-
-
 
 """
 def get_total_money_wagered_all_time():

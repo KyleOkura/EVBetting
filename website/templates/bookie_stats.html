@@ -3,7 +3,17 @@
 {% block title %}EV Betting{% endblock %}
 
 {% block content %}
-<h1>Bookie Stats</h1>
+<div style="clear: both">
+    <h1 style="float: left; padding-left: 20px">Bookie Stats</h1>
+    <div style="float: right; padding-right: 20px; padding-top: 13px">
+        <button class="btn btn-primary transfer-funds-btn" 
+                data-sending-bookie="temp"
+                data-receiving-bookie="temp" 
+                data-amount="0.0">
+                Tranfer Funds
+        </button>
+    </div>
+</div>
 <table>
     <thead>
         <tr>
@@ -33,4 +43,74 @@
         </tr>
     </tbody>
 </table>
+
+
+
+
+
+
+
+
+<div class="modal fade" id="betModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transfer Funds</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="betForm" action="/transfer_funds" method="POST">
+                    <div class="mb-3">
+                        <label for="sending-bookie" class="form-label">Sending Bookie:</label>
+                        <select name="sending_bookie" id="modal-sending-bookie" class="form-select" required>
+                            </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="receiving-bookie" class="form-label">Receiving Bookie:</label>
+                        <select name="receiving_bookie" id="modal-receiving-bookie" class="form-select" required>
+                            </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Bet Amount ($):</label>
+                        <input type="number" name="amount" id="modal-amount" class="form-control" min="1" step = "any" required>
+                        <!-- add step="any" above to test for decimal entries-->
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Confirm Transfer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const availableBookies = {{ bookies | tojson | safe}};
+
+        document.querySelector(".transfer-funds-btn").addEventListener("click", function() {
+            let sendingDropdown = document.getElementById("modal-sending-bookie");
+            let receivingDropdown = document.getElementById("modal-receiving-bookie");
+
+            sendingDropdown.innerHTML = "";
+            receivingDropdown.innerHTML = "";
+
+            availableBookies.forEach(bookie => {
+                let option = document.createElement("option");
+                option.value = bookie;
+                option.textContent = bookie;
+                sendingDropdown.appendChild(option.cloneNode(true));
+                receivingDropdown.appendChild(option);
+            });
+
+            new bootstrap.Modal(document.getElementById("betModal")).show();
+        });
+    });
+
+</script>
+
 {% endblock %}

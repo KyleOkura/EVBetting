@@ -1,4 +1,7 @@
 
+200 to fanduel
+100 to betmgm
+
 add transfer funds functionally to website
 add a delete bet to current bets
 

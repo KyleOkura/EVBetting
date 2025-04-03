@@ -16,6 +16,7 @@ from ..tools.bet_history import get_pending_ev
 from ..tools.bet_history import get_pending_wagered
 from ..tools.bet_history import get_current_evbets
 from ..tools.bet_history import update_evbets
+from ..tools.bet_history import transfer_bookie_funds
 
 import os
 import sqlite3
@@ -199,7 +200,21 @@ def bookie_stats():
 
     combined = zip(bookies, bankroll, wagered, wagerable, nets)
 
-    return render_template('bookie_stats.html', combined=combined, net_bankroll=totals[0], net_wagered=totals[1], net_wagerable=totals[2], net_total=totals[3])
+    return render_template('bookie_stats.html', combined=combined, net_bankroll=totals[0], net_wagered=totals[1], net_wagerable=totals[2], net_total=totals[3], bookies=bookies)
+
+@app.route('/transfer_funds', methods=["POST"])
+def transfer_funds():
+    send_bookie = request.form['sending_bookie']
+    receiving_bookie = request.form['receiving_bookie']
+    amount = int(request.form['amount'])
+
+    transfer_bookie_funds(send_bookie, receiving_bookie, amount)
+    update_bookie_values()
+
+    return redirect(url_for('bookie_stats'))
+
+
+
 
 
 """
