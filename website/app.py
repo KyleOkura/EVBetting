@@ -206,7 +206,7 @@ def bookie_stats():
 def transfer_funds():
     send_bookie = request.form['sending_bookie']
     receiving_bookie = request.form['receiving_bookie']
-    amount = int(request.form['amount'])
+    amount = float(request.form['amount'])
 
     transfer_bookie_funds(send_bookie, receiving_bookie, amount)
     update_bookie_values()
