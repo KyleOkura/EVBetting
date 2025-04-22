@@ -1,12 +1,10 @@
 import sqlite3
 from datetime import datetime
-import numpy as np
-import requests
 import os
-import json
+import matplotlib.pyplot as plt
 
 from .odds_calculator import american_to_decimal
-from .odds_calculator import american_payout
+
 '''
 FUNCTION LIST
 adapt_time(date)
@@ -939,26 +937,6 @@ def update_bookie_values():
     conn.close()
 
 
-"""
-HAVEN'T TESTED YET
-def withdrawal(bookie, amount):
-    bookie_wagerable = get_bookie_wagerable_amount(bookie)
-
-    if amount > bookie_wagerable or amount < 0:
-        print("Invalid input (insufficient funds or negative amount)")
-        return
-    
-    new_wagerable = bookie_wagerable - amount
-
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute('''FROM bookies SET wagerable = ? WHERE bookmaker = ?''',(new_wagerable, bookie))
-
-    conn.commit()
-    conn.close()
-"""
 
 def get_bookie_withdrawal(bookie):
     db_path = get_path()
@@ -1032,93 +1010,97 @@ def transfer_bookie_funds(sending_bookie, receive_bookie, amount):
 
 
 
-"""
-def get_total_money_wagered_all_time():
+
+
+def refresh_graphs():
     db_path = get_path()
     conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    cursor.execute('''SELECT wager_amount FROM bets''',())
-    response = cursor.fetchall()
-
+    cursor.execute('''SELECT * FROM bets ORDER BY date(date) ASC''')
+    data = cursor.fetchall()
     conn.close()
-    sum = 0
 
-    for bet in response:
-        sum += bet
+    bet_num = 0
 
-    return sum
+    running_net = 0
+    running_ev = 0
+    running_constant_bet_net = 0
+    running_constant_bet_ev = 0
 
-    
-print(get_total_money_wagered_all_time())
-"""
-
-"""
-bet_id VARCHAR(35) PRIMARY KEY,
-                sport VARCHAR(50),
-                team VARCHAR(50),
-                bet_type VARCHAR(50),
-                bookie VARCHAR(50),
-                odds INT,
-                bet_amount INT,
-                bet_EV INT,
-                this_EV INT,
-                outcome VARCHAR(10),
-                net INT,
-                date VARCHAR(10)
+    net_arr = []
+    ev_net_arr = []
+    constant_bet_arr = []
+    constant_bet_ev_arr = []
 
 
+    for bet in data:
+        if bet['outcome'] == 'win':
+            running_net += bet['net']
+            running_ev += bet['this_EV']
+            bet_num += 1
+            net_arr.append(running_net)
+            ev_net_arr.append(running_ev)
 
 
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   bookmaker VARCHAR(20),
-                   deposit_total float,
-                   withdrawal_total float,
-                   total_bankroll float,
-                   currently_wagered float,
-                   wagerable float,
-                   current_net float,
-                   bets_placed int,
-                   bets_settled int,
-                   bets_won int,
-                   bets_lost int
-    
+            odds = bet['odds']
+            if odds < 0:
+                constant_bet = (100/abs(odds)) * 5
+            else:
+                constant_bet = (odds/100) * 5
+            constant_bet_ev = bet['bet_EV']/20
 
-                   
+            running_constant_bet_net += constant_bet
+            running_constant_bet_ev += constant_bet_ev
 
-    cursor.execute('''DROP TABLE bookies;''')
+            constant_bet_arr.append(running_constant_bet_net)
+            constant_bet_ev_arr.append(running_constant_bet_ev)
 
-    cursor.execute('''
-                   CREATE TABLE bookies (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    bookmaker TEXT UNIQUE,
-    deposit_total REAL DEFAULT 0.0,
-    withdrawal_total REAL DEFAULT 0.0,
-    total_bankroll REAL DEFAULT 0.0,
-    currently_wagered REAL DEFAULT 0.0,
-    wagerable REAL DEFAULT 0.0,
-    current_net REAL DEFAULT 0.0,
-    bets_placed INTEGER DEFAULT 0,
-    bets_settled INTEGER DEFAULT 0,
-    bets_won INTEGER DEFAULT 0,
-    bets_lost INTEGER DEFAULT 0,
-    bets_pending INTEGER DEFAULT 0
-);
-                   ''')
-    
-    cursor.execute('''
-                    INSERT INTO bookies (bookmaker, deposit_total, withdrawal_total, total_bankroll, currently_wagered, wagerable, current_net, bets_placed, bets_settled, bets_won, bets_lost, bets_pending) VALUES
-('draftkings', 100.0, 0.0, 20.0, 20.0, 0.0, -80.0, 8, 7, 2, 5, 0),
-('fanduel', 100.0, 0.0, 6.65, 10.0, -3.35, -93.35, 30, 29, 5, 24, 0),
-('betmgm', 150.0, 0.0, -18.0, 20.0, -38.0, -168.0, 9, 7, 1, 6, 0),
-('betrivers', 100.0, 0.0, 143.63, 112.63, 31.0, 43.63, 60, 44, 9, 35, 0),
-('ballybet', 60.0, 0.0, 64.25, 35.0, 29.25, 4.25, 14, 11, 5, 6, 0),
-('espnbet', 10.0, 0.0, 40.0, 15.0, 25.0, 30.0, 13, 12, 3, 9, 0),
-('fanatics', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0);
-''')
+            
+        elif bet['outcome'] == 'loss':
+            running_net += bet['net']
+            running_ev += bet['this_EV']
+            bet_num += 1
+            net_arr.append(running_net)
+            ev_net_arr.append(running_ev)
+
+            constant_bet_ev = bet['bet_EV']/20
+
+            running_constant_bet_net -= 5
+            running_constant_bet_ev += constant_bet_ev
+
+            constant_bet_arr.append(running_constant_bet_net)
+            constant_bet_ev_arr.append(running_constant_bet_ev)
+
+        else:
+            continue
+
+
+    SCRIPT_DIR = os.path.dirname(__file__)
+    STATIC_PATH = os.path.join(SCRIPT_DIR, '..', 'website', 'static')
+    os.makedirs(STATIC_PATH, exist_ok=True)
 
 
 
+    plt.plot(range(len(net_arr)), net_arr)
+    plt.plot(range(len(ev_net_arr)), ev_net_arr)
+    plt.title("Running Net")
+    plt.xlabel("Bet Number")
+    plt.ylabel("Net Value")
+    #plt.savefig("website/static/graph1.png")
+    plt.savefig(os.path.join(STATIC_PATH, "graph1.png"))
+    plt.clf()
 
 
-"""
+    plt.plot(range(len(constant_bet_arr)), constant_bet_arr)
+    plt.plot(range(len(constant_bet_ev_arr)), constant_bet_ev_arr)
+    plt.title("Bet Size $5")
+    plt.xlabel("Bet Number")
+    plt.ylabel("Net Value")
+    #plt.savefig("website/static/graph2.png")
+    plt.savefig(os.path.join(STATIC_PATH, "graph2.png"))
+    plt.clf()
+
+
+#refresh_graphs()

@@ -17,6 +17,7 @@ from ..tools.bet_history import get_pending_wagered
 from ..tools.bet_history import get_current_evbets
 from ..tools.bet_history import update_evbets
 from ..tools.bet_history import transfer_bookie_funds
+from ..tools.bet_history import refresh_graphs
 
 import os
 import sqlite3
@@ -216,22 +217,11 @@ def transfer_funds():
 
 
 
+@app.route('/graphs')
+def graphs():
+    refresh_graphs()
 
-"""
-@app.route('/bets_graph', methods=['POST'])
-def bets_graph():
-    bets = get_all_bets()
-
-    expected_value_nums = []
-    net_nums = []
-
-    for bet in bets:
-        expected_value_nums.append(bet['this_EV'])
-        net_nums.append(bet['net'])
-
-
-    return jsonify({"actual": actual_profits, "expected": expected_profits})
-"""
+    return render_template('graphs.html')
 
 
 
