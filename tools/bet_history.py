@@ -1102,5 +1102,3 @@ def refresh_graphs():
     plt.savefig(os.path.join(STATIC_PATH, "graph2.png"))
     plt.clf()
 
-
-#refresh_graphs()
