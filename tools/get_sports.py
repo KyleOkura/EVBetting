@@ -42,6 +42,7 @@ sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_switzerl
 def get_sports(active, has_outrights):
     load_dotenv()
     API_KEY = os.getenv("API_KEY")
+    print(API_KEY)
     response = requests.get(f'https://api.the-odds-api.com/v4/sports/?apiKey={API_KEY}', params={
         'api_key': API_KEY,
     })

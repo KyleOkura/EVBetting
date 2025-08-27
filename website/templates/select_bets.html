@@ -66,7 +66,6 @@
                     <input type="hidden" name="sport" id="modal-sport">
                     <input type="hidden" name="odds" id="modal-odds">
                     <input type="hidden" name="ev" id="modal-ev">
-                    <input type="hidden" name="date" id="modal-date">
 
                     <div class="mb-3">
                         <label for="bookie" class="form-label">Select Bookie:</label>
@@ -78,6 +77,11 @@
                         <label for="amount" class="form-label">Bet Amount ($):</label>
                         <input type="number" name="amount" id="modal-amount" class="form-control" min="1" step = "any" required>
                         <!-- add step="any" above to test for decimal entries-->
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date:</label>
+                        <input type="date" name="date" id="modal-date" class="form-control" value="">
                     </div>
 
                     <button type="submit" class="btn btn-success">Confirm Bet</button>
