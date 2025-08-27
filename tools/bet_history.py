@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from .odds_calculator import american_to_decimal
 
@@ -1028,6 +1029,24 @@ def refresh_graphs():
     running_ev = 0
     running_constant_bet_net = 0
     running_constant_bet_ev = 0
+    bets_won_negative = 0
+    bets_lost_negative = 0
+    bets_won_100_200 = 0
+    bets_lost_100_200 = 0
+    bets_won_200_300 = 0
+    bets_lost_200_300 = 0
+    bets_won_300_400 = 0
+    bets_lost_300_400 = 0
+    bets_won_400_500 = 0
+    bets_lost_400_500 = 0
+    bets_won_500_600 = 0
+    bets_lost_500_600 = 0
+    bets_won_600_700 = 0
+    bets_lost_600_700 = 0
+    bets_won_700_800 = 0
+    bets_lost_700_800 = 0
+    bets_won_800_plus = 0
+    bets_lost_800_plus = 0
 
     net_arr = []
     ev_net_arr = []
@@ -1047,8 +1066,32 @@ def refresh_graphs():
             odds = bet['odds']
             if odds < 0:
                 constant_bet = (100/abs(odds)) * 5
+                bets_won_negative += 1
             else:
                 constant_bet = (odds/100) * 5
+                
+                match odds:
+                    case x if odds<0:
+                        bets_won_negative += 1
+                    case x if odds<200:
+                        bets_won_100_200 += 1
+                    case x if odds<300:
+                        bets_won_200_300 += 1
+                    case x if odds<400:
+                        bets_won_300_400 += 1
+                    case x if odds<500:
+                        bets_won_400_500 += 1
+                    case x if odds<600:
+                        bets_won_500_600 += 1
+                    case x if odds<700:
+                        bets_won_600_700 += 1
+                    case x if odds<800:
+                        bets_won_700_800 += 1
+                    case x if odds>=800:
+                        bets_won_800_plus += 1
+                    case _:
+                        print("not found")
+
             constant_bet_ev = bet['bet_EV']/20
 
             running_constant_bet_net += constant_bet
@@ -1073,6 +1116,29 @@ def refresh_graphs():
             constant_bet_arr.append(running_constant_bet_net)
             constant_bet_ev_arr.append(running_constant_bet_ev)
 
+            this_bet_odds = bet['odds']
+
+            match odds:
+                case x if this_bet_odds<0:
+                    bets_lost_negative += 1
+                case x if this_bet_odds<200:
+                    bets_lost_100_200 += 1
+                case x if this_bet_odds<300:
+                    bets_lost_200_300 += 1
+                case x if this_bet_odds<400:
+                    bets_lost_300_400 += 1
+                case x if this_bet_odds<500:
+                    bets_lost_400_500 += 1
+                case x if this_bet_odds<600:
+                    bets_lost_500_600 += 1
+                case x if this_bet_odds<700:
+                    bets_lost_600_700 += 1
+                case x if this_bet_odds<800:
+                    bets_lost_700_800 += 1
+                case x if this_bet_odds>=800:
+                    bets_lost_800_plus += 1
+                case _:
+                    print("not found")
         else:
             continue
 
@@ -1101,5 +1167,28 @@ def refresh_graphs():
     #plt.savefig("website/static/graph2.png")
     plt.savefig(os.path.join(STATIC_PATH, "graph2.png"))
     plt.clf()
+
+
+    negative_win_percentage = bets_won_negative/(bets_won_negative+bets_lost_negative)
+    odds_100_200_win_percentage = bets_won_100_200/(bets_won_100_200+bets_lost_100_200)
+    odds_200_300_win_percentage = bets_won_200_300/(bets_won_200_300+bets_lost_200_300)
+    odds_300_400_win_percentage = bets_won_300_400/(bets_won_300_400+bets_lost_300_400)
+    odds_400_500_win_percentage = bets_won_400_500/(bets_won_400_500+bets_lost_400_500)
+    odds_500_600_win_percentage = bets_won_500_600/(bets_won_500_600+bets_lost_500_600)
+    odds_600_700_win_percentage = bets_won_600_700/(bets_won_600_700+bets_lost_600_700)
+    odds_700_800_win_percentage = bets_won_700_800/(bets_won_700_800+bets_lost_700_800)
+    odds_800_plus_win_percentage = bets_won_800_plus/(bets_won_800_plus+bets_lost_800_plus)
+    odds_categories = ['<0', '100-200', '200-300', '300-400', '400-500', '500-600', '600-700', '700-800', '800+']
+
+    sns.barplot(x=odds_categories, y=[negative_win_percentage, odds_100_200_win_percentage, odds_200_300_win_percentage, odds_300_400_win_percentage, odds_400_500_win_percentage, odds_500_600_win_percentage, odds_600_700_win_percentage, odds_700_800_win_percentage, odds_800_plus_win_percentage])
+    plt.title("Win Percentage across Odds Ranges")
+    plt.xlabel("Odds Ranges")
+    plt.ylabel("Win Percentage")
+    plt.savefig(os.path.join(STATIC_PATH, "graph3.png"))
+    plt.clf()
+
+
+
+
 
 
