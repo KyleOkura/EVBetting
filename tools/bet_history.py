@@ -1048,6 +1048,16 @@ def refresh_graphs():
     bets_won_800_plus = 0
     bets_lost_800_plus = 0
 
+    net_negative = 0
+    net_100_200 = 0
+    net_200_300 = 0
+    net_300_400 = 0
+    net_400_500 = 0
+    net_500_600 = 0
+    net_600_700 = 0
+    net_700_800 = 0
+    net_800_plus = 0
+
     net_arr = []
     ev_net_arr = []
     constant_bet_arr = []
@@ -1073,22 +1083,31 @@ def refresh_graphs():
                 match odds:
                     case x if odds<0:
                         bets_won_negative += 1
+                        net_negative += bet['net']
                     case x if odds<200:
                         bets_won_100_200 += 1
+                        net_100_200 += bet['net']
                     case x if odds<300:
                         bets_won_200_300 += 1
+                        net_200_300 += bet['net']
                     case x if odds<400:
                         bets_won_300_400 += 1
+                        net_300_400 += bet['net']
                     case x if odds<500:
                         bets_won_400_500 += 1
+                        net_400_500 += bet['net']
                     case x if odds<600:
                         bets_won_500_600 += 1
+                        net_500_600 += bet['net']
                     case x if odds<700:
                         bets_won_600_700 += 1
+                        net_600_700 += bet['net']
                     case x if odds<800:
                         bets_won_700_800 += 1
+                        net_700_800 += bet['net']
                     case x if odds>=800:
                         bets_won_800_plus += 1
+                        net_800_plus += bet['net']
                     case _:
                         print("not found")
 
@@ -1118,25 +1137,34 @@ def refresh_graphs():
 
             this_bet_odds = bet['odds']
 
-            match odds:
+            match this_bet_odds:
                 case x if this_bet_odds<0:
                     bets_lost_negative += 1
+                    net_negative += bet['net']
                 case x if this_bet_odds<200:
                     bets_lost_100_200 += 1
+                    net_100_200 += bet['net']
                 case x if this_bet_odds<300:
                     bets_lost_200_300 += 1
+                    net_200_300 += bet['net']
                 case x if this_bet_odds<400:
                     bets_lost_300_400 += 1
+                    net_300_400 += bet['net']
                 case x if this_bet_odds<500:
                     bets_lost_400_500 += 1
+                    net_400_500 += bet['net']
                 case x if this_bet_odds<600:
                     bets_lost_500_600 += 1
+                    net_500_600 += bet['net']
                 case x if this_bet_odds<700:
                     bets_lost_600_700 += 1
+                    net_600_700 += bet['net']
                 case x if this_bet_odds<800:
                     bets_lost_700_800 += 1
+                    net_700_800 += bet['net']
                 case x if this_bet_odds>=800:
                     bets_lost_800_plus += 1
+                    net_800_plus += bet['net']
                 case _:
                     print("not found")
         else:
@@ -1154,7 +1182,7 @@ def refresh_graphs():
     plt.title("Running Net")
     plt.xlabel("Bet Number")
     plt.ylabel("Net Value")
-    #plt.savefig("website/static/graph1.png")
+    plt.legend(["running net", "running EV"])
     plt.savefig(os.path.join(STATIC_PATH, "graph1.png"))
     plt.clf()
 
@@ -1164,12 +1192,13 @@ def refresh_graphs():
     plt.title("Bet Size $5")
     plt.xlabel("Bet Number")
     plt.ylabel("Net Value")
+    plt.legend(["running net", "running EV"])
     #plt.savefig("website/static/graph2.png")
     plt.savefig(os.path.join(STATIC_PATH, "graph2.png"))
     plt.clf()
 
 
-    negative_win_percentage = bets_won_negative/(bets_won_negative+bets_lost_negative)
+    negative_win_percentage = bets_won_negative/(bets_won_negative+bets_lost_negative) if (bets_won_negative+bets_lost_negative)>0 else 0
     odds_100_200_win_percentage = bets_won_100_200/(bets_won_100_200+bets_lost_100_200)
     odds_200_300_win_percentage = bets_won_200_300/(bets_won_200_300+bets_lost_200_300)
     odds_300_400_win_percentage = bets_won_300_400/(bets_won_300_400+bets_lost_300_400)
@@ -1180,9 +1209,11 @@ def refresh_graphs():
     odds_800_plus_win_percentage = bets_won_800_plus/(bets_won_800_plus+bets_lost_800_plus)
     odds_categories = ['<0', '100-200', '200-300', '300-400', '400-500', '500-600', '600-700', '700-800', '800+']
 
-    sns.barplot(x=odds_categories, y=[negative_win_percentage, odds_100_200_win_percentage, odds_200_300_win_percentage, odds_300_400_win_percentage, odds_400_500_win_percentage, odds_500_600_win_percentage, odds_600_700_win_percentage, odds_700_800_win_percentage, odds_800_plus_win_percentage])
+    sns.barplot(x=odds_categories, y=[negative_win_percentage, odds_100_200_win_percentage, odds_200_300_win_percentage, odds_300_400_win_percentage, odds_400_500_win_percentage, odds_500_600_win_percentage, odds_600_700_win_percentage, odds_700_800_win_percentage, odds_800_plus_win_percentage], 
+                width=0.5)
     plt.title("Win Percentage across Odds Ranges")
     plt.xlabel("Odds Ranges")
+    plt.xticks(rotation=35)
     plt.ylabel("Win Percentage")
     plt.savefig(os.path.join(STATIC_PATH, "graph3.png"))
     plt.clf()
@@ -1190,5 +1221,12 @@ def refresh_graphs():
 
 
 
-
+    sns.barplot(x=odds_categories, y=[net_negative, net_100_200, net_200_300, net_300_400, net_400_500, net_500_600, net_600_700, net_700_800, net_800_plus],
+                width=0.5)
+    plt.title("Net across Odds Ranges")
+    plt.xlabel("Odds Ranges")
+    plt.xticks(rotation=35)
+    plt.ylabel("Net Amount")
+    plt.savefig(os.path.join(STATIC_PATH, "graph4.png"))
+    plt.clf()
 
