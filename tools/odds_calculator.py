@@ -138,7 +138,7 @@ def find_ev_bet_two_result(game_df):
         if home_ev > ev_cutoff:
             if home_team_best_line < odds_cutoff:
                 bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
-                percent_wager = kelly_criterion(home_true_pinnacle_prob, home_team_best_line)
+                percent_wager = kelly_criterion(home_true_pinnacle_prob, home_team_best_line)  * (2/3)
                 ret_list.append([home_team, bookie_list, home_team_best_line, home_ev, percent_wager])
 
 
@@ -146,7 +146,7 @@ def find_ev_bet_two_result(game_df):
             if away_team_best_line < odds_cutoff:
                 bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
 
-                percent_wager = kelly_criterion(away_true_pinnacle_prob, away_team_best_line)
+                percent_wager = kelly_criterion(away_true_pinnacle_prob, away_team_best_line) * (2/3)
 
                 ret_list.append([away_team, bookie_list, away_team_best_line, away_ev, percent_wager])
 
@@ -244,19 +244,18 @@ def find_ev_bet_three_result(game_df):
         if home_ev > ev_cutoff:
             if home_team_best_line < odds_cutoff:
                 bookie_list = list(game_df.columns[home_team_best_line_bookie_index_list])
-
-                percent_wager = kelly_criterion(home_true_pinnacle_prob, home_team_best_line)
+                percent_wager = kelly_criterion(home_true_pinnacle_prob, home_team_best_line) * (2/3)
                 ret_list.append([home_team, bookie_list, home_team_best_line, home_ev, percent_wager])
         if away_ev > ev_cutoff:
             if away_team_best_line < odds_cutoff:
                 bookie_list = list(game_df.columns[away_team_best_line_bookie_index_list])
-                percent_wager = kelly_criterion(away_true_pinnacle_prob, away_team_best_line)
+                percent_wager = kelly_criterion(away_true_pinnacle_prob, away_team_best_line) * (2/3)
 
                 ret_list.append([away_team, bookie_list, away_team_best_line, away_ev, percent_wager])
         if draw_ev > ev_cutoff:
             if draw_best_line < odds_cutoff:
                 bookie_list = list(game_df.columns[draw_best_line_bookie_index_list])
-                percent_wager = kelly_criterion(draw_true_pinnacle_prob, draw_best_line)
+                percent_wager = kelly_criterion(draw_true_pinnacle_prob, draw_best_line)  * (2/3)
 
                 draw_game = "draw (" + home_team + " v " + away_team + ")"
                 ret_list.append([draw_game, bookie_list, draw_best_line, draw_ev, percent_wager])
