@@ -14,8 +14,7 @@ three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australi
                             'soccer_belgium_first_div', 'soccer_brazil_campeonato', 'soccer_chile_campeonato',
                             'soccer_china_superleague', 'soccer_conmebol_copa_libertadores', 'soccer_denmark_superliga', 
                             'soccer_efl_champ', 'soccer_england_efl_cup', 'soccer_england_league1', 'soccer_england_league2', 
-                            'soccer_epl', 'soccer_fa_cup', 
-                            'soccer_germany_bundesliga2', 'soccer_germany_liga3', 'soccer_greece_super_league', 
+                            'soccer_epl', 'soccer_fa_cup', 'soccer_germany_liga3', 'soccer_greece_super_league', 
                             'soccer_italy_serie_a', 'soccer_italy_serie_b', 'soccer_japan_j_league', 'soccer_korea_kleague1', 
                             'soccer_league_of_ireland', 'soccer_mexico_ligamx', 'soccer_netherlands_eredivisie', 'soccer_norway_eliteserien', 
                             'soccer_poland_ekstraklasa', 'soccer_portugal_primeira_liga', 'soccer_spain_la_liga', 
@@ -36,7 +35,7 @@ two_result_sport_list = ['americanfootball_ncaaf', 'aussierules_afl', 'baseball_
                          'americanfootball_nfl_preseason', 'basketball_wnba', 'cricket_caribbean_premier_league', 'cricket_the_hundred', 'lacrosse_pll']
 
 sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_switzerland_superleague', 'tennis_atp_us_open', 'tennis_wta_us_open', 'soccer_france_ligue_one',
-                   'soccer_france_ligue_two']
+                   'soccer_france_ligue_two', 'soccer_germany_bundesliga2']
 
 
 def get_sports(active, has_outrights):
