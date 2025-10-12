@@ -1,4 +1,3 @@
-add bonus bet button
 add change bookie to edit bet
 change home page - just something different
 review graphs

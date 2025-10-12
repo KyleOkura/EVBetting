@@ -83,22 +83,36 @@
                     <input type="hidden" name="bet_id" id="modal-bet-id">
 
                     <div class="mb-3">
-                        <label for="odds" class="form-label">New Odds:</label>
+                        <label for="odds" class="form-label">Edit Odds:</label>
                         <input type="number" name="odds" id="modal-odds" class="form-control" value=0>
                     </div>
 
                     <div class="mb-3">
-                        <label for="date" class="form-label">New Date:</label>
+                        <label for="date" class="form-label">Edit Date:</label>
                         <input type="date" name="date" id="modal-date" class="form-control" value="">
                     </div>
 
                     <div class="mb-3">
-                        <label for="amount" class="form-label">New Amount:</label>
+                        <label for="amount" class="form-label">Edit Amount:</label>
                         <input type="number" name="amount" id="modal-amount" class="form-control" step="any" value=0>
                     </div>
 
                     <div class="mb-3">
-                        <label for="outcome" class="form-label">New Outcome:</label>
+                        <label for="bookie" class="form-label">Edit Bookie:</label>
+                        <select name="bookie" id="modal-bookie" class="form-select">
+                            <option value="draftkings">draftkings</option>
+                            <option value="fanduel">fanduel</option>
+                            <option value="betmgm">betmgm</option>
+                            <option value="betrivers">betrivers</option>
+                            <option value="ballybet">ballybet</option>
+                            <option value="espnbet">espnbet</option>
+                            <option value="fanatics">fanatics</option>
+                            <option value="williamhill_us">williamhill</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="outcome" class="form-label">Outcome:</label>
                         <select name="outcome" id="modal-outcome" class="form-select">
                             <option value="win">win</option>
                             <option value="loss">loss</option>
@@ -121,12 +135,14 @@
             let odds = $(this).data("odds");
             let date = $(this).data("date");
             let amount = $(this).data("amount");
+            let bookie = $(this).data("bookie");
             let outcome = $(this).data("outcome");
 
             $("#modal-bet-id").val(betId);
             $("#modal-odds").val(odds);
             $("#modal-date").val(date);
             $("#modal-amount").val(amount);
+            $("#modal-bookie").val(bookie);
             $("#modal-outcome").val(outcome);
 
             $("#editBetModal").modal("show");  // Correctly shows the modal

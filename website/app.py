@@ -19,6 +19,7 @@ from ..tools.bet_history import update_evbets
 from ..tools.bet_history import transfer_bookie_funds
 from ..tools.bet_history import refresh_graphs
 from ..tools.bet_history import enter_bonus_bet
+from ..tools.bet_history import update_bet_bookie
 
 import os
 import sqlite3
@@ -164,6 +165,7 @@ def edit_bet():
     bet_id = str(id)
     new_date = request.form.get('date', None)
     new_outcome = request.form.get('outcome', None) 
+    new_bookie = request.form.get('bookie', None)
 
     odds_str = request.form.get('odds', '').strip()
     new_odds = int(odds_str) if odds_str else 0
@@ -173,15 +175,14 @@ def edit_bet():
 
     if new_amount != 0:
         update_bet_amount(bet_id, new_amount)
-
     if new_odds != 0:
         update_bet_odds(bet_id, new_odds)
-
     if new_date is not None:
         update_date(bet_id, new_date)
-    
     if new_outcome is not None:
         update_outcome(bet_id, new_outcome)  
+    if new_bookie is not None:
+        update_bet_bookie(bet_id, new_bookie) 
 
     return redirect(url_for('current_bets')) 
 
