@@ -1,9 +1,18 @@
+add bonus bet button
+add change bookie to edit bet
+change home page - just something different
+review graphs
+
+
+
+
+
+
+
+
 
 important bankroll changes
 started with 1000 added 1000 after around 200 bets
-
 cashed bankroll at around 1800 at around 350 bets
-
 restarted with 2000 bankroll at around 350 bets
-
 was using full kelly criterion for bets up until 450, changed to 0.66 kelly bet sizing

@@ -18,6 +18,7 @@ from ..tools.bet_history import get_current_evbets
 from ..tools.bet_history import update_evbets
 from ..tools.bet_history import transfer_bookie_funds
 from ..tools.bet_history import refresh_graphs
+from ..tools.bet_history import enter_bonus_bet
 
 import os
 import sqlite3
@@ -117,12 +118,17 @@ def take_bet():
     sport = request.form['sport']
     team = request.form['team']
     bookie_choice = request.form['bookie']
-    bet_type = 'Moneyline'
+
     odds = int(request.form['odds'])
     bet_amount = float(request.form['amount'])
     bet_ev = round(float(request.form['ev']), 2)
     date = request.form['date']
-    enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
+
+    if request.form.get('bonus_bet'):
+        enter_bonus_bet(id, sport, team, bookie_choice, odds, bet_amount, bet_ev, date)
+    else:
+        bet_type = 'Moneyline'
+        enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
 
     return redirect(url_for('select_bets'))
 
