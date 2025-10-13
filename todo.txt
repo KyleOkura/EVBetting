@@ -1,4 +1,6 @@
-add change bookie to edit bet
+10 missing in fanduel for some reason idk where
+
+
 change home page - just something different
 review graphs
 
