@@ -35,15 +35,15 @@
             <td>{{ bet[8] }}</td>
             <td>{{ bet[7] }}</td> 
             <td>
-                <button class="btn btn-primary take-bet-btn" 
-                        data-bet-id="{{ bet[0] }}"
-                        data-team="{{ bet[2] }}" 
-                        data-sport="{{ bet[1] }}" 
-                        data-bookies="{{ ','.join(bet[3]) }}" 
-                        data-odds="{{ bet[4] }}" 
-                        data-ev="{{ bet[5] }}" 
-                        data-date="{{ bet[7] }}"
-                        data-amount="0.0">
+        <button class="btn btn-primary take-bet-btn" 
+            data-bet-id="{{ bet[0] }}"
+            data-team="{{ bet[2] }}" 
+            data-sport="{{ bet[1] }}" 
+            data-bookies="{{ ','.join(bet[3]) }}" 
+            data-odds="{{ bet[4] }}" 
+            data-ev="{{ bet[5] }}" 
+            data-date="{{ bet[7] }}"
+            data-amount="{{ bet[8] }}">
                     Take Bet
                 </button>
             </td>
@@ -108,7 +108,10 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
 <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
+        const betModalEl = document.getElementById('betModal');
+        const betModal = new bootstrap.Modal(betModalEl);
+
         $(".take-bet-btn").click(function() {
             let bet_id = $(this).data("bet-id");
             let team = $(this).data("team");
@@ -117,7 +120,11 @@
             let odds = $(this).data("odds");
             let ev = $(this).data("ev");
             let date = $(this).data("date");
-            let amount = $(this).data("amount");
+            let amount = parseFloat($(this).data("amount")) || 0;
+
+            // Round Kelly wager to nearest $5 for default amount
+            const roundToFive = x => Math.round(x / 5) * 5;
+            let roundedAmount = roundToFive(amount);
 
             $("#betModalTitle").text("Take Bet: " + team);
 
@@ -127,7 +134,7 @@
             $("#modal-odds").val(odds);
             $("#modal-ev").val(ev);
             $("#modal-date").val(date);
-            $("#modal-amount").val(amount);
+            $("#modal-amount").val(roundedAmount);
 
             let bookieDropdown = $("#modal-bookie");
             bookieDropdown.empty(); 
@@ -137,7 +144,7 @@
                 bookieDropdown.append(option);
             });
 
-            $("#betModal").modal("show");
+            betModal.show();
         });
 
         $("#betForm").submit(function(event) {
@@ -151,7 +158,7 @@
                 data: formData,
                 success: function(response) {
                     console.log("Success:", response);
-                    $("#betModal").modal("hide");
+                    betModal.hide();
                     alert("Bet placed successfully!");
                 },
                 error: function(error) {

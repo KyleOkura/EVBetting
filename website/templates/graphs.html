@@ -3,24 +3,200 @@
 {% block title %}Graphs{% endblock %}
 
 {% block content %}
-<div>
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <img src="../static/graph1.png">
-            </td>
-            <td>
-                <img src="../static/graph2.png">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <img src="../static/graph3.png">
-            </td>
-            <td>
-                <img src="../static/graph4.png">
-            </td>
-        </tr>
-    </table>
+<style>
+    /* Make each chart taller and full width for readability */
+    .chart-canvas { width: 100% !important; height: 360px !important; }
+</style>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <canvas id="runningChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <canvas id="constantChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <canvas id="oddsNetChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <canvas id="oddsWinChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+        <!-- Individual per-bookie charts container (one chart per sportsbook) -->
+        <div id="bookieIndividualContainer"></div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <canvas id="bookieChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function initCharts() {
+    const resp = await fetch('/graphs/data');
+    const data = await resp.json();
+
+    const colors = [
+        '#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'
+    ];
+
+        // Running net chart (running_net vs running_ev) using bet number on X axis (start at 0)
+        const indexLabels = Array.from({ length: data.labels.length + 1 }, (_, i) => i);
+        const runningNetSeries = [0].concat(data.running_net || []);
+        const runningEvSeries = [0].concat(data.running_ev || []);
+        const runningCtx = document.getElementById('runningChart').getContext('2d');
+        new Chart(runningCtx, {
+            type: 'line',
+            data: {
+                labels: indexLabels,
+                datasets: [
+                    { label: 'Running Net', data: runningNetSeries, borderColor: colors[0], tension: 0.15, pointRadius: 3, fill: false },
+                    { label: 'Running EV', data: runningEvSeries, borderColor: colors[1], tension: 0.15, pointRadius: 3, fill: false }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { tooltip: { enabled: true } },
+                scales: {
+                    x: { display: true, title: { display: true, text: 'Bet Number' }, ticks: { precision: 0 } },
+                    y: { display: true, title: { display: true, text: 'Net' } }
+                }
+            }
+        });
+
+        // Constant bet chart (X axis = bet number), start at 0
+        const constNetSeries = [0].concat(data.constant_bet_net || []);
+        const constEvSeries = [0].concat(data.constant_bet_ev || []);
+        const constCtx = document.getElementById('constantChart').getContext('2d');
+        new Chart(constCtx, {
+            type: 'line',
+            data: {
+                labels: indexLabels,
+                datasets: [
+                    { label: 'Constant $5 Net', data: constNetSeries, borderColor: colors[2], tension: 0.15, pointRadius: 3, fill: false },
+                    { label: 'Constant EV', data: constEvSeries, borderColor: colors[3], tension: 0.15, pointRadius: 3, fill: false }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { tooltip: { enabled: true } }, scales: { x: { title: { display: true, text: 'Bet Number' }, ticks: { precision: 0 } } } }
+        });
+
+    // Odds net bar chart (only net)
+    const oddsNetCtx = document.getElementById('oddsNetChart').getContext('2d');
+    new Chart(oddsNetCtx, {
+        type: 'bar',
+        data: {
+            labels: data.odds_categories,
+            datasets: [ { label: 'Net', data: data.odds_nets, backgroundColor: colors[4] } ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: true } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Odds win percentage (separate chart) scaled to 0-100 but with dynamic max close to tallest bar
+    const oddsWinCtx = document.getElementById('oddsWinChart').getContext('2d');
+    const winPercentData = data.odds_win_percentages.map(x => Math.round(x * 100 * 100) / 100); // two decimal places
+    const maxWin = winPercentData.length ? Math.max(...winPercentData) : 0;
+    // set max a bit above the tallest bar but not above 100
+    const yMax = Math.min(100, Math.ceil(maxWin * 1.15) || 10);
+    new Chart(oddsWinCtx, {
+        type: 'bar',
+        data: {
+            labels: data.odds_categories,
+            datasets: [ { label: 'Win %', data: winPercentData, backgroundColor: colors[5] } ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { tooltip: { enabled: true, callbacks: { label: ctx => `${ctx.parsed.y}%` } } },
+            scales: { y: { beginAtZero: true, max: yMax, title: { display: true, text: 'Win Percentage (%)' } } }
+        }
+    });
+
+        // Per-bookie cumulative line chart (X axis = bet number)
+        const bookieCtx = document.getElementById('bookieChart').getContext('2d');
+        // Combined per-bookie chart (start at 0). Exclude 'cash'.
+        const bookieKeys = Object.keys(data.per_bookie).filter(b => b.toLowerCase() !== 'cash');
+        const bookieDatasets = bookieKeys.map((b, i) => ({
+            label: b,
+            data: [0].concat(data.per_bookie[b] || []),
+            borderColor: colors[i % colors.length],
+            tension: 0.15,
+            pointRadius: 2,
+            fill: false
+        }));
+
+        new Chart(bookieCtx, {
+            type: 'line',
+            data: { labels: indexLabels, datasets: bookieDatasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'nearest', intersect: false },
+                plugins: { tooltip: { enabled: true } },
+                scales: { x: { display: true, title: { display: true, text: 'Bet Number' }, ticks: { precision: 0 } }, y: { display: true, title: { display: true, text: 'Net' } } }
+            }
+        });
+
+            // Create individual charts for each sportsbook. Each chart's X axis counts only that bookie's bets (1..N_bookie)
+            const individualContainer = document.getElementById('bookieIndividualContainer');
+            const indivBookies = data.per_bookie_individual || {};
+            const indivBookiesEv = data.per_bookie_individual_ev || {};
+            Object.keys(indivBookies).forEach((b, i) => {
+                const series = indivBookies[b] || [];
+                const seriesEv = indivBookiesEv[b] || [];
+                // skip empty series and skip cash
+                if (!series || series.length === 0) return;
+                if (b.toLowerCase() === 'cash') return;
+                // create a row and canvas for each bookie
+                const row = document.createElement('div');
+                row.className = 'row mb-4';
+                const col = document.createElement('div');
+                col.className = 'col-12';
+                const canvas = document.createElement('canvas');
+                const safeId = 'bookie_indiv_' + b.replace(/[^a-zA-Z0-9_\-]/g, '_');
+                canvas.id = safeId;
+                canvas.className = 'chart-canvas';
+                col.appendChild(canvas);
+                row.appendChild(col);
+                individualContainer.appendChild(row);
+
+                const ctx = canvas.getContext('2d');
+                // skip cash graphs
+                if (b.toLowerCase() === 'cash') return;
+                const labels = Array.from({ length: series.length + 1 }, (_, idx) => idx);
+                const seriesWithZero = [0].concat(series || []);
+                const evWithZero = [0].concat(seriesEv || []);
+                new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [
+                        { label: b + ' net', data: seriesWithZero, borderColor: colors[i % colors.length], tension: 0.15, pointRadius: 2, fill: false },
+                        { label: b + ' EV', data: evWithZero, borderColor: colors[(i+1) % colors.length], tension: 0.15, pointRadius: 2, fill: false, borderDash: [6,3] }
+                    ] },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { tooltip: { enabled: true } },
+                        scales: { x: { title: { display: true, text: 'Bet Number for ' + b }, ticks: { precision: 0 } }, y: { title: { display: true, text: 'Net' } } }
+                    }
+                });
+            });
+}
+
+document.addEventListener('DOMContentLoaded', initCharts);
+</script>
 {% endblock %}

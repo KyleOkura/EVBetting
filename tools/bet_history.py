@@ -314,6 +314,19 @@ def update_bookie(name, wagered_change, wagerable_change):
     conn.close()
     print("Close db update_bookie")
 
+
+def update_bet_type(bet_id, new_type):
+    """Update the bet_type for an existing bet."""
+    db_path = get_path()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE bets SET bet_type = ? WHERE bet_id = ?''', (new_type, bet_id))
+
+    conn.commit()
+    conn.close()
+    print("Close db update_bet_type")
+
     
 def get_total_bankroll():
     print("Open db get_total_bankroll")
