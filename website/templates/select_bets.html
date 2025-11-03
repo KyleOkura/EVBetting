@@ -56,14 +56,22 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Take Bet</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="betModalTitle">Take Bet</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="betForm">
                     <input type="hidden" name="bet_id" id="modal-bet-id">
-                    <input type="hidden" name="team" id="modal-team">
-                    <input type="hidden" name="sport" id="modal-sport">
+
+                    <div class="mb-3">
+                        <label for="modal-team" class="form-label">Team:</label>
+                        <input type="text" name="team" id="modal-team" class="form-control" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modal-sport" class="form-label">Sport:</label>
+                        <input type="text" name="sport" id="modal-sport" class="form-control" readonly>
+                    </div>
+
                     <input type="hidden" name="odds" id="modal-odds">
                     <input type="hidden" name="ev" id="modal-ev">
 
@@ -110,6 +118,8 @@
             let ev = $(this).data("ev");
             let date = $(this).data("date");
             let amount = $(this).data("amount");
+
+            $("#betModalTitle").text("Take Bet: " + team);
 
             $("#modal-bet-id").val(bet_id);
             $("#modal-team").val(team);

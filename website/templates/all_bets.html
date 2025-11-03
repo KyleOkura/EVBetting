@@ -4,7 +4,7 @@
 
 {% block content %}
 <table>
-    <thread>
+    <thead> <!-- Fixed typo: was <thread> -->
         <tr>
             <th>Date</th>
             <th>Team</th>
@@ -17,7 +17,7 @@
             <th>Outcome</th>
             <th>Edit</th>
         </tr>
-    </thread>
+    </thead>
     <tbody>
         {% for bet in bets %}
         <tr>
@@ -31,12 +31,16 @@
             <td>{{bet.this_EV}}</td>
             <td class="{{bet.outcome|lower}}">{{bet.outcome}}</td>
             <td>
+                <!-- MODIFIED BUTTON: Added all data attributes -->
                 <button class="btn btn-primary edit-bet-btn" 
                         data-bet-id="{{ bet.bet_id }}" 
                         data-odds="{{ bet.odds }}" 
                         data-date="{{ bet.date }}"
-                        data-amount="{{ bet.amount }}"
-                        data-result="{{ bet.result }}">
+                        data-amount="{{ bet.bet_amount }}"
+                        data-team="{{ bet.team }}"
+                        data-sport="{{ bet.sport }}"
+                        data-bookie="{{ bet.bookie }}"
+                        data-outcome="{{ bet.outcome }}">
                     Update
                 </button>
             </td>
@@ -49,156 +53,104 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Update Bet</h5>
+                <!-- MODIFIED TITLE: Added id="editBetModalTitle" -->
+                <h5 class="modal-title" id="editBetModalTitle">Update Bet</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editBetForm" method="POST" action="{{ url_for('edit_bet') }}">
                     <input type="hidden" name="bet_id" id="modal-bet-id">
 
+                    <!-- NEW FIELD: Read-only Team -->
                     <div class="mb-3">
-                        <label for="odds" class="form-label">New Odds:</label>
+                        <label for="modal-team" class="form-label">Team:</label>
+                        <input type="text" name="team" id="modal-team" class="form-control" readonly>
+                    </div>
+
+                    <!-- NEW FIELD: Read-only Sport -->
+                    <div class="mb-3">
+                        <label for="modal-sport" class="form-label">Sport:</label>
+                        <input type="text" name="sport" id="modal-sport" class="form-control" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="odds" class="form-label">Edit Odds:</label>
                         <input type="number" name="odds" id="modal-odds" class="form-control" value=0>
                     </div>
 
                     <div class="mb-3">
-                        <label for="date" class="form-label">New Date:</label>
+                        <label for="date" class="form-label">Edit Date:</label>
                         <input type="date" name="date" id="modal-date" class="form-control" value="">
                     </div>
 
                     <div class="mb-3">
-                        <label for="amount" class="form-label">New Amount:</label>
+                        <label for="amount" class="form-label">Edit Amount:</label>
                         <input type="number" name="amount" id="modal-amount" class="form-control" step="any" value=0>
                     </div>
 
+                    <!-- NEW FIELD: Added Bookie dropdown -->
                     <div class="mb-3">
-                        <label for="outcome" class="form-label">New Outcome:</label>
-                        <select name="outcome" id="modal-outcome" class="form-select">
-                            <option value="win">win</option>
-                            <option value="loss">loss</option>
-                            <option value="Pending">Pending</option>
-                            <option value="cancelled">cancelled</option>
+                        <label for="bookie" class="form-label">Edit Bookie:</label>
+                        <select name="bookie" id="modal-bookie" class="form-select">
+                            <option value="draftkings">draftkings</option>
+                            <option value="fanduel">fanduel</option>
+                            <option value="betmgm">betmgm</option>
+                            <option value="betrivers">betrivers</option>
+                            <option value="ballybet">ballybet</option>
+                            <option value="espnbet">espnbet</option>
+                            <option value="fanatics">fanatics</option>
+                            <option value="williamhill_us">williamhill</option>
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-success">Update Bet</button>
+                    <!-- **** MODIFIED OUTCOME SECTION **** -->
+                    <div class="mb-3">
+                        <label class="form-label">Update Outcome:</label>
+                        <!-- Each button has type="submit" and sends its own value for the 'outcome' field -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="outcome" value="win" class="btn btn-success">Win</button>
+                            <button type="submit" name="outcome" value="loss" class="btn btn-danger">Loss</button>
+                            <button type="submit" name="outcome" value="Pending" class="btn btn-secondary">Pending</button>
+                            <button type="submit" name="outcome" value="cancelled" class="btn btn-warning">Cancelled</button>
+                        </div>
+                    </div>
+                    <!-- **** END OF MODIFIED SECTION **** -->
+
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- MODIFIED SCRIPT -->
 <script>
     $(document).ready(function() {
         $(".edit-bet-btn").click(function() {
+            // Get all data from the button
             let betId = $(this).data("bet-id");
             let odds = $(this).data("odds");
             let date = $(this).data("date");
             let amount = $(this).data("amount");
-            let outcome = $(this).data("outcome");
+            let bookie = $(this).data("bookie");   // New
+            let team = $(this).data("team");       // New
+            let sport = $(this).data("sport");     // New
+            // 'outcome' is no longer needed here
 
+            // Set the modal title (New)
+            $("#editBetModalTitle").text("Update Bet: " + team); 
+
+            // Set values for all form fields
             $("#modal-bet-id").val(betId);
+            $("#modal-team").val(team);       // New
+            $("#modal-sport").val(sport);     // New
             $("#modal-odds").val(odds);
             $("#modal-date").val(date);
             $("#modal-amount").val(amount);
-            $("#modal-outcome").val(outcome);
+            $("#modal-bookie").val(bookie);   // New
+            // The line for #modal-outcome has been removed
 
-            $("#editBetModal").modal("show");  // Correctly shows the modal
+            $("#editBetModal").modal("show"); 
         });
     });
 </script>
 {% endblock %}
-
-
-
-
-
-<!----
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Bets</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .navbar {
-            overflow: hidden;
-            background-color: #333;
-        }
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-        .pending {
-        background-color: rgb(152, 140, 165); /* Change color as needed */
-        color: black;
-        }
-        .loss {
-            background-color: rgb(255, 102, 0);
-            color: rgb(0, 0, 0);
-        }
-        .win {
-            background-color: rgb(68, 243, 45);
-            color: rgb(0, 0, 0);
-        }
-    </style>
-</head>
-<body>
-    <h1>All Bets</h1>
-    <div class="navbar">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('run_all') }}">Find Bets</a>
-        <a href="{{ url_for('all_bets') }}">All Bets</a>
-        <a href="{{ url_for('current_bets') }}">Current Bets</a>
-        <a href="{{ url_for('settled_bets') }}">Settled Bets</a>
-    </div>
-    <table>
-        <tr>
-            <th>Date</th>
-            <th>Team</th>
-            <th>Sport</th>
-            <th>Bookie</th>
-            <th>Odds</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>EV</th>
-            <th>Outcome</th>
-        </tr>
-        {% for bet in bets %}
-        <tr>
-            <td>{{bet.date}} </td>
-            <td>{{bet.team}} </td>
-            <td>{{bet.sport}}</td>
-            <td>{{bet.bookie}}</td>
-            <td>{{bet.odds}}</td>
-            <td>{{bet.bet_type}}</td>
-            <td>{{bet.bet_amount}}</td>
-            <td>{{bet.this_EV}}</td>
-            <td class="{{bet.outcome|lower}}">{{bet.outcome}}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
-
---->
