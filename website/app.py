@@ -12,12 +12,14 @@ from ..tools.bet_history import update_bet_amount
 from ..tools.bet_history import update_bet_odds
 from ..tools.bet_history import update_date
 from ..tools.bet_history import update_bookie_values
+from ..tools.bet_history import update_bet_type
 from ..tools.bet_history import get_pending_ev
 from ..tools.bet_history import get_pending_wagered
 from ..tools.bet_history import get_current_evbets
 from ..tools.bet_history import update_evbets
 from ..tools.bet_history import transfer_bookie_funds
 from ..tools.bet_history import refresh_graphs
+from ..tools.bet_history import get_ev_bookies
 from ..tools.bet_history import enter_bonus_bet
 from ..tools.bet_history import update_bet_bookie
 
@@ -183,6 +185,10 @@ def edit_bet():
         update_outcome(bet_id, new_outcome)  
     if new_bookie is not None:
         update_bet_bookie(bet_id, new_bookie) 
+    # optional: update bet_type if provided (e.g., Moneyline or Bonus)
+    new_bet_type = request.form.get('bet_type', None)
+    if new_bet_type is not None:
+        update_bet_type(bet_id, new_bet_type)
 
     return redirect(url_for('current_bets')) 
 
@@ -229,6 +235,164 @@ def graphs():
     refresh_graphs()
 
     return render_template('graphs.html')
+
+
+@app.route('/graphs/data')
+def graphs_data():
+    """Return JSON used by interactive charts on the graphs page.
+    Computes:
+      - labels: list of dates (one per settled bet in chronological order)
+      - running_net: cumulative net over bets
+      - running_ev: cumulative EV over bets
+      - constant_bet_net / ev: constant $5 bet equivalent arrays
+      - per_bookie: dict mapping bookie -> cumulative net array (aligned with labels)
+      - odds_categories: list of category labels
+      - odds_win_percentages, odds_nets: arrays per category
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""SELECT date, bookie, net, odds, this_EV, outcome FROM bets
+                      WHERE outcome IN ('win','loss') ORDER BY date(date) ASC""")
+    rows = cursor.fetchall()
+
+    labels = []
+    running_net = []
+    running_ev = []
+    constant_bet_arr = []
+    constant_bet_ev_arr = []
+
+    bet_num = 0
+    r_net = 0
+    r_ev = 0
+    r_const_net = 0
+    r_const_ev = 0
+
+    # bookies list and per-bookie cumulative
+    bookies = get_ev_bookies()
+    per_bookie = {b: [] for b in bookies}
+    cum_bookie = {b: 0 for b in bookies}
+    # per-bookie individual series: cumulative net only when that bookie had a bet
+    per_bookie_individual = {b: [] for b in bookies}
+    per_bookie_individual_ev = {b: [] for b in bookies}
+    cum_bookie_ev = {b: 0 for b in bookies}
+
+    # odds category counters (same buckets as refresh_graphs)
+    cats = ['<0', '100-200', '200-300', '300-400', '400-500', '500-600', '600-700', '700-800', '800+']
+    win_counts = [0]*len(cats)
+    loss_counts = [0]*len(cats)
+    net_by_cat = [0]*len(cats)
+
+    def cat_index(odds):
+        try:
+            if odds < 0:
+                return 0
+            if odds < 200:
+                return 1
+            if odds < 300:
+                return 2
+            if odds < 400:
+                return 3
+            if odds < 500:
+                return 4
+            if odds < 600:
+                return 5
+            if odds < 700:
+                return 6
+            if odds < 800:
+                return 7
+            return 8
+        except Exception:
+            return 8
+
+    for row in rows:
+        date = row['date']
+        bookie = row['bookie']
+        net = row['net'] or 0
+        odds = row['odds'] or 0
+        this_ev = row['this_EV'] or 0
+        outcome = row['outcome']
+
+        # labels: use date per bet (keeps same length as original image plots)
+        labels.append(date)
+
+        # running totals
+        r_net += net
+        r_ev += this_ev
+        bet_num += 1
+        running_net.append(r_net)
+        running_ev.append(r_ev)
+
+        # constant $5 bet approx (same logic as refresh_graphs)
+        if outcome == 'win':
+            if odds < 0:
+                const = (100/abs(odds)) * 5
+            else:
+                const = (odds/100) * 5
+            const_ev = (row['odds'] and row['this_EV']) or (row['bet_EV'] / 20 if 'bet_EV' in row.keys() else 0)
+            r_const_net += const
+            r_const_ev += const_ev
+        else:  # loss
+            const = -5
+            const_ev = (row['odds'] and row['this_EV']) or 0
+            r_const_net += const
+            r_const_ev += const_ev
+
+        constant_bet_arr.append(r_const_net)
+        constant_bet_ev_arr.append(r_const_ev)
+
+        # per-bookie cumulative (aligned with overall labels)
+        if bookie not in cum_bookie:
+            # if an unexpected bookie appears, add it dynamically
+            cum_bookie[bookie] = 0
+            per_bookie[bookie] = [0] * (len(labels) - 1)
+            per_bookie_individual[bookie] = []
+            bookies.append(bookie)
+
+        cum_bookie[bookie] += net
+        for b in bookies:
+            per_bookie[b].append(cum_bookie.get(b, 0))
+
+        # per-bookie individual cumulative: append only when this row is for that bookie
+        if bookie not in per_bookie_individual:
+            per_bookie_individual[bookie] = []
+            per_bookie_individual_ev[bookie] = []
+            cum_bookie_ev[bookie] = 0
+        per_bookie_individual[bookie].append(cum_bookie[bookie])
+        # track per-bookie EV (cumulative for that bookie only)
+        cum_bookie_ev[bookie] += this_ev
+        per_bookie_individual_ev[bookie].append(cum_bookie_ev[bookie])
+
+        # odds buckets
+        idx = cat_index(odds)
+        if outcome == 'win':
+            win_counts[idx] += 1
+        else:
+            loss_counts[idx] += 1
+        net_by_cat[idx] += net
+
+    # compute win percentages safely
+    win_percentages = []
+    for w, l in zip(win_counts, loss_counts):
+        denom = w + l
+        win_percentages.append((w / denom) if denom > 0 else 0)
+
+    conn.close()
+
+    return jsonify({
+        'labels': labels,
+        'running_net': running_net,
+        'running_ev': running_ev,
+        'constant_bet_net': constant_bet_arr,
+        'constant_bet_ev': constant_bet_ev_arr,
+        'per_bookie': per_bookie,
+        'per_bookie_individual': per_bookie_individual,
+        'per_bookie_individual_ev': per_bookie_individual_ev,
+        'bookies': bookies,
+        'odds_categories': cats,
+        'odds_win_percentages': win_percentages,
+        'odds_nets': net_by_cat
+    })
 
 
 
