@@ -252,7 +252,7 @@ def graphs_data():
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute("""SELECT date, bookie, net, odds, this_EV, outcome FROM bets
+    cursor.execute("""SELECT date, bookie, net, odds, this_EV, bet_EV, bet_amount, outcome FROM bets
                       WHERE outcome IN ('win','loss') ORDER BY date(date) ASC""")
     rows = cursor.fetchall()
 
@@ -311,6 +311,8 @@ def graphs_data():
         net = row['net'] or 0
         odds = row['odds'] or 0
         this_ev = row['this_EV'] or 0
+        bet_ev_100 = row['bet_EV'] if 'bet_EV' in row.keys() else None
+        bet_amount = row['bet_amount'] if 'bet_amount' in row.keys() else None
         outcome = row['outcome']
 
         # labels: use date per bet (keeps same length as original image plots)
@@ -329,12 +331,23 @@ def graphs_data():
                 const = (100/abs(odds)) * 5
             else:
                 const = (odds/100) * 5
-            const_ev = (row['odds'] and row['this_EV']) or (row['bet_EV'] / 20 if 'bet_EV' in row.keys() else 0)
+            # Compute EV for a $5 stake. Prefer bet_EV (EV per 100 units) if available, else scale this_EV by stake ratio.
+            if bet_ev_100:
+                const_ev = bet_ev_100 / 20
+            elif bet_amount and bet_amount != 0:
+                const_ev = this_ev * (5.0 / bet_amount)
+            else:
+                const_ev = this_ev
             r_const_net += const
             r_const_ev += const_ev
         else:  # loss
             const = -5
-            const_ev = (row['odds'] and row['this_EV']) or 0
+            if bet_ev_100:
+                const_ev = bet_ev_100 / 20
+            elif bet_amount and bet_amount != 0:
+                const_ev = this_ev * (5.0 / bet_amount)
+            else:
+                const_ev = this_ev
             r_const_net += const
             r_const_ev += const_ev
 
