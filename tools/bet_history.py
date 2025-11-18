@@ -370,11 +370,12 @@ def update_outcome(bet_id, outcome):
     conn = sqlite3.connect(db_path)
 
     cursor = conn.cursor()
-    cursor.execute('''SELECT odds, bet_amount, bookie FROM bets WHERE bet_id = ?''', (bet_id,))
+    cursor.execute('''SELECT odds, bet_amount, bookie, bet_type FROM bets WHERE bet_id = ?''', (bet_id,))
     response = cursor.fetchall()
     odds = response[0][0]
     bet_amount = response[0][1]
     bookie = response[0][2]
+    bet_type = response[0][3]
     this_bet_net = 0
 
     if outcome == 'win':
@@ -383,7 +384,11 @@ def update_outcome(bet_id, outcome):
         else:
             this_bet_net = (odds/100) * bet_amount
     elif outcome == 'loss':
-        this_bet_net = -bet_amount
+        # For bonus bets, net is 0 when lost (no money wagered from bankroll)
+        if bet_type == 'Bonus':
+            this_bet_net = 0
+        else:
+            this_bet_net = -bet_amount
     else:
         this_bet_net = 0
 
