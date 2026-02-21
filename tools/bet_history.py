@@ -1250,5 +1250,7 @@ def refresh_graphs():
 
 
 
+#enter_bet('fd0e222c726a4a35247c335ffc2615f2', 'soccer_netherlands_eredivisie', 'Heerenveen', 'Moneyline', 'fanduel', 700, 10, 6, '2026-02-21')
 
 #display_all_bets()
+
