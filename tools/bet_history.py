@@ -1248,3 +1248,7 @@ def refresh_graphs():
     plt.savefig(os.path.join(STATIC_PATH, "graph4.png"))
     plt.clf()
 
+
+
+
+#display_all_bets()

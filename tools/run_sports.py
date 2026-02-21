@@ -88,11 +88,3 @@ def run_all_bets(sport_list):
         enter_bet(id, sport, team, bet_type, bookie_choice, odds, bet_amount, bet_ev, date)
     
     display_pending_bets()
-
-
-
-
-#sports = get_sports(active=True, has_outrights=False)
-#sports =['soccer_italy_serie_a']
-
-#print(run_all_bets(sports))

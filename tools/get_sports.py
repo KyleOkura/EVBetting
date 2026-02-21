@@ -9,7 +9,7 @@ bookie_skip_list = ['onexbet', 'sport888', 'betclic', 'betanysports', 'betfair_e
                     'betonlineag', 'betus', 'lowvig', 'betanysports',
                     'betparx', 'fliff', 'hardrockbet', 'windcreek', 'bovada',
                     'betrivers', 'ballybet', 'unibet_fr', 'unibet_it', 'unibet_nl', 'betclic_fr',
-                    'parionssport_fr', 'unibet_se', 'leovegas_se', 'codere_it']
+                    'parionssport_fr', 'unibet_se', 'leovegas_se', 'codere_it', 'soccer_usa_mls']
 
 three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australia_aleague', 'soccer_austria_bundesliga',
                             'soccer_belgium_first_div', 'soccer_brazil_campeonato', 'soccer_chile_campeonato',
@@ -21,7 +21,7 @@ three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australi
                             'soccer_poland_ekstraklasa', 'soccer_portugal_primeira_liga', 'soccer_spain_la_liga', 
                             'soccer_spain_segunda_division', 'soccer_spl', 'soccer_sweden_allsvenskan', 
                             'soccer_turkey_super_league', 'soccer_uefa_champs_league', 'soccer_uefa_europa_conference_league', 
-                            'soccer_uefa_europa_league', 'soccer_usa_mls', 'soccer_germany_bundesliga', 'soccer_brazil_serie_b', 
+                            'soccer_uefa_europa_league', 'soccer_germany_bundesliga', 'soccer_brazil_serie_b', 
                             'soccer_conmebol_copa_sudamericana', 'soccer_finland_veikkausliiga', 'soccer_sweden_superettan', 
                             'soccer_switzerland_superleague', 'soccer_uefa_champs_league_women', 'soccer_uefa_nations_league',
                             'soccer_fifa_world_cup_qualifiers_europe', 'soccer_concacaf_leagues_cup', 'soccer_fifa_world_cup_qualifiers_south_america',
