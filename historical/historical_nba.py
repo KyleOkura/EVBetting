@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import numpy as np
 from warnings import simplefilter
+from dotenv import load_dotenv
 
 import sys
 import os
@@ -13,20 +14,8 @@ from EVBetting.tools.odds_calculator import normalize_score
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
-# An api key is emailed to you when you sign up to a plan
-# Get a free API key at https://api.the-odds-api.com/
-#API_KEY = 'cb81bec595198c37776a7c7216aa95a5'
-API_KEY = 'fa53e41dfc61191562135b54ca8dee4d'
-
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-#
-# First get a list of in-season sports
-#   The sport 'key' from the response can be used to get odds in the next request
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
 
 
 def get_nba_dates_for_season(date):
