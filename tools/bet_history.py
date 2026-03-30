@@ -1,10 +1,35 @@
-import sqlite3
+import libsql
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from dotenv import load_dotenv
 
-from .odds_calculator import american_to_decimal
+from tools.odds_calculator import american_to_decimal
+
+load_dotenv()
+TURSO_URL = os.getenv("TURSO_URL")
+TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
+
+
+def _connect():
+    """Return a libsql connection to Turso."""
+    return libsql.connect(TURSO_URL, auth_token=TURSO_AUTH_TOKEN)
+
+
+def _rows_to_dicts(cursor) -> list[dict]:
+    """Convert all pending cursor results to a list of dicts (preserves column names)."""
+    cols = [d[0] for d in cursor.description]
+    return [dict(zip(cols, row)) for row in cursor.fetchall()]
+
+
+def _fetchone_dict(cursor) -> dict | None:
+    """Fetch one row as a dict, or None if no row."""
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    cols = [d[0] for d in cursor.description]
+    return dict(zip(cols, row))
 
 '''
 FUNCTION LIST
@@ -30,21 +55,8 @@ adds bookmaker
 
 '''
 
-def get_path():
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
-    db_path = os.path.join(root_dir, 'bet_history.db')
-    return db_path
-
-
-def adapt_datetime(date):
-    return date.isoformat()
-
-sqlite3.register_adapter(datetime, adapt_datetime)
-
-
 def create_tables():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS bets (
@@ -83,8 +95,7 @@ def create_tables():
     conn.close()
 
 def create_bookie_table():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''DROP TABLE bookies''')
@@ -108,8 +119,7 @@ def create_bookie_table():
     conn.close()
 
 def create_evbets_table():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''DROP TABLE evbets''')
@@ -138,13 +148,11 @@ def create_evbets_table():
 
 def get_bookies_table():
     print("Open db in get_bookies_table")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT * FROM bookies''')
-    bookies_data = cursor.fetchall()
+    bookies_data = _rows_to_dicts(cursor)
 
     total_bankroll = 0
     total_wagered = 0
@@ -165,8 +173,7 @@ def get_bookies_table():
 
 def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, date):
     print("Open db enter_bet")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     #print(f"bet_id: {bet_id}")
     bet_amount = int(bet_amount)
@@ -183,8 +190,7 @@ def enter_bet(bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, d
 
 def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date):
     print("Open db enter_bonus_bet")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     cursor.execute('''
     INSERT INTO bets (bet_id, sport, team, bet_type, bookie, odds, bet_amount, bet_EV, this_EV, outcome, net, date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)      
@@ -199,8 +205,7 @@ def enter_bonus_bet(bet_id, sport, team, bookie, odds, bet_amount, bet_EV, date)
 
 def get_current_evbets():
     print("Open db get_current_evbets")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     cursor.execute('''SELECT * FROM evbets''')
     bets = cursor.fetchall()
@@ -221,8 +226,7 @@ def get_current_evbets():
 
 def get_evbet_bookies(bet_id):
     print("Open db get_evbet_bookies")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     cursor.execute('''SELECT bookie FROM evbets_bookies WHERE bet_id = ?''', (bet_id,))
     data = cursor.fetchall()
@@ -238,8 +242,7 @@ def update_evbets(bets):
     print("Open db update_evbets")
     create_evbets_table()
     
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     for bet in bets:
         sport, bet_id, team, bookie_list, odds, bet_ev, kelly_percent, date, kelly_wager = bet
@@ -257,8 +260,7 @@ def update_evbets(bets):
 def print_evbets():
     print("Open db print_evbets")
     
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     cursor.execute('''SELECT * FROM evbets''')
     data = cursor.fetchall()
@@ -275,8 +277,7 @@ def print_evbets():
 
 def update_bookie(name, wagered_change, wagerable_change):
     print("Open db update_bookie")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     """
@@ -317,8 +318,7 @@ def update_bookie(name, wagered_change, wagerable_change):
 
 def update_bet_type(bet_id, new_type):
     """Update the bet_type for an existing bet."""
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''UPDATE bets SET bet_type = ? WHERE bet_id = ?''', (new_type, bet_id))
@@ -330,8 +330,7 @@ def update_bet_type(bet_id, new_type):
     
 def get_total_bankroll():
     print("Open db get_total_bankroll")
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     ev_bookie_list = ['draftkings', 'fanduel', 'betmgm', 'betrivers', 'ballybet', 'espnbet', 'fanatics', 'williamhill_us', 'cash']
@@ -354,8 +353,7 @@ def add_bookmaker(name, deposit, withdrawn, wagered, wagerable):
     bankroll = wagered + wagerable
     net = round(bankroll - deposit + withdrawn, 2)
 
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''INSERT INTO bookies (bookmaker, deposit_total, withdrawal_total, total_bankroll, currently_wagered, wagerable, current_net)
@@ -366,8 +364,7 @@ def add_bookmaker(name, deposit, withdrawn, wagered, wagerable):
     
 
 def update_outcome(bet_id, outcome):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
 
     cursor = conn.cursor()
     cursor.execute('''SELECT odds, bet_amount, bookie, bet_type FROM bets WHERE bet_id = ?''', (bet_id,))
@@ -403,8 +400,7 @@ def update_outcome(bet_id, outcome):
 
 
 def display_all_bets():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM bets")
@@ -432,8 +428,7 @@ def display_all_bets():
 
 
 def display_pending_bets():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'Pending'""")
@@ -462,8 +457,7 @@ def display_pending_bets():
 
 
 def display_settled_bets():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'loss' or outcome = 'win'""")
@@ -500,9 +494,7 @@ def display_settled_bets():
 
 
 def display_bookie_bets(bookie):
-    db_path = get_path()
-
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT * FROM bets WHERE bookie = ?''', (bookie,))
@@ -541,8 +533,7 @@ def display_bookie_bets(bookie):
 
 
 def get_bookie_wagerable_amount(bookie):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT wagerable FROM bookies WHERE bookmaker = ?''', (bookie,))
@@ -563,8 +554,7 @@ def get_ev_bookies():
 
 
 def delete_bookie(name):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''DELETE FROM bookies WHERE bookmaker = ?''', (name,))
@@ -573,8 +563,7 @@ def delete_bookie(name):
     conn.close()
 
 def reset_autoincrement():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''DELETE FROM sqlite_sequence WHERE name='bookies';''')
@@ -583,8 +572,7 @@ def reset_autoincrement():
     conn.close()
 
 def update_bookie_net(name, new_net):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''UPDATE bookies SET current_net = ? WHERE bookmaker = ?''', (new_net, name))
@@ -594,8 +582,7 @@ def update_bookie_net(name, new_net):
 
 
 def display_bookie_table():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT * FROM bookies''')
@@ -626,8 +613,7 @@ def display_bookie_table():
 
 
 def bet_exists(bet_id):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
     
     cursor.execute("SELECT 1 FROM bets WHERE bet_id = ?", (bet_id,))
@@ -643,8 +629,7 @@ def bet_exists(bet_id):
 
 
 def delete_bet(bet_id):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     
@@ -656,21 +641,18 @@ def delete_bet(bet_id):
 
 
 def get_all_bets():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM bets")
-    bets = cursor.fetchall()
+    bets = _rows_to_dicts(cursor)
 
     conn.close()
     return bets
         
 
 def get_pending_ids():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT bet_id FROM bets WHERE outcome = "Pending"''')
@@ -688,21 +670,18 @@ def get_pending_ids():
 
 
 def get_pending_bets():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'Pending'""")
-    bets = cursor.fetchall()
+    bets = _rows_to_dicts(cursor)
 
     conn.close()
 
     return bets
 
 def get_pending_ev():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     #conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -718,8 +697,7 @@ def get_pending_ev():
     return total_ev
 
 def get_pending_wagered():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     #conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -737,13 +715,11 @@ def get_pending_wagered():
 
 
 def get_settled_bets():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute("""SELECT * FROM bets WHERE outcome = 'loss' or outcome = 'win'""")
-    bets = cursor.fetchall()
+    bets = _rows_to_dicts(cursor)
 
     total_ev = 0
     total_net = 0
@@ -751,7 +727,7 @@ def get_settled_bets():
     bets_lost = 0
 
     for bet in bets:
-        this_ev = bet['this_ev']
+        this_ev = bet['this_EV']
         this_net = bet['net']
         total_ev += this_ev
         total_net += this_net
@@ -772,23 +748,20 @@ def get_settled_bets():
 
 
 def get_bet(bet_id):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM bets WHERE bet_id = ?", (bet_id,))
-    bet = cursor.fetchone()
+    bet = _fetchone_dict(cursor)
     if not bet:
         print("error")
-    
+
     conn.close()
     return bet
 
 
 #updates the odds and the EVs (/100 and for this bet)
 def update_bet_odds(bet_id, new_odds):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
 
     cursor = conn.cursor()
     cursor.execute('''SELECT bet_EV, bet_amount, odds FROM bets WHERE bet_id = ?''', (bet_id,))
@@ -812,8 +785,7 @@ def update_bet_odds(bet_id, new_odds):
 
     
 def update_date(bet_id, new_date):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
 
     cursor = conn.cursor()
     cursor.execute('''UPDATE bets SET date = ?  WHERE bet_id = ?''', (new_date, bet_id))
@@ -821,8 +793,7 @@ def update_date(bet_id, new_date):
     conn.close()
 
 def update_bet_bookie(bet_id, new_bookie):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
 
     cursor = conn.cursor()
     cursor.execute('''UPDATE bets SET bookie = ?  WHERE bet_id = ?''', (new_bookie, bet_id))
@@ -831,8 +802,7 @@ def update_bet_bookie(bet_id, new_bookie):
 
 #used to initially change bonus bets with negative nets
 def update_bet_net(bet_id, new_net):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
 
     cursor = conn.cursor()
     cursor.execute('''UPDATE bets SET net = ?  WHERE bet_id = ?''', (new_net, bet_id))
@@ -842,8 +812,7 @@ def update_bet_net(bet_id, new_net):
 
 
 def update_bet_amount(bet_id, new_amount):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
 
     cursor = conn.cursor()
     cursor.execute('''SELECT bet_EV, bet_amount, bookie FROM bets WHERE bet_id = ?''', (bet_id,))
@@ -869,8 +838,7 @@ def update_bookie_values():
     deposits = []
     withdraws = []
 
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     for bookie in ev_bookie_list:
@@ -958,8 +926,7 @@ def update_bookie_values():
 
 
 def get_bookie_withdrawal(bookie):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT withdrawal_total FROM bookies WHERE bookmaker=?''',(bookie,)) 
@@ -972,8 +939,7 @@ def deposit(bookie, amount):
     curr_deposit = get_bookie_deposit(bookie)
     new_deposit = curr_deposit + amount
 
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''UPDATE bookies SET deposit_total = ? WHERE bookmaker = ?''', (new_deposit, bookie))
@@ -984,8 +950,7 @@ def deposit(bookie, amount):
 
 
 def get_bookie_deposit(bookie):
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT deposit_total FROM bookies WHERE bookmaker=?''',(bookie,)) 
@@ -1017,8 +982,7 @@ def transfer_bookie_funds(sending_bookie, receive_bookie, amount):
     receive_bookie_deposit = get_bookie_deposit(receive_bookie)
     receive_booke_new_deposit = receive_bookie_deposit + amount
 
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''UPDATE bookies SET withdrawal_total = ?, wagerable = ? WHERE bookmaker = ?''',(sending_bookie_new_withdrawal, sending_bookie_new_wagerable, sending_bookie))
@@ -1032,13 +996,11 @@ def transfer_bookie_funds(sending_bookie, receive_bookie, amount):
 
 
 def refresh_graphs():
-    db_path = get_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''SELECT * FROM bets ORDER BY date(date) ASC''')
-    data = cursor.fetchall()
+    data = _rows_to_dicts(cursor)
     conn.close()
 
     bet_num = 0

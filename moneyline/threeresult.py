@@ -1,8 +1,8 @@
 #from ..tools.home import *
 import requests
-from ..tools.odds_calculator import *
+from tools.odds_calculator import *
 import pandas as pd
-from ..tools.get_sports import bookie_skip_list
+from tools.get_sports import bookie_skip_list
 from dotenv import load_dotenv
 import os
 
