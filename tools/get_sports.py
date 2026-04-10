@@ -21,8 +21,8 @@ three_result_sport_list = ['soccer_argentina_primera_division', 'soccer_australi
                             'soccer_poland_ekstraklasa', 'soccer_portugal_primeira_liga', 'soccer_spain_la_liga', 
                             'soccer_spl', 'soccer_sweden_allsvenskan', 
                             'soccer_turkey_super_league', 'soccer_uefa_champs_league', 'soccer_uefa_europa_conference_league', 
-                            'soccer_uefa_europa_league', 'soccer_germany_bundesliga', 'soccer_brazil_serie_b', 
-                            'soccer_conmebol_copa_sudamericana', 'soccer_finland_veikkausliiga', 'soccer_sweden_superettan', 
+                            'soccer_uefa_europa_league', 'soccer_germany_bundesliga', 
+                            'soccer_conmebol_copa_sudamericana', 'soccer_sweden_superettan', 
                             'soccer_switzerland_superleague', 'soccer_uefa_champs_league_women', 'soccer_uefa_nations_league',
                             'soccer_fifa_world_cup_qualifiers_europe', 'soccer_concacaf_leagues_cup', 'soccer_fifa_world_cup_qualifiers_south_america',
                             'soccer_uefa_champs_league_qualification']
@@ -36,7 +36,8 @@ two_result_sport_list = ['americanfootball_ncaaf', 'aussierules_afl', 'baseball_
                          'americanfootball_nfl_preseason', 'basketball_wnba', 'cricket_caribbean_premier_league', 'cricket_the_hundred', 'lacrosse_pll']
 
 sport_skip_list = ['tennis_atp_qatar_open', 'tennis_wta_dubai', 'soccer_switzerland_superleague', 'tennis_atp_us_open', 'tennis_wta_us_open', 'soccer_france_ligue_one',
-                   'soccer_france_ligue_two', 'soccer_germany_bundesliga2', 'soccer_italy_serie_b', 'soccer_germany_liga3', 'soccer_spain_segunda_division']
+                   'soccer_france_ligue_two', 'soccer_germany_bundesliga2', 'soccer_italy_serie_b', 'soccer_germany_liga3', 'soccer_spain_segunda_division', 
+                   'soccer_finland_veikkausliiga', 'soccer_brazil_serie_b']
 
 
 def get_sports(active, has_outrights):
